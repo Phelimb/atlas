@@ -1,5 +1,5 @@
 import datetime
-from atlas.vcf import VCF
+from atlas._vcf import VCF
 from atlas.schema import VariantSet
 from atlas.schema import VariantSetMetadata
 from atlas.schema import Variant
@@ -38,6 +38,7 @@ class TestAddNewVariantSet(BaseTest):
         # We create a global variant set as well as one for the individual VCF
         assert VariantSet.objects().count() == 2
         vs = VariantSet.objects()[0]
+        assert len(Variant.objects()[0].variant_sets) == 2       
         assert vs.name == "test.vcf"
 
 
@@ -108,6 +109,7 @@ class TestAddSecondVCF(BaseTest):
         assert VariantCallSet.objects().count() == 2
         assert VariantCall.objects().count() == 42
         assert Variant.objects().count() == 22
+        assert len(Variant.objects()[0].variant_sets) == 3
         assert len(
             Variant.objects.get(
                 names="UNION_BC_k31_var_147").variant_sets) == 3

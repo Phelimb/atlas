@@ -1,3 +1,4 @@
+from __future__ import print_function
 import vcf
 import os.path
 from mongoengine import DoesNotExist
@@ -59,6 +60,7 @@ class VCF(object):
                         genotype=call['GT'],
                         genotype_likelihoods=genotype_likelihoods)
                     self.calls.append(c)
+
         VariantCall.objects.insert(self.calls)
 
     def _get_or_create_variant(self, record):
@@ -66,7 +68,7 @@ class VCF(object):
             var_hash = make_var_hash(record.REF, record.POS, [
                 str(a) for a in record.ALT])
             v = Variant.objects.get(var_hash=var_hash)
-            v.add_to_variant_sets(self.variant_sets)
+            v.add_to_variant_set(self.vcf_variant_set)
         except DoesNotExist:
             try:
                 reference = self.references[record.CHROM]

@@ -422,10 +422,10 @@ class Variant(Document, CreateAndSaveMixin):
             self.start), "/".join(self.alternate_bases)])
 
     def add_to_variant_sets(self, variant_sets):
-        for vs in variant_sets:
-            if vs not in self.variant_sets:
-                self.variant_sets.append(vs)
-        self.save()
+        self.update(add_to_set__variant_sets=variant_sets)
+
+    def add_to_variant_set(self, variant_set):
+        self.update(add_to_set__variant_sets=[variant_set])    
 
     def __str__(self):
         return self.var_name

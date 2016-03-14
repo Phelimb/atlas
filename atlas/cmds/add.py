@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from atlas.utils import check_args
 from atlas.schema import ReferenceSet
 from atlas.schema import Reference
-from atlas.vcf import VCF
+from atlas._vcf import VCF
 
 """Adds variants to the database"""
 
