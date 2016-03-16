@@ -17,6 +17,7 @@ import logging
 
 from base import ArgumentParserWithDefaults
 from base import DEFAULT_DB_NAME
+from base import sequence_parser_mixin
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
 
@@ -54,6 +55,7 @@ def main():
         type=str,
         help='db_name',
         default=None)
+
     ##########
     # Add
     ##########
@@ -138,6 +140,38 @@ def main():
         help='kmer length',
         default=31)
     parser_make_probes.set_defaults(func=run_subtool)
+
+    # ##########
+    # # Genotype
+    # ##########
+    parser_geno = subparsers.add_parser(
+        'genotype',
+        parents=[sequence_parser_mixin],
+        help='genotype a sample using a probe set')
+    parser_geno.add_argument(
+        'panels',
+        metavar='panels',
+        type=str,
+        nargs='+',
+        help='panels')
+    parser_geno.add_argument(
+        '--expected_depth',
+        metavar='expected depth',
+        type=int,
+        help='expected depth',
+        default=None)
+    parser_geno.add_argument(
+        '-f',
+        '--force',
+        help='Force rebuilding of binaries',
+        default=False,
+        action="store_true")
+    parser_geno.add_argument(
+        '--force_gt',
+        help='Force genotype (no -/- genotypes)',
+        default=False,
+        action="store_true")
+    parser_geno.set_defaults(func=run_subtool)
 
     args = parser.parse_args()
     args.func(parser, args)
