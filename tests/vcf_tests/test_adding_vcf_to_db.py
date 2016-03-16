@@ -1,13 +1,13 @@
 import datetime
 from atlas._vcf import VCF
-from atlas.schema import VariantSet
-from atlas.schema import VariantSetMetadata
-from atlas.schema import Variant
-from atlas.schema import VariantCallSet
-from atlas.schema import VariantCall
+from ga4ghmongo.schema import VariantSet
+from ga4ghmongo.schema import VariantSetMetadata
+from ga4ghmongo.schema import Variant
+from ga4ghmongo.schema import VariantCallSet
+from ga4ghmongo.schema import VariantCall
 from mongoengine import connect
-from atlas.schema import ReferenceSet
-from atlas.schema import Reference
+from ga4ghmongo.schema import ReferenceSet
+from ga4ghmongo.schema import Reference
 
 DB = connect('atlas-test')
 
@@ -38,7 +38,7 @@ class TestAddNewVariantSet(BaseTest):
         # We create a global variant set as well as one for the individual VCF
         assert VariantSet.objects().count() == 2
         vs = VariantSet.objects()[0]
-        assert len(Variant.objects()[0].variant_sets) == 2       
+        assert len(Variant.objects()[0].variant_sets) == 2
         assert vs.name == "test.vcf"
 
 

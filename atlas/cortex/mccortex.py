@@ -100,7 +100,6 @@ class McCortexRunner(object):
         for panel in self.panels:
             cmd.extend(["-c", panel.filepath])
         cmd.append(self.ctx_tmp_filepath)
-        # print (cmd)
         return cmd
 
     @property

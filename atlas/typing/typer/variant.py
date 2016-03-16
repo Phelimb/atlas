@@ -2,7 +2,7 @@ from atlas.typing.typer.base import Typer
 from atlas.stats import log_lik_R_S_coverage
 from atlas.typing.typer.base import MIN_LLK
 
-from atlas.schema import VariantCall
+from ga4ghmongo.schema import VariantCall
 
 DEFAULT_ERROR_RATE = 0.05
 DEFAULT_MINOR_FREQ = 0.2

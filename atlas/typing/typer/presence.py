@@ -1,6 +1,6 @@
 from atlas.typing.typer.base import Typer
 from atlas.typing.typer.base import MIN_LLK
-from atlas.schema import SequenceCall
+from ga4ghmongo.schema import SequenceCall
 from atlas.stats import log_lik_depth
 from atlas.stats import percent_coverage_from_expected_coverage
 from math import log

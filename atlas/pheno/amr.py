@@ -3,8 +3,8 @@ import json
 from atlas.utils import unique
 from atlas.utils import flatten
 
-from atlas.schema import VariantCall
-from atlas.schema import SequenceCall
+from ga4ghmongo.schema import VariantCall
+from ga4ghmongo.schema import SequenceCall
 from atlas.utils import get_params
 
 from pprint import pprint

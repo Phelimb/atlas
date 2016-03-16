@@ -1,9 +1,9 @@
 # import sys
 # import os
 # from os import path
-# from atlas.schema import Variant
-# from atlas.schema import VariantSet
-# from atlas.schema import VariantCallSet
+# from ga4ghmongo.schema import Variant
+# from ga4ghmongo.schema import VariantSet
+# from ga4ghmongo.schema import VariantCallSet
 
 # sys.path.append(path.abspath("../"))
 

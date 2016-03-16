@@ -10,7 +10,7 @@ from Bio.Seq import Seq
 
 from atlas.panelgeneration import AlleleGenerator
 from atlas.panelgeneration import make_variant_probe
-from atlas.schema import Variant
+from ga4ghmongo.schema import Variant
 from atlas.utils import split_var_name
 from atlas.annotation.genes import GeneAminoAcidChangeToDNAVariants
 from atlas.panelgeneration.models import Mutation

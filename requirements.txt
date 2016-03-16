@@ -2,3 +2,4 @@ future
 Biopython
 mongoengine
 pyvcf
+ga4ghmongo

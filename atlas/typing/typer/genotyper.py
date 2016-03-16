@@ -15,8 +15,8 @@ from atlas.typing import Panel
 from atlas.typing.typer.presence import GeneCollectionTyper
 from atlas.typing.typer.variant import VariantTyper
 
-from atlas.schema import VariantCallSet
-from atlas.schema import Variant
+from ga4ghmongo.schema import VariantCallSet
+from ga4ghmongo.schema import Variant
 
 from atlas.cortex import McCortexRunner
 

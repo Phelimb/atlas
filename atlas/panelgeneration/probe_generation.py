@@ -5,12 +5,12 @@ from mongoengine import connect
 from mongoengine.connection import ConnectionError
 from pymongo.errors import ServerSelectionTimeoutError
 import logging
-from atlas.schema import Variant
+from ga4ghmongo.schema import Variant
 from atlas.utils import split_var_name
 from atlas.utils import flatten
 from atlas.utils import unique
 from atlas.panelgeneration import AlleleGenerator
-from atlas.schema import VariantSet
+from ga4ghmongo.schema import VariantSet
 
 # logging = logging.getLogger(__name__)
 # logging.setLevel(level=logging.DEBUG)

@@ -5,10 +5,10 @@ from atlas.annotation.genes import Gene
 from atlas.annotation.genes import GeneAminoAcidChangeToDNAVariants
 
 from atlas.panelgeneration import AlleleGenerator
-from atlas.schema import Variant
-from atlas.schema import VariantSet
-from atlas.schema import Reference
-from atlas.schema import ReferenceSet
+from ga4ghmongo.schema import Variant
+from ga4ghmongo.schema import VariantSet
+from ga4ghmongo.schema import Reference
+from ga4ghmongo.schema import ReferenceSet
 from atlas.utils import split_var_name
 
 from nose.tools import assert_raises

@@ -1,8 +1,8 @@
 from atlas.panelgeneration import AlleleGenerator
-from atlas.schema import Variant
-from atlas.schema import VariantSet
-from atlas.schema import Reference
-from atlas.schema import ReferenceSet
+from ga4ghmongo.schema import Variant
+from ga4ghmongo.schema import VariantSet
+from ga4ghmongo.schema import Reference
+from ga4ghmongo.schema import ReferenceSet
 from nose.tools import assert_raises
 from mongoengine import connect
 DB = connect('atlas-test')

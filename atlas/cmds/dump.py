@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 from mongoengine import connect
 
-from atlas.schema import Variant
+from ga4ghmongo.schema import Variant
 from atlas.panelgeneration import AlleleGenerator
 from atlas.panelgeneration import make_variant_probe
 

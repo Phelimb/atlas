@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from atlas.schema import VariantCall
-from atlas.schema import Variant
+from ga4ghmongo.schema import VariantCall
+from ga4ghmongo.schema import Variant
 
 from atlas.pheno.amr import TBPredictor
 

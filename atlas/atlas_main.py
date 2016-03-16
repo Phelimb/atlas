@@ -27,9 +27,10 @@ def run_subtool(parser, args):
         from atlas.cmds.dump import run
     elif args.command == "make-probes":
         from atlas.cmds.makeprobes import run
-        
+
     # run the chosen submodule.
     run(parser, args)
+
 
 def main():
     #########################################
