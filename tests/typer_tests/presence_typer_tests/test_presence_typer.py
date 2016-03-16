@@ -1,7 +1,7 @@
 from unittest import TestCase
-from atlas.typing import ProbeCoverage
-from atlas.typing import SequenceProbeCoverage
-from atlas.typing import PresenceTyper
+from mykatlas.typing import ProbeCoverage
+from mykatlas.typing import SequenceProbeCoverage
+from mykatlas.typing import PresenceTyper
 
 
 class PresenceTyperTest(TestCase):

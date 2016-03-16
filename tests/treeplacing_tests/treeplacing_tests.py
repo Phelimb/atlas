@@ -1,16 +1,16 @@
 # from unittest import TestCase
 
-# from atlas.treeplacing import Node
-# from atlas.treeplacing import Leaf
-# from atlas.treeplacing import Placer
+# from mykatlas.treeplacing import Node
+# from mykatlas.treeplacing import Leaf
+# from mykatlas.treeplacing import Placer
 # from nose.tools import assert_raises
 
-# from atlas.vcf2db import Reference
-# from atlas.vcf2db import VariantSet
-# from atlas.vcf2db import Variant
-# from atlas.vcf2db import VariantCallSet
-# from atlas.vcf2db import VariantCall
-# from atlas.typing import TypedVariant
+# from mykatlas.vcf2db import Reference
+# from mykatlas.vcf2db import VariantSet
+# from mykatlas.vcf2db import Variant
+# from mykatlas.vcf2db import VariantCallSet
+# from mykatlas.vcf2db import VariantCall
+# from mykatlas.typing import TypedVariant
 
 # from mongoengine import connect
 # from pymongo import MongoClient

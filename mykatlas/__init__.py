@@ -1,0 +1,1 @@
+from mykatlas import version

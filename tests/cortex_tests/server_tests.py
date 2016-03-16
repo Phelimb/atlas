@@ -1,6 +1,6 @@
 # import os
 # import sys
-# from atlas.cortex import McCortexQuery
+# from mykatlas.cortex import McCortexQuery
 # import copy
 # from Bio.Seq import Seq
 # from pprint import pprint

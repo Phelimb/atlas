@@ -1,6 +1,6 @@
-from atlas.stats import percent_coverage_from_expected_coverage
-from atlas.stats import log_factorial
-from atlas.stats import log_lik_depth
+from mykatlas.stats import percent_coverage_from_expected_coverage
+from mykatlas.stats import log_factorial
+from mykatlas.stats import log_lik_depth
 
 from math import log
 from math import exp

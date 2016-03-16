@@ -1,4 +1,4 @@
-from atlas.tools import ColourCovgsReader
+from mykatlas.tools import ColourCovgsReader
 from nose.tools import assert_raises
 
 

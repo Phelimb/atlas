@@ -1,5 +1,5 @@
 import datetime
-from atlas._vcf import VCF
+from mykatlas._vcf import VCF
 from ga4ghmongo.schema import VariantSet
 from ga4ghmongo.schema import VariantSetMetadata
 from ga4ghmongo.schema import Variant
