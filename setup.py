@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
     name='mykatlas',
-    version='0.0.1',
+    version='0.0.1.3',
     packages=[
         'mykatlas',
         'mykatlas.cmds',
@@ -15,8 +15,13 @@ setup(
     description='.',
     author='Phelim Bradley',
     author_email='wave@phel.im',
-    install_requires=['future','Biopython','mongoengine','pyvcf','ga4ghmongo'],
+    install_requires=[
+            'future',
+            'Biopython',
+            'mongoengine',
+            'pyvcf',
+            'ga4ghmongo'],
     entry_points={
-            'console_scripts': [
-                'atlas = atlas.atlas_main:main',
-            ]})
+        'console_scripts': [
+            'atlas = atlas.atlas_main:main',
+        ]})

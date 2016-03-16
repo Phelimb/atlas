@@ -14,9 +14,9 @@ class TestINDELAlleleGenerator():
         DB.drop_database('atlas-test')
 
         self.pg = AlleleGenerator(
-            reference_filepath="mykatlas./data/BX571856.1.fasta")
+            reference_filepath="mykatlas/data/BX571856.1.fasta")
         self.pg2 = AlleleGenerator(
-            reference_filepath="mykatlas./data/NC_000962.2.fasta")
+            reference_filepath="mykatlas/data/NC_000962.2.fasta")
         self.reference_set = ReferenceSet().create_and_save(name="ref_set")
         self.variant_set = VariantSet.create_and_save(
             name="this_vcf_file",
