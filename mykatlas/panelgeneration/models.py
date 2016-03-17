@@ -147,9 +147,9 @@ class AlleleGenerator(object):
                     v,
                     alternate_reference_segment,
                     context_combo)
-            except ValueError as e:
+            except (ValueError,AssertionError) as e:
                 m = "Could not process context combo %s. " % (
-                    ",".join([c.name for c in context_combo] + [v.name]))
+                    ",".join([c.var_name for c in context_combo] + [v.var_name]))
                 raise ValueError("\n".join([m, str(e)]))
             alternate = copy(background)
             i -= self._calculate_length_delta_from_variant_list(
@@ -157,8 +157,8 @@ class AlleleGenerator(object):
             if not "".join(
                     alternate[i:(i + len(v.reference_bases))]) == v.reference_bases:
                 raise ValueError("Could not process context combo %s. %s != %s " %
-                                 (",".join([c.name for c in context_combo] +
-                                           [v.name]), "".join(alternate[i:(i +
+                                 (",".join([c.var_name for c in context_combo] +
+                                           [v.var_name]), "".join(alternate[i:(i +
                                                                            len(v.reference_bases))]), v.reference_bases))
             else:
                 for alt in v.alternate_bases:
