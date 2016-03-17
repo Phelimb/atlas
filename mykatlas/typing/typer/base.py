@@ -9,11 +9,11 @@ class Typer(object):
             expected_depths,
             contamination_depths=[],
             error_rate=0.05,
-            force_gt=False):
+            included_filtered=True):
         self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths
         self.error_rate = error_rate
-        self.force_gt = force_gt
+        self.included_filtered = included_filtered
 
     def type(self, l):
         raise NotImplemented("Implemented in sub class")

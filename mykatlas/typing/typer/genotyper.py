@@ -219,7 +219,7 @@ class Genotyper(object):
             contamination_depths=[],
             base_json={},
             include_hom_alt_calls=False,
-            force_gt=False):
+            included_filtered=True):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -229,7 +229,7 @@ class Genotyper(object):
         self.variant_calls = {}
         self.sequence_calls = {}
         self.include_hom_alt_calls = include_hom_alt_calls
-        self.force_gt = force_gt
+        self.included_filtered = included_filtered
 
     def run(self):
         self._type()
@@ -256,7 +256,7 @@ class Genotyper(object):
         gt = VariantTyper(
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
-            force_gt=self.force_gt)
+            included_filtered=self.included_filtered)
 
         for probe_name, probe_coverages in self.variant_covgs.items():
             variant = self._create_variant(probe_name)

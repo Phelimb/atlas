@@ -11,9 +11,6 @@ import json
 
 def run(parser, args):
     args = parser.parse_args()
-    # check_args(args)
-
-    # panels = ["tb-species-extended"]
     verbose = True
     cp = CoverageParser(
         sample=args.sample,
@@ -40,7 +37,7 @@ def run(parser, args):
                    gene_presence_covgs=cp.covgs["presence"],
                    base_json=base_json,
                    contamination_depths=[],
-                   force_gt=args.force_gt)
+                   included_filtered=args.force_gt)
     gt.run()
     cp.remove_temporary_files()
     print(json.dumps(gt.out_json, indent=4))

@@ -64,12 +64,12 @@ def run(parser, args):
             with open(args.file, 'r') as infile:
                 reader = csv.reader(infile, delimiter="\t")
                 for row in reader:
-                    gene_name, pos, ref,alt, alphabet = row
+                    gene_name, pos, ref, alt, alphabet = row
                     if gene_name == "ref":
                         mutations.append(
                             Mutation(
                                 reference=reference,
-                                var_name="".join([ref, pos, alt]) ))                        
+                                var_name="".join([ref, pos, alt])))
                     else:
                         mutations.append(
                             Mutation(
