@@ -28,7 +28,8 @@ def run_subtool(parser, args):
         from mykatlas.cmds.dump import run
     elif args.command == "make-probes":
         from mykatlas.cmds.makeprobes import run
-
+    elif args.command == "genotype":
+        from mykatlas.cmds.genotype import run
     # run the chosen submodule.
     run(parser, args)
 

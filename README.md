@@ -57,6 +57,33 @@ You can deactivate at anytime by typing 'deactivate'.
 	    make-probes         make probes from a list of variants
 	    genotype            genotype a sample using a probe set
 
+### Make probes
+
+(venv)-bash-4.1$ ./mykatlas/atlas_main.py make-probes --help
+usage: atlas make-probes [-h] [--db_name db_name] [-q] [-v VARIANT] [-f FILE]
+                         [-g GENBANK] [-k KMER]
+                         reference_filepath
+
+positional arguments:
+  reference_filepath    reference_filepath
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --db_name db_name     db_name
+  -q, --quiet           do not output warnings to stderr
+  -v VARIANT, --variant VARIANT
+                        Variant in DNA positions e.g. A1234T
+  -f FILE, --file FILE  File containing variants as rows A1234T
+  -g GENBANK, --genbank GENBANK
+                        Genbank file containing genes as features
+  -k KMER, --kmer KMER  kmer length
+
+### Examples
+
+	mykrobe make-probes -f example-data/staph-panel.txt -g BX571856.1.gb BX571856.1.fasta
+
+	mykrobe make-probes -f example-data/tb-walker-2015-panel.txt -g data/NC_000962.3.gb data/NC_000962.3.fasta
+
 
 ### Paper, citation 
 

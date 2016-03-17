@@ -62,12 +62,19 @@ def run(parser, args):
     else:
         if args.file:
             with open(args.file, 'r') as infile:
-                reader = csv.reader(infile)
+                reader = csv.reader(infile, delimiter="\t")
                 for row in reader:
-                    mutations.append(
-                        Mutation(
-                            reference=reference,
-                            var_name=row[0]))
+                    gene_name, pos, ref,alt, alphabet = row
+                    if gene_name == "ref":
+                        mutations.append(
+                            Mutation(
+                                reference=reference,
+                                var_name="".join([ref, pos, alt]) ))                        
+                    else:
+                        mutations.append(
+                            Mutation(
+                                reference=reference,
+                                var_name=row[0]))
         else:
             mutations.extend(Mutation(reference=reference, var_name=v)
                              for v in args.variants)

@@ -361,15 +361,18 @@ class Mutation(object):
 
     @property
     def mut(self):
-        if self.gene.forward:
-            ref = self.ref
-            alt = self.alt
+        if self.gene is not None:
+            if self.gene.forward:
+                ref = self.ref
+                alt = self.alt
+            else:
+                ref = str(Seq(self.ref).reverse_complement())
+                alt = str(Seq(self.alt).reverse_complement())
+            r = self.standard_table.forward_table.get(ref, ref)
+            a = self.standard_table.forward_table.get(alt, alt)
+            return "".join([r, str(self.start), a])
         else:
-            ref = str(Seq(self.ref).reverse_complement())
-            alt = str(Seq(self.alt).reverse_complement())
-        r = self.standard_table.forward_table.get(ref, ref)
-        a = self.standard_table.forward_table.get(alt, alt)
-        return "".join([r, str(self.start), a])
+            return self.var_name
 
     @property
     def variant(self):
