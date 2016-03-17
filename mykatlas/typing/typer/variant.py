@@ -14,18 +14,18 @@ class VariantTyper(Typer):
     def __init__(self, expected_depths, contamination_depths=[],
                  error_rate=DEFAULT_ERROR_RATE,
                  minor_freq=DEFAULT_MINOR_FREQ,
-                 included_filtered=True):
+                 ignore_filtered=False):
         super(
             VariantTyper,
             self).__init__(
             expected_depths,
             contamination_depths,
             error_rate,
-            included_filtered=included_filtered)
+            ignore_filtered=ignore_filtered)
         self.method = "MAP"
         self.error_rate = error_rate
         self.minor_freq = minor_freq
-        self.included_filtered = included_filtered
+        self.ignore_filtered = ignore_filtered
 
         if len(expected_depths) > 1:
             raise NotImplementedError("Mixed samples not handled yet")
@@ -73,14 +73,14 @@ class VariantTyper(Typer):
         info = {"coverage": variant_probe_coverage.coverage_dict,
                 "expected_depths": self.expected_depths,
                 "contamination_depths": self.contamination_depths,
-                "filter" : "PASS"}
-        if gt == "-/-" and self.included_filtered:
+                "filter": "PASS"}
+        if gt == "-/-" and not self.ignore_filtered:
             if variant_probe_coverage.alternate_percent_coverage > variant_probe_coverage.reference_percent_coverage:
                 gt = "1/1"
                 info["filter"] = "MISSING_WT"
             else:
                 gt = "0/0"
-                info["filter"] = "MISSING_WT"                
+                info["filter"] = "MISSING_WT"
         return VariantCall.create(
             variant=variant,
             genotype=gt,

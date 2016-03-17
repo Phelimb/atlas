@@ -37,7 +37,7 @@ def run(parser, args):
                    gene_presence_covgs=cp.covgs["presence"],
                    base_json=base_json,
                    contamination_depths=[],
-                   included_filtered=args.force_gt)
+                   ignore_filtered=args.ignore_filtered)
     gt.run()
     cp.remove_temporary_files()
     print(json.dumps(gt.out_json, indent=4))

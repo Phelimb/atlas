@@ -168,10 +168,9 @@ def main():
         default=False,
         action="store_true")
     parser_geno.add_argument(
-        '--force_gt',
-        help='Force genotype (no -/- genotypes)',
-        default=False,
-        action="store_true")
+        '--ignore_filtered',
+        help="don't include filtered genotypes",
+        default=False)
     parser_geno.set_defaults(func=run_subtool)
 
     args = parser.parse_args()
