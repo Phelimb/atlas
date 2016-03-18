@@ -52,7 +52,7 @@ def seen_together(variants):
     return contexts + [[]]
 
 
-def make_variant_probe(al, variant, kmer, DB=None, no_backgrounds = False):
+def make_variant_probe(al, variant, kmer, DB=None, no_backgrounds=False):
     if no_backgrounds:
         context = []
     else:

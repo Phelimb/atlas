@@ -83,7 +83,8 @@ def run(parser, args):
         reference_filepath=args.reference_filepath,
         kmer=args.kmer)
     for mut in mutations:
-        variant_panel = make_variant_probe(al, mut.variant, args.kmer, DB=DB, no_backgrounds = args.no_backgrounds)
+        variant_panel = make_variant_probe(
+            al, mut.variant, args.kmer, DB=DB, no_backgrounds=args.no_backgrounds)
         if variant_panel is not None:
             if mut.gene:
                 sys.stdout.write(

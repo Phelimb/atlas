@@ -144,7 +144,7 @@ def main():
         '--no-backgrounds',
         help='Build panel against reference only ignoring nearby variants',
         default=False,
-        action="store_true")    
+        action="store_true")
     parser_make_probes.set_defaults(func=run_subtool)
 
     # ##########
