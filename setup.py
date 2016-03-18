@@ -1,7 +1,8 @@
 from setuptools import setup
+from mykatlas.version import __version__
 setup(
     name='mykatlas',
-    version='0.0.1.3',
+    version=__version__,
     packages=[
         'mykatlas',
         'mykatlas.cmds',
