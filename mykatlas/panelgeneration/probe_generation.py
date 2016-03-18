@@ -52,17 +52,20 @@ def seen_together(variants):
     return contexts + [[]]
 
 
-def make_variant_probe(al, variant, kmer, DB=None):
-    if DB is not None:
-        try:
-            context = get_context(variant.start, kmer)
-        except (ServerSelectionTimeoutError, ConnectionError):
-            DB = None
-            context = []
-            logging.warning(
-                "Could not connect to database. Continuing without using genetic backgrounds")
-    else:
+def make_variant_probe(al, variant, kmer, DB=None, no_backgrounds = False):
+    if no_backgrounds:
         context = []
+    else:
+        if DB is not None:
+            try:
+                context = get_context(variant.start, kmer)
+            except (ServerSelectionTimeoutError, ConnectionError):
+                DB = None
+                context = []
+                logging.warning(
+                    "Could not connect to database. Continuing without using genetic backgrounds")
+        else:
+            context = []
     variant_probe = None
     contexts_seen_together = seen_together(context)
     alts = []

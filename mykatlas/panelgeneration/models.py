@@ -147,7 +147,7 @@ class AlleleGenerator(object):
                     v,
                     alternate_reference_segment,
                     context_combo)
-            except (ValueError,AssertionError) as e:
+            except (ValueError, AssertionError) as e:
                 m = "Could not process context combo %s. " % (
                     ",".join([c.var_name for c in context_combo] + [v.var_name]))
                 raise ValueError("\n".join([m, str(e)]))
@@ -159,7 +159,7 @@ class AlleleGenerator(object):
                 raise ValueError("Could not process context combo %s. %s != %s " %
                                  (",".join([c.var_name for c in context_combo] +
                                            [v.var_name]), "".join(alternate[i:(i +
-                                                                           len(v.reference_bases))]), v.reference_bases))
+                                                                               len(v.reference_bases))]), v.reference_bases))
             else:
                 for alt in v.alternate_bases:
                     alternate[i: i + len(v.reference_bases)] = alt

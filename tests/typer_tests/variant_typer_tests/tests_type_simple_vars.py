@@ -235,5 +235,5 @@ class VariantTyperWithLowMinimum(TestCase):
                                   )
 
         call = self.vt_no_contaim.type(v1)
-        assert call.genotype == [0,0]
+        assert call.genotype == [0, 0]
         assert call.info["filter"] != "PASS"

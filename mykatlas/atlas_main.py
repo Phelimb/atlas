@@ -140,6 +140,11 @@ def main():
         type=int,
         help='kmer length',
         default=31)
+    parser_make_probes.add_argument(
+        '--no-backgrounds',
+        help='Build panel against reference only ignoring nearby variants',
+        default=False,
+        action="store_true")    
     parser_make_probes.set_defaults(func=run_subtool)
 
     # ##########
