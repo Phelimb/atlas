@@ -1,12 +1,16 @@
----
-title: "Frequently Asked Questions"
-excerpt: ""
----
+#  Frequently Asked Questions
+
+
 ## mccortex fails to make. 
+
+
 
 Likely problem: Submodules have not been pulled with the repo. 
 
+
+
 Solution : Run 
+
 	
-	git pull && git submodule update --init --recursive
+
 	cd mccortex && make

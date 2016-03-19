@@ -1,93 +1,133 @@
----
-title: "Genotyping (atlas genotype)"
-excerpt: ""
----
+#  Genotyping (atlas genotype)
+
+
 Atlas can currently genotype small variants, SNPs, INDELs as well as typing gene versions within a gene family. 
-[block:api-header]
-{
-  "type": "basic",
-  "title": "1. Download a probe set"
-}
-[/block]
+
+## 1. Download a probe set
+
 *M. tuberculosis* SNP probe set: https://www.dropbox.com/s/vmaqfmeiqeka7jk/panel_tb_k31_2016-03-18.fasta.gz?dl=1
-[block:callout]
-{
-  "type": "info",
-  "title": "Or build your own",
-  "body": "See [\"Building a probeset:](https://mykrobe-atlas.readme.io/docs/building-a-probe-set)"
-}
-[/block]
 
-[block:api-header]
-{
-  "type": "basic",
-  "title": "Genotype using a probe set"
-}
-[/block]
+## ! Or build your own !
 
-[block:code]
-{
-  "codes": [
-    {
-      "code": "usage: atlas genotype [-h] [-k kmer] [--tmp TMP] [--skeleton_dir SKELETON_DIR]\n                      [--mccortex31_path MCCORTEX31_PATH] [-q]\n                      [--expected_depth expected depth] [-f]\n                      [--ignore_filtered IGNORE_FILTERED]\n                      sample seq [seq ...] panels [panels ...]\n\npositional arguments:\n  sample                sample id\n  seq                   sequence files (fastq or bam)\n  panels                panels\n\noptional arguments:\n  -h, --help            show this help message and exit\n  -k kmer, --kmer kmer  kmer length (default:21)\n  --tmp TMP             tmp directory (default: /tmp/)\n  --skeleton_dir SKELETON_DIR\n                        directory for skeleton binaries\n  --mccortex31_path MCCORTEX31_PATH\n                        Path to mccortex31\n  -q, --quiet           do not output warnings to stderr\n  --expected_depth expected depth\n                        expected depth\n  -f, --force           Force rebuilding of binaries\n  --ignore_filtered IGNORE_FILTERED\n                        don't include filtered genotypes",
-      "language": "text"
-    }
-  ]
-}
-[/block]
+	 See ["Building a probeset:](https://mykrobe-atlas.readme.io/docs/building-a-probe-set) 
+
+
+
+## Genotype using a probe set
+
+
+
+	 usage: atlas genotype [-h] [-k kmer] [--tmp TMP] [--skeleton_dir SKELETON_DIR]
+	                      [--mccortex31_path MCCORTEX31_PATH] [-q]
+	                      [--expected_depth expected depth] [-f]
+	                      [--ignore_filtered IGNORE_FILTERED]
+	                      sample seq [seq ...] panels [panels ...]
+	
+	positional arguments:
+	  sample                sample id
+	  seq                   sequence files (fastq or bam)
+	  panels                panels
+	
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -k kmer, --kmer kmer  kmer length (default:21)
+	  --tmp TMP             tmp directory (default: /tmp/)
+	  --skeleton_dir SKELETON_DIR
+	                        directory for skeleton binaries
+	  --mccortex31_path MCCORTEX31_PATH
+	                        Path to mccortex31
+	  -q, --quiet           do not output warnings to stderr
+	  --expected_depth expected depth
+	                        expected depth
+	  -f, --force           Force rebuilding of binaries
+	  --ignore_filtered IGNORE_FILTERED
+	                        don't include filtered genotypes 
 To genotype using the variant probe set on sample `:sample`
-[block:code]
-{
-  "codes": [
-    {
-      "code": "atlas genotype :sample sample_*.fastq.gz  panel_tb_k31_2016-03-18.fasta.gz",
-      "language": "shell"
-    }
-  ]
-}
-[/block]
+
+	 atlas genotype :sample sample_*.fastq.gz  panel_tb_k31_2016-03-18.fasta.gz 
 Output: 
 
-[block:code]
-{
-  "codes": [
-    {
-      "code": "...\n\"variant_calls\": {\n            \"rpoB_N438S-AAC761118AGT\": {\n                \"info\": {\n                    \"filter\": \"PASS\",\n                    \"contamination_depths\": [],\n                    \"coverage\": {\n                        \"alternate\": {\n                            \"percent_coverage\": 45.0,\n                            \"median_depth\": 0.0,\n                            \"min_non_zero_depth\": 1.0\n                        },\n                        \"reference\": {\n                            \"percent_coverage\": 100.0,\n                            \"median_depth\": 44.0,\n                            \"min_non_zero_depth\": 36.0\n                        }\n                    },\n                    \"expected_depths\": [\n                        56.0\n                    ]\n                },\n                \"_cls\": \"Call.VariantCall\",\n                \"genotype\": [\n                    0,\n                    0\n                ],\n                \"genotype_likelihoods\": [\n                    -5.135130090343647,\n                    -99999999.0,\n                    -99999999.0\n                ]\n            },\n  ...\n}",
-      "language": "json"
-    }
-  ]
-}
-[/block]
 
-[block:api-header]
-{
-  "type": "basic",
-  "title": "Genotype gene panel"
-}
-[/block]
+
+	 ...
+	"variant_calls": {
+	            "rpoB_N438S-AAC761118AGT": {
+	                "info": {
+	                    "filter": "PASS",
+	                    "contamination_depths": [],
+	                    "coverage": {
+	                        "alternate": {
+	                            "percent_coverage": 45.0,
+	                            "median_depth": 0.0,
+	                            "min_non_zero_depth": 1.0
+	                        },
+	                        "reference": {
+	                            "percent_coverage": 100.0,
+	                            "median_depth": 44.0,
+	                            "min_non_zero_depth": 36.0
+	                        }
+	                    },
+	                    "expected_depths": [
+	                        56.0
+	                    ]
+	                },
+	                "_cls": "Call.VariantCall",
+	                "genotype": [
+	                    0,
+	                    0
+	                ],
+	                "genotype_likelihoods": [
+	                    -5.135130090343647,
+	                    -99999999.0,
+	                    -99999999.0
+	                ]
+	            },
+	  ...
+	} 
+
+
+## Genotype gene panel
+
 E.g. Ecoli/Kleb AMR gene families
+
+
 
 https://www.dropbox.com/s/s8131cil1bh44mj/gn-amr-genes.fasta.gz?dl=1
 
 
-[block:code]
-{
-  "codes": [
-    {
-      "code": "atlas genotype :sample sample_*.fastq.gz  gn-amr-genes.fasta.gz",
-      "language": "shell"
-    }
-  ]
-}
-[/block]
 
-[block:code]
-{
-  "codes": [
-    {
-      "code": "...\n\t\"sequence_calls\": {\n   \t...\"tem\": {\n                \"info\": {\n                    \"copy_number\": 7.3,\n                    \"contamination_depths\": [],\n                    \"version\": \"1\",\n                    \"coverage\": {\n                        \"percent_coverage\": 100.0,\n                        \"median_depth\": 73.0,\n                        \"min_non_zero_depth\": 60.0\n                    },\n                    \"expected_depths\": [\n                        10\n                    ]\n                },\n                \"_cls\": \"Call.SequenceCall\",\n                \"genotype\": [\n                    1,\n                    1\n                ],\n                \"genotype_likelihoods\": [\n                    -579.4562725801134,\n                    -294.3685931838587,\n                    -103.68092850339738\n                ]\n            }\n        },\n\t...\n...",
-      "language": "json"
-    }
-  ]
-}
-[/block]
+
+
+	 atlas genotype :sample sample_*.fastq.gz  gn-amr-genes.fasta.gz 
+
+
+	 ...
+		"sequence_calls": {
+	   	..."tem": {
+	                "info": {
+	                    "copy_number": 7.3,
+	                    "contamination_depths": [],
+	                    "version": "1",
+	                    "coverage": {
+	                        "percent_coverage": 100.0,
+	                        "median_depth": 73.0,
+	                        "min_non_zero_depth": 60.0
+	                    },
+	                    "expected_depths": [
+	                        10
+	                    ]
+	                },
+	                "_cls": "Call.SequenceCall",
+	                "genotype": [
+	                    1,
+	                    1
+	                ],
+	                "genotype_likelihoods": [
+	                    -579.4562725801134,
+	                    -294.3685931838587,
+	                    -103.68092850339738
+	                ]
+	            }
+	        },
+		...
+	... 
