@@ -1,13 +1,11 @@
 #  Installation
 
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent nec massa tristique arcu ferme.
-
 ## 1. Clone repo from github
 
 
 
-## ! Recursive git clone !
+#### Recursive git clone 
 
 	 git clone **--recursive** git@github.com:phelimb/atlas.git 
 
@@ -17,7 +15,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent nec massa tris
 
 ## mccortex
 
-## ! Important! !
+#### Important! 
 
 	 **NB: You must install the version of mccortex that comes with this repository** 
 

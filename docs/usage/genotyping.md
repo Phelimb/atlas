@@ -7,7 +7,7 @@ Atlas can currently genotype small variants, SNPs, INDELs as well as typing gene
 
 *M. tuberculosis* SNP probe set: https://www.dropbox.com/s/vmaqfmeiqeka7jk/panel_tb_k31_2016-03-18.fasta.gz?dl=1
 
-## ! Or build your own !
+#### Or build your own 
 
 	 See ["Building a probeset:](https://mykrobe-atlas.readme.io/docs/building-a-probe-set) 
 
