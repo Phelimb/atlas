@@ -84,7 +84,7 @@ def main():
     # ##########
     parser_dump = subparsers.add_parser(
         'dump-probes',
-        help='dump a panel of variant alleles',
+        help='dump a probe set of variant alleles',
         parents=[db_parser_mixin])
     parser_dump.add_argument(
         'reference_filepath',
@@ -142,7 +142,7 @@ def main():
         default=31)
     parser_make_probes.add_argument(
         '--no-backgrounds',
-        help='Build panel against reference only ignoring nearby variants',
+        help='Build probe set against reference only ignoring nearby variants',
         default=False,
         action="store_true")
     parser_make_probes.set_defaults(func=run_subtool)
@@ -155,11 +155,11 @@ def main():
         parents=[sequence_parser_mixin],
         help='genotype a sample using a probe set')
     parser_geno.add_argument(
-        'panels',
-        metavar='panels',
+        'probe_sets',
+        metavar='parser_geno',
         type=str,
         nargs='+',
-        help='panels')
+        help='probe-set')
     parser_geno.add_argument(
         '--expected_depth',
         metavar='expected depth',
@@ -172,6 +172,12 @@ def main():
         help='Force rebuilding of binaries',
         default=False,
         action="store_true")
+    parser_geno.add_argument(
+        '-t',
+        '--threads',
+        type=int,
+        help='threads',
+        default=2)
     parser_geno.add_argument(
         '--ignore_filtered',
         help="don't include filtered genotypes",

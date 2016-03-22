@@ -13,6 +13,7 @@ class McCortexRunner(object):
             panels,
             seq,
             kmer=31,
+            threads=2,
             force=False,
             panel_name=None,
             tmp_dir='/tmp/',
@@ -25,6 +26,7 @@ class McCortexRunner(object):
         self.force = force
         self._panel_name = panel_name
         self.tmp_dir = tmp_dir
+        self.threads = threads
         if skeleton_dir == 'atlas/data/skeletons/':
             skeleton_dir = os.path.realpath(
                 os.path.join(
@@ -63,6 +65,7 @@ class McCortexRunner(object):
             cmd = [self.mccortex31_path,
                    "build",
                    "-m 5GB",
+                   "-t", "%i" % self.threads,
                    "-k",
                    str(self.kmer)] + seq_list + [self.ctx_skeleton_filepath]
             # print (cmd)
@@ -91,7 +94,7 @@ class McCortexRunner(object):
 
     @property
     def coverages_cmd(self):
-        cmd = [self.mccortex31_path, "geno",
+        cmd = [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
                "-I", self.ctx_skeleton_filepath,
                "-k", str(self.kmer), "-s", self.sample_name,
                "-o", self.covg_tmp_file_path]

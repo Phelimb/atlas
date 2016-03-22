@@ -2,7 +2,6 @@
 from mykatlas.utils import check_args
 from mykatlas.typing import Genotyper
 from mykatlas.typing import CoverageParser
-from mykatlas.metagenomics import AMRSpeciesPredictor
 from mykatlas.version import __version__
 
 from pprint import pprint
@@ -14,13 +13,14 @@ def run(parser, args):
     verbose = True
     cp = CoverageParser(
         sample=args.sample,
-        panel_file_paths=args.panels,
+        panel_file_paths=args.probe_sets,
         seq=args.seq,
         kmer=args.kmer,
         force=args.force,
         verbose=verbose,
         tmp_dir=args.tmp,
         skeleton_dir=args.skeleton_dir,
+        threads=args.threads,
         mccortex31_path=args.mccortex31_path)
     cp.run()
 
@@ -28,7 +28,7 @@ def run(parser, args):
         args.expected_depth = cp.estimate_depth()
 
     base_json = {args.sample: {}}
-    base_json[args.sample]["panels"] = args.panels
+    base_json[args.sample]["panels"] = args.probe_sets
     base_json[args.sample]["files"] = args.seq
     base_json[args.sample]["kmer"] = args.kmer
     base_json[args.sample]["version"] = __version__
