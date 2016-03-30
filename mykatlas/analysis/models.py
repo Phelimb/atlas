@@ -12,12 +12,15 @@ from mongoengine import queryset_manager
 import datetime
 from ga4ghmongo.schema.models.base import CreateAndSaveMixin
 
+
 class AnalysisResult(Document, CreateAndSaveMixin):
 
+	meta = {'allow_inheritance': True}
+
     files = ListField(StringField())
-    created_at = DateTimeField(default = datetime.datetime.now)
+    created_at = DateTimeField(default=datetime.datetime.now)
     version = DictField(required=True)
 
     @classmethod
     def create(cls):
-    	raise NotImplementedError("Implemented in subclass")
+        raise NotImplementedError("Implemented in subclass")
