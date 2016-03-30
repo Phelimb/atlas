@@ -55,7 +55,7 @@ def main():
         metavar='db_name',
         type=str,
         help='db_name',
-        default=None)
+        default="default")
 
     ##########
     # Add
@@ -118,6 +118,12 @@ def main():
         type=str,
         help='reference_filepath')
     parser_make_probes.add_argument(
+        '-f',
+        '--vcf',
+        type=str,
+        help='Use variants defined in a VCF file',
+        default=[])    
+    parser_make_probes.add_argument(
         '-v',
         '--variant',
         type=str,
@@ -125,10 +131,10 @@ def main():
         help='Variant in DNA positions e.g. A1234T',
         default=[])
     parser_make_probes.add_argument(
-        '-f',
-        '--file',
+        '-t',
+        '--text_file',
         type=str,
-        help='File containing variants as rows A1234T')
+        help='Text file containing variants as rows A1234T')
     parser_make_probes.add_argument(
         '-g',
         '--genbank',

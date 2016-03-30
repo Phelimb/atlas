@@ -14,6 +14,12 @@ from mykatlas.utils import make_var_hash
 
 GLOBAL_VARIANT_SET_NAME = "global_atlas"
 
+def split_GT(GT):
+    if "|" in GT:
+        return GT.split("|")
+    else:
+        return GT.split("/")
+
 
 class VCF(object):
 
@@ -22,7 +28,8 @@ class VCF(object):
             f,
             reference_set_id,
             method="NotSpecified",
-            force=False):
+            force=False,
+            append_to_global_variant_set = True):
         self.f = f
         self.reference_set = ReferenceSet.objects.get(id=reference_set_id)
         self.references = self._create_reference_lookup()
@@ -33,6 +40,7 @@ class VCF(object):
         self.calls = []
         self.call_sets = {}
         self.force = force
+        self.append_to_global_variant_set = append_to_global_variant_set
 
     def _create_reference_lookup(self):
         refs = {}
@@ -76,7 +84,7 @@ class VCF(object):
                 raise KeyError(
                     "Reference %s cannot be found in reference set %s (%s). Please add it to the database." %
                     (record.CHROM, self.reference_set.id, self.reference_set.name))
-
+            print ([record.ID])
             v = Variant.create_and_save(
                 variant_sets=self.variant_sets,
                 start=record.POS,
@@ -86,6 +94,22 @@ class VCF(object):
                 reference=reference,
                 names=[record.ID])
         return v
+
+    def _remove_variant_set(self, variant_set_name):
+        vs = VariantSet.objects.get(
+            name=variant_set_name,
+            reference_set=self.reference_set)
+        for call_set in VariantCallSet.objects(variant_sets=vs):
+            call_set.variant_sets.remove(vs)
+            call_set.save()
+            # Remove calls from callsets that only have this variantset
+            if len(call_set.variant_sets) < 2:
+                VariantCall.objects(call_set=call_set).delete()
+                call_set.delete()
+        # Remove variants that are ONLY from this variant set
+        Variant.objects(variant_sets=vs, variant_sets__size=2).delete()
+        VariantSetMetadata.objects(variant_set=vs).delete()
+        vs.delete()
 
     def _create_new_variant_set(self):
         variant_set_name = os.path.basename(
@@ -98,20 +122,7 @@ class VCF(object):
                     "VariantSet %s already exists. Rerun with -f to recreate." %
                     variant_set_name)
             else:
-                vs = VariantSet.objects.get(
-                    name=variant_set_name,
-                    reference_set=self.reference_set)
-                for call_set in VariantCallSet.objects(variant_sets=vs):
-                    call_set.variant_sets.remove(vs)
-                    call_set.save()
-                    # Remove calls from callsets that only have this variantset
-                    if len(call_set.variant_sets) < 2:
-                        VariantCall.objects(call_set=call_set).delete()
-                        call_set.delete()
-                # Remove variants that are ONLY from this variant set
-                Variant.objects(variant_sets=vs, variant_sets__size=2).delete()
-                VariantSetMetadata.objects(variant_set=vs).delete()
-                vs.delete()
+                self._remove_variant_set(variant_set_name)
         self.vcf_variant_set = VariantSet.create_and_save(
             name=variant_set_name,
             reference_set=self.reference_set)
@@ -137,7 +148,10 @@ class VCF(object):
 
     @property
     def variant_sets(self):
-        return [self.vcf_variant_set, self.global_variant_set]
+        if self.append_to_global_variant_set:
+            return [self.vcf_variant_set, self.global_variant_set]
+        else:
+            return [self.vcf_variant_set]
 
     @property
     def global_variant_set(self):
@@ -195,13 +209,14 @@ class VCF(object):
                             v.num),
                         description=v.desc)
 
+
     def _is_record_valid(self, record):
         valid = True
         for sample in record.samples:
             if sample["GT"] is None:
                 valid = False
             else:
-                if sum([int(i) for i in sample['GT'].split('/')]) < 2:
+                if sum([int(i) for i in split_GT(sample['GT'])]) < 2:
                     valid = False
             try:
                 if sample["GT_CONF"] <= 1:

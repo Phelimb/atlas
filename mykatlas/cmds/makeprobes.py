@@ -5,15 +5,26 @@ import sys
 import logging
 from mongoengine import connect
 from mongoengine.connection import ConnectionError
+from mongoengine import DoesNotExist
+from mongoengine import NotUniqueError
+
 from pymongo.errors import ServerSelectionTimeoutError
 from Bio.Seq import Seq
 
-from mykatlas.panelgeneration import AlleleGenerator
-from mykatlas.panelgeneration import make_variant_probe
+
+
 from ga4ghmongo.schema import Variant
+from ga4ghmongo.schema import ReferenceSet
+from ga4ghmongo.schema import Reference
+
 from mykatlas.utils import split_var_name
 from mykatlas.annotation.genes import GeneAminoAcidChangeToDNAVariants
+from mykatlas._vcf import VCF
+
 from mykatlas.panelgeneration.models import Mutation
+from mykatlas.panelgeneration import AlleleGenerator
+from mykatlas.panelgeneration import make_variant_probe
+
 
 # logging = logging.getLogger(__name__)
 # logging.setLevel(level=logging.DEBUG)
@@ -30,12 +41,14 @@ def run(parser, args):
                 "Could not connect to database. Continuing without using genetic backgrounds")
     mutations = []
     reference = os.path.basename(args.reference_filepath).split('.fa')[0]
-    if args.genbank:
+    if args.vcf:
+        run_make_probes_from_vcf_file(args)
+    elif args.genbank:
         aa2dna = GeneAminoAcidChangeToDNAVariants(
             args.reference_filepath,
             args.genbank)
-        if args.file:
-            with open(args.file, 'r') as infile:
+        if args.text_file:
+            with open(args.text_file, 'r') as infile:
                 reader = csv.reader(infile, delimiter="\t")
                 for row in reader:
                     gene, mutation, alphabet = row
@@ -60,8 +73,8 @@ def run(parser, args):
                                  gene=gene,
                                  mut=mutation))
     else:
-        if args.file:
-            with open(args.file, 'r') as infile:
+        if args.text_file:
+            with open(args.text_file, 'r') as infile:
                 reader = csv.reader(infile, delimiter="\t")
                 for row in reader:
                     gene_name, pos, ref, alt, alphabet = row
@@ -104,3 +117,22 @@ def run(parser, args):
             logging.warning(
                 "All variants failed for %s_%s - %s" %
                 (mut.gene, mut.mut, mut.variant))
+
+def run_make_probes_from_vcf_file(args):
+    ## Make VariantSet from vcf
+    reference = os.path.basename(args.reference_filepath).split(".fa")[0]
+    try:
+        reference_set = ReferenceSet.objects.get(name=reference)
+    except DoesNotExist:
+        reference_set = ReferenceSet.create_and_save(name=reference)
+        # Hack
+    try:
+        reference = Reference.create_and_save(
+            name=reference,
+            reference_sets=[reference_set],
+            md5checksum=reference)
+    except NotUniqueError:
+        pass    
+    vcf = VCF(args.vcf, reference_set.id, method="tmp", force=True, append_to_global_variant_set=False)
+    vcf.add_to_database()
+
