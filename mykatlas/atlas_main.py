@@ -122,7 +122,7 @@ def main():
         '--vcf',
         type=str,
         help='Use variants defined in a VCF file',
-        default=[])    
+        default=[])
     parser_make_probes.add_argument(
         '-v',
         '--variant',

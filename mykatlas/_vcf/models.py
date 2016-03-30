@@ -14,6 +14,7 @@ from mykatlas.utils import make_var_hash
 
 GLOBAL_VARIANT_SET_NAME = "global_atlas"
 
+
 def split_GT(GT):
     if "|" in GT:
         return GT.split("|")
@@ -29,7 +30,7 @@ class VCF(object):
             reference_set_id,
             method="NotSpecified",
             force=False,
-            append_to_global_variant_set = True):
+            append_to_global_variant_set=True):
         self.f = f
         self.reference_set = ReferenceSet.objects.get(id=reference_set_id)
         self.references = self._create_reference_lookup()
@@ -208,7 +209,6 @@ class VCF(object):
                         number=int(
                             v.num),
                         description=v.desc)
-
 
     def _is_record_valid(self, record):
         valid = True

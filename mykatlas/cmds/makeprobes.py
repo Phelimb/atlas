@@ -12,7 +12,6 @@ from pymongo.errors import ServerSelectionTimeoutError
 from Bio.Seq import Seq
 
 
-
 from ga4ghmongo.schema import Variant
 from ga4ghmongo.schema import ReferenceSet
 from ga4ghmongo.schema import Reference
@@ -118,8 +117,9 @@ def run(parser, args):
                 "All variants failed for %s_%s - %s" %
                 (mut.gene, mut.mut, mut.variant))
 
+
 def run_make_probes_from_vcf_file(args):
-    ## Make VariantSet from vcf
+    # Make VariantSet from vcf
     reference = os.path.basename(args.reference_filepath).split(".fa")[0]
     try:
         reference_set = ReferenceSet.objects.get(name=reference)
@@ -132,7 +132,11 @@ def run_make_probes_from_vcf_file(args):
             reference_sets=[reference_set],
             md5checksum=reference)
     except NotUniqueError:
-        pass    
-    vcf = VCF(args.vcf, reference_set.id, method="tmp", force=True, append_to_global_variant_set=False)
+        pass
+    vcf = VCF(
+        args.vcf,
+        reference_set.id,
+        method="tmp",
+        force=True,
+        append_to_global_variant_set=False)
     vcf.add_to_database()
-
