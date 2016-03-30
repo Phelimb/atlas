@@ -15,7 +15,7 @@ from ga4ghmongo.schema.models.base import CreateAndSaveMixin
 
 class AnalysisResult(Document, CreateAndSaveMixin):
 
-	meta = {'allow_inheritance': True}
+    meta = {'allow_inheritance': True}
 
     files = ListField(StringField())
     created_at = DateTimeField(default=datetime.datetime.now)
