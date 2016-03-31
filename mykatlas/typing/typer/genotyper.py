@@ -232,7 +232,7 @@ class Genotyper(object):
         self.variant_calls = {}
         self.sequence_calls = {}
         self.variant_calls_dict = {}
-        self.sequence_calls_dict = {}        
+        self.sequence_calls_dict = {}
         self.include_hom_alt_calls = include_hom_alt_calls
         self.ignore_filtered = ignore_filtered
 
