@@ -271,7 +271,7 @@ class Genotyper(object):
                     tmp_var = copy(call.variant)
                     call.variant = None
                     self.variant_calls_dict["-".join(tmp_var.names)
-                             ] = call.to_mongo().to_dict()
+                                            ] = call.to_mongo().to_dict()
                     self.variant_calls[probe_name].variant = tmp_var
                 else:
                     self.variant_calls_dict = call.to_mongo().to_dict()
