@@ -231,6 +231,8 @@ class Genotyper(object):
         self.contamination_depths = contamination_depths
         self.variant_calls = {}
         self.sequence_calls = {}
+        self.variant_calls_dict = {}
+        self.sequence_calls_dict = {}        
         self.include_hom_alt_calls = include_hom_alt_calls
         self.ignore_filtered = ignore_filtered
 
@@ -245,17 +247,15 @@ class Genotyper(object):
         gt = GeneCollectionTyper(
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths)
-        gene_presence_covgs_out = {}
         for gene_name, gene_collection in self.gene_presence_covgs.items():
             self.gene_presence_covgs[gene_name] = gt.type(gene_collection)
-            gene_presence_covgs_out[gene_name] = self.gene_presence_covgs[
+            self.sequence_calls_dict[gene_name] = self.gene_presence_covgs[
                 gene_name].to_mongo().to_dict()
         self.out_json[self.sample][
-            "sequence_calls"] = gene_presence_covgs_out
+            "sequence_calls"] = self.sequence_calls_dict
 
     def _type_variants(self):
         self.out_json[self.sample]["variant_calls"] = {}
-        out_json = self.out_json[self.sample]["variant_calls"]
         gt = VariantTyper(
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
@@ -274,7 +274,8 @@ class Genotyper(object):
                              ] = call.to_mongo().to_dict()
                     self.variant_calls[probe_name].variant = tmp_var
                 else:
-                    out_json[probe_name] = call.to_mongo().to_dict()
+                    self.variant_calls_dict = call.to_mongo().to_dict()
+        self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
 
     def _create_variant(self, probe_name):
         names = []
