@@ -39,9 +39,10 @@ class CoverageParser(object):
             self,
             sample,
             panel_file_paths,
-            seq,
             kmer,
             force,
+            seq = None,            
+            ctx = None,            
             threads=2,
             panels=None,
             verbose=True,
@@ -50,6 +51,7 @@ class CoverageParser(object):
             mccortex31_path="mccortex31"):
         self.sample = sample
         self.seq = seq
+        self.ctx = ctx
         self.kmer = kmer
         self.force = force
         self.covgs = {"variant": {}, "presence": {}}

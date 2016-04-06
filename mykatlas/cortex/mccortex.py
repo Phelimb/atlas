@@ -7,6 +7,11 @@ import urllib2
 
 class McCortexRunner(object):
 
+    def __init__(self):
+        pass
+
+class McCortexGenoRunner(McCortexRunner):
+
     def __init__(
             self,
             sample,
@@ -19,6 +24,7 @@ class McCortexRunner(object):
             tmp_dir='/tmp/',
             skeleton_dir='data/skeletons/',
             mccortex31_path="mccortex31"):
+        super(McCortexRunner, self).__init__()
         self.sample = sample
         self.panels = panels
         self.seq = seq

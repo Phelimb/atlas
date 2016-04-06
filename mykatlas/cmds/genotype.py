@@ -8,13 +8,14 @@ from pprint import pprint
 import json
 
 
-def run(parser, args):
+def run_main(parser, args):
     args = parser.parse_args()
     verbose = True
     cp = CoverageParser(
         sample=args.sample,
-        panel_file_paths=args.probe_sets,
+        panel_file_paths=[args.probe_set],
         seq=args.seq,
+        ctx=args.ctx,
         kmer=args.kmer,
         force=args.force,
         verbose=verbose,
@@ -28,7 +29,7 @@ def run(parser, args):
         args.expected_depth = cp.estimate_depth()
 
     base_json = {args.sample: {}}
-    base_json[args.sample]["panels"] = args.probe_sets
+    base_json[args.sample]["probe_set"] = args.probe_set
     base_json[args.sample]["files"] = args.seq
     base_json[args.sample]["kmer"] = args.kmer
     base_json[args.sample]["version"] = __version__
@@ -39,5 +40,8 @@ def run(parser, args):
                    contamination_depths=[],
                    ignore_filtered=args.ignore_filtered)
     gt.run()
-    cp.remove_temporary_files()
-    print(json.dumps(gt.out_json, indent=4))
+    cp.remove_temporary_files()    
+    return gt.out_json
+
+def run(parser, args):
+    print(json.dumps(run_main(parser,args), indent=4))

@@ -18,6 +18,10 @@ import logging
 from base import ArgumentParserWithDefaults
 from base import DEFAULT_DB_NAME
 from base import sequence_parser_mixin
+from base import sequence_or_binary_parser_mixin
+from base import probe_set_mixin
+from base import force_mixin
+
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
 
@@ -30,6 +34,8 @@ def run_subtool(parser, args):
         from mykatlas.cmds.makeprobes import run
     elif args.command == "genotype":
         from mykatlas.cmds.genotype import run
+    elif args.command == "walk":
+        from mykatlas.cmds.walk import run        
     # run the chosen submodule.
     run(parser, args)
 
@@ -63,7 +69,7 @@ def main():
     parser_add = subparsers.add_parser(
         'add',
         help='adds a set of variants to the atlas',
-        parents=[db_parser_mixin])
+        parents=[db_parser_mixin, force_mixin])
     parser_add.add_argument('vcf', type=str, help='a vcf file')
     parser_add.add_argument('reference_set', type=str, help='reference set')
     parser_add.add_argument(
@@ -72,11 +78,6 @@ def main():
         type=str,
         help='variant caller method (e.g. CORTEX)',
         default="NotSpecified")
-    parser_add.add_argument(
-        '-f',
-        '--force',
-        action='store_true',
-        help='Force recreate VariantSet')
     parser_add.set_defaults(func=run_subtool)
 
     # ##########
@@ -85,7 +86,7 @@ def main():
     parser_dump = subparsers.add_parser(
         'dump-probes',
         help='dump a probe set of variant alleles',
-        parents=[db_parser_mixin])
+        parents=[db_parser_mixin, force_mixin])
     parser_dump.add_argument(
         'reference_filepath',
         metavar='reference_filepath',
@@ -97,7 +98,6 @@ def main():
         type=int,
         help='kmer length',
         default=31)
-    parser_dump.add_argument('--force', default=False, action="store_true")
     parser_dump.add_argument(
         '-v',
         '--verbose',
@@ -158,14 +158,8 @@ def main():
     # ##########
     parser_geno = subparsers.add_parser(
         'genotype',
-        parents=[sequence_parser_mixin],
+        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin],
         help='genotype a sample using a probe set')
-    parser_geno.add_argument(
-        'probe_sets',
-        metavar='parser_geno',
-        type=str,
-        nargs='+',
-        help='probe-set')
     parser_geno.add_argument(
         '--expected_depth',
         metavar='expected depth',
@@ -173,23 +167,20 @@ def main():
         help='expected depth',
         default=None)
     parser_geno.add_argument(
-        '-f',
-        '--force',
-        help='Force rebuilding of binaries',
-        default=False,
-        action="store_true")
-    parser_geno.add_argument(
-        '-t',
-        '--threads',
-        type=int,
-        help='threads',
-        default=2)
-    parser_geno.add_argument(
         '--ignore_filtered',
         help="don't include filtered genotypes",
         default=False)
     parser_geno.set_defaults(func=run_subtool)
 
+    ##############
+    ## Walk ##
+    #############
+    parser_walk = subparsers.add_parser(
+        'walk',
+        parents=[sequence_or_binary_parser_mixin, probe_set_mixin,force_mixin],                
+        help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
+    parser_walk.add_argument('--show-all-paths', action = "store_true")    
+    parser_walk.set_defaults(func=run_subtool)
     args = parser.parse_args()
     args.func(parser, args)
 

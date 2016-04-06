@@ -12,6 +12,7 @@ import socketserver
 import logging
 from pprint import pprint
 import copy
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -28,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 def check_mccortex_alive(proc):
     if proc.poll() is not None:
-        logger.info("McCortex quit [%i]" % proc.returncode, file=sys.stdout)
+        logger.info("McCortex quit [%i]" % proc.returncode)
         sys.exit(1)
 
 
@@ -108,6 +109,7 @@ class WebServer(object):
         try:
             proc = Popen(["mccortex31",
                           "server",
+                          "-m", "1GB",                          
                           "--single-line",
                           "--coverages"] + self.args,
                          stdin=PIPE,
@@ -216,7 +218,7 @@ class McCortexQueryResult(object):
     @property
     def depth(self):
         try:
-            return int(self.data["colours"][0])
+            return int(self.data.get("colours",[0])[0])
         except ValueError:
             logger.error(
                 "parsing edges %s:%s " %
@@ -432,7 +434,6 @@ class GraphWalker(object):
             paths[num_paths + j + 1] = copy.copy(paths[i])
             paths[num_paths + j + 1]["start_kmer"] = kmers[1]
             if kmers[1] in [d["start_kmer"] for d in paths.values()]:
-                print (kmers, paths)
                 raise ValueError("Going around in circles?")
         return paths
 
