@@ -80,7 +80,7 @@ class Node(object):
     def is_node(self):
         return True
 
-    @property 
+    @property
     def in_group_call_sets(self):
         return VariantCallSet.objects(sample_id__in=self.samples)
 
@@ -90,7 +90,8 @@ class Node(object):
     @property
     def outgroup_call_set(self):
         if self.parent:
-            return VariantCallSet.objects(sample_id__in=self.parent.other_child(self).samples)
+            return VariantCallSet.objects(
+                sample_id__in=self.parent.other_child(self).samples)
         else:
             return []
 
@@ -99,7 +100,7 @@ class Node(object):
             return float(self.outgroup_call_set.count())
         else:
             return 0
-    
+
     def calculate_phylo_snps(self):
         out_dict = {}
         number_of_ingroup_samples = self.count_number_of_ingroup_call_sets()

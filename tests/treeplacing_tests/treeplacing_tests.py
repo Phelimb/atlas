@@ -14,13 +14,14 @@ from ga4ghmongo.schema import VariantSet
 from ga4ghmongo.schema import Variant
 from ga4ghmongo.schema import VariantCallSet
 from ga4ghmongo.schema import VariantCall
-from ga4ghmongo.schema import VariantCall 
+from ga4ghmongo.schema import VariantCall
 
 
 c = MongoClient()
 
 DBNAME = 'atlas-test'
 DB = connect(DBNAME)
+
 
 class BaseTest(TestCase):
 
@@ -37,7 +38,7 @@ class BaseTest(TestCase):
 
 class TestNodes(BaseTest):
 
-	pass
+    pass
 
 #     def test_single_node_no_children(self):
 #         node = Node()
@@ -60,80 +61,87 @@ class TestMultiNode(TestNodes):
         c.drop_database(DBNAME)
         Reference.drop_collection()
 
-
-
         self.reference_set = ReferenceSet.create_and_save(
-            name="refset1")        
+            name="refset1")
         self.ref = Reference.create_and_save(
             name="ref1",
             md5checksum="sdf",
             reference_sets=[self.reference_set])
-        vs1 = VariantSet.create_and_save(name="C1", reference_set = self.reference_set)
-        cs1 = VariantCallSet.create_and_save(sample_id="C1", name="C1", variant_sets = vs1)
-        vs2 = VariantSet.create_and_save(name="C2", reference_set = self.reference_set)
-        cs2 = VariantCallSet.create_and_save(sample_id="C2", name="C2", variant_sets = vs2)
-        vs3 = VariantSet.create_and_save(name="C3", reference_set = self.reference_set)
-        cs3 = VariantCallSet.create_and_save(sample_id="C3", name="C3", variant_sets = vs3)
-        vs4 = VariantSet.create_and_save(name="C4", reference_set = self.reference_set)
-        cs4 = VariantCallSet.create_and_save(sample_id="C4", name="C4", variant_sets = vs4)
-        vs5 = VariantSet.create_and_save(name="C5", reference_set = self.reference_set)
-        cs5 = VariantCallSet.create_and_save(sample_id="C5", name="C5", variant_sets = vs5)
+        vs1 = VariantSet.create_and_save(
+            name="C1", reference_set=self.reference_set)
+        cs1 = VariantCallSet.create_and_save(
+            sample_id="C1", name="C1", variant_sets=vs1)
+        vs2 = VariantSet.create_and_save(
+            name="C2", reference_set=self.reference_set)
+        cs2 = VariantCallSet.create_and_save(
+            sample_id="C2", name="C2", variant_sets=vs2)
+        vs3 = VariantSet.create_and_save(
+            name="C3", reference_set=self.reference_set)
+        cs3 = VariantCallSet.create_and_save(
+            sample_id="C3", name="C3", variant_sets=vs3)
+        vs4 = VariantSet.create_and_save(
+            name="C4", reference_set=self.reference_set)
+        cs4 = VariantCallSet.create_and_save(
+            sample_id="C4", name="C4", variant_sets=vs4)
+        vs5 = VariantSet.create_and_save(
+            name="C5", reference_set=self.reference_set)
+        cs5 = VariantCallSet.create_and_save(
+            sample_id="C5", name="C5", variant_sets=vs5)
         assert VariantCallSet.objects(sample_id__in=["C1", "C2"]).count() > 1
 
         self.v1 = Variant.create_and_save(variant_sets=[vs1.id],
-                                 start=1,
-                                 end=2,
-                                 reference_bases="A",
-                                 alternate_bases=["T"],
-                                 reference=self.ref)
+                                          start=1,
+                                          end=2,
+                                          reference_bases="A",
+                                          alternate_bases=["T"],
+                                          reference=self.ref)
 
         self.v2 = Variant.create_and_save(variant_sets=[vs2.id],
-                                 start=2,
-                                 end=2,
-                                 reference_bases="A",
-                                 alternate_bases=["T"],
-                                 reference=self.ref)
+                                          start=2,
+                                          end=2,
+                                          reference_bases="A",
+                                          alternate_bases=["T"],
+                                          reference=self.ref)
 
         self.v3 = Variant.create_and_save(variant_sets=[vs3.id],
-                                 start=3,
-                                 end=2,
-                                 reference_bases="A",
-                                 alternate_bases=["T"],
-                                 reference=self.ref)
+                                          start=3,
+                                          end=2,
+                                          reference_bases="A",
+                                          alternate_bases=["T"],
+                                          reference=self.ref)
 
         self.v4 = Variant.create_and_save(variant_sets=[vs4.id],
-                                 start=4,
-                                 end=2,
-                                 reference_bases="A",
-                                 alternate_bases=["T"],
-                                 reference=self.ref)
-
+                                          start=4,
+                                          end=2,
+                                          reference_bases="A",
+                                          alternate_bases=["T"],
+                                          reference=self.ref)
 
         VariantCall.create_and_save(
             variant=self.v1,
             call_set=cs1,
             genotype="1/1",
-            genotype_likelihoods = [0,0,1])
+            genotype_likelihoods=[0, 0, 1])
         VariantCall.create_and_save(
             variant=self.v2,
             call_set=cs2,
             genotype="1/1",
-            genotype_likelihoods = [0,0,1])
+            genotype_likelihoods=[0, 0, 1])
         VariantCall.create_and_save(
             variant=self.v3,
             call_set=cs3,
             genotype="1/1",
-            genotype_likelihoods = [0,0,1])
+            genotype_likelihoods=[0, 0, 1])
         VariantCall.create_and_save(
             variant=self.v4,
             call_set=cs4,
             genotype="1/1",
-            genotype_likelihoods = [0,0,1])
+            genotype_likelihoods=[0, 0, 1])
         VariantCall.create_and_save(
             variant=self.v4,
             call_set=cs5,
             genotype="1/1",
-            genotype_likelihoods = [0,0,1])
+            genotype_likelihoods=[0, 0, 1])
 
         self.l1 = Leaf(sample='C1')
         self.l2 = Leaf(sample='C2')
@@ -151,8 +159,8 @@ class TestMultiNode(TestNodes):
         assert sorted(self.root.samples) == ['C1', 'C2', 'C3', 'C4', 'C5']
 
     def test_phylo_snps(self):
-    	print (self.node1.phylo_snps)
-    	assert self.node1.count_number_of_ingroup_call_sets() > 0
+        print (self.node1.phylo_snps)
+        assert self.node1.count_number_of_ingroup_call_sets() > 0
         assert self.node1.phylo_snps == {self.v1: 0.5, self.v2: 0.5}
         assert self.node2.phylo_snps == {self.v4: 1}
         assert self.node3.phylo_snps == {
