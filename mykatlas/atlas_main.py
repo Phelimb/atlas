@@ -35,7 +35,7 @@ def run_subtool(parser, args):
     elif args.command == "genotype":
         from mykatlas.cmds.genotype import run
     elif args.command == "walk":
-        from mykatlas.cmds.walk import run        
+        from mykatlas.cmds.walk import run
     # run the chosen submodule.
     run(parser, args)
 
@@ -158,7 +158,10 @@ def main():
     # ##########
     parser_geno = subparsers.add_parser(
         'genotype',
-        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin],
+        parents=[
+            sequence_or_binary_parser_mixin,
+            probe_set_mixin,
+            force_mixin],
         help='genotype a sample using a probe set')
     parser_geno.add_argument(
         '--expected_depth',
@@ -177,9 +180,9 @@ def main():
     #############
     parser_walk = subparsers.add_parser(
         'walk',
-        parents=[sequence_or_binary_parser_mixin, probe_set_mixin,force_mixin],                
+        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin],
         help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
-    parser_walk.add_argument('--show-all-paths', action = "store_true")    
+    parser_walk.add_argument('--show-all-paths', action="store_true")
     parser_walk.set_defaults(func=run_subtool)
     args = parser.parse_args()
     args.func(parser, args)

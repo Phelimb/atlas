@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 from mykatlas.cmds.genotype import run_main as run_genotype
 
+
 class PathDetails(object):
 
     def __init__(self, start_kmer, last_kmer, length, skipped=0, v=""):
@@ -34,7 +35,6 @@ class PathDetails(object):
             self.repeat_kmers = repeat_kmers
         else:
             raise ValueError("Already set repeat kmers")
-
 
 
 def get_repeat_kmers(record, k):
@@ -103,20 +103,23 @@ def get_paths_for_gene(gene_name, gene_dict, gw):
                     paths[pd.version] = keep_p[0]
     return paths
 
-def check_args(args):   
+
+def check_args(args):
     if args.seq is None and args.ctx is None:
         raise ValueError("Requires either -1 or -c to be set")
     if args.seq and args.ctx:
         raise ValueError("Only -1 or -c to be set")
     if args.seq and not args.ctx:
-        raise NotImplementedError("Input raw sequence data not yet supported. Please build the binary with `mccortex build` and run with -c")
+        raise NotImplementedError(
+            "Input raw sequence data not yet supported. Please build the binary with `mccortex build` and run with -c")
+
 
 def run(parser, args):
     genes = {}
     skip_list = {"tem": ["191", "192"],
                  "oxa": ["12", "14", "33"],
                  "shv": ["12", "6"]
-                 }    
+                 }
     check_args(args)
     if args.seq:
         build_binary()
@@ -125,7 +128,7 @@ def run(parser, args):
     wb.start()
     logger.debug("Walking the graph")
     # _out_dict = run_genotype(parser, args)#{args.sample : {"paths"}}
-    _out_dict = {args.sample : {}}
+    _out_dict = {args.sample: {}}
     _out_dict[args.sample]["paths"] = {}
     out_dict = _out_dict[args.sample]["paths"]
     gw = GraphWalker(proc=wb.mccortex, kmer_size=args.kmer, print_depths=True)
@@ -136,7 +139,7 @@ def run(parser, args):
             gene_name = params.get("name", i)
             version = params.get("version", i)
             if gene_name not in genes:
-                logger.debug("Loading kmer data for %s" % (gene_name))            
+                logger.debug("Loading kmer data for %s" % (gene_name))
             last_kmer = str(record.seq)[-args.kmer:]
             start_kmer, skipped = find_start_kmer(
                 str(record.seq), gw.mcq, args.kmer)
@@ -153,8 +156,6 @@ def run(parser, args):
             if gene_name in genes:
                 genes[gene_name]["known_kmers"] += "%sN" % str(record.seq)
 
-
-
     for gene_name, gene_dict in genes.items():
         logger.debug("Walking graph with seeds defined by %s" % gene_name)
         try:
@@ -168,11 +169,13 @@ def run(parser, args):
                 elif len(paths.keys()) == 1:
                     best_path = paths.values()[0]
                 else:
-                    best_path = {"found":False}
+                    best_path = {"found": False}
                 out_dict[gene_name] = [best_path]
         except ValueError:
-            out_dict[gene_name] = {"found" : False, reason : "walking failed"}
-            logger.error("Going around in circles? We failed to complete graph search for %s" % gene_name)
+            out_dict[gene_name] = {"found": False, reason: "walking failed"}
+            logger.error(
+                "Going around in circles? We failed to complete graph search for %s" %
+                gene_name)
     print (json.dumps(_out_dict, sort_keys=False, indent=4))
     logger.info("Cleaning up")
     if wb is not None:

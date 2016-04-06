@@ -42,45 +42,47 @@ sequence_or_graph_parser_mixin.add_argument(
     help='Path to mccortex31',
     default="mccortex31")
 sequence_or_graph_parser_mixin.add_argument(
-        '-t',
-        '--threads',
-        type=int,
-        help='threads',
-        default=2)
+    '-t',
+    '--threads',
+    type=int,
+    help='threads',
+    default=2)
 
 
 SEQUENCE_FILES_HELP_STRING = 'sequence files (fasta,fastq,bam)'
-sequence_parser_mixin = argparse.ArgumentParser( parents=[sequence_or_graph_parser_mixin],add_help=False)
+sequence_parser_mixin = argparse.ArgumentParser(
+    parents=[sequence_or_graph_parser_mixin], add_help=False)
 sequence_parser_mixin.add_argument(
     'seq',
     type=str,
     help=SEQUENCE_FILES_HELP_STRING,
     nargs='+')
 
-sequence_or_binary_parser_mixin = argparse.ArgumentParser( parents=[sequence_or_graph_parser_mixin],add_help=False)
+sequence_or_binary_parser_mixin = argparse.ArgumentParser(
+    parents=[sequence_or_graph_parser_mixin], add_help=False)
 sequence_or_binary_parser_mixin.add_argument(
-        '-1',
-        '--seq',
-        metavar='seq',
-        type=str,
-        help=SEQUENCE_FILES_HELP_STRING)    
+    '-1',
+    '--seq',
+    metavar='seq',
+    type=str,
+    help=SEQUENCE_FILES_HELP_STRING)
 sequence_or_binary_parser_mixin.add_argument(
-        '-c',
-        '--ctx',
-        metavar='ctx',
-        type=str,
-        help='cortex graph binary')
+    '-c',
+    '--ctx',
+    metavar='ctx',
+    type=str,
+    help='cortex graph binary')
 
 probe_set_mixin = argparse.ArgumentParser(add_help=False)
 probe_set_mixin.add_argument(
-        'probe_set',
-        metavar='probe_set',
-        type=str,
-        help='probe_set')
+    'probe_set',
+    metavar='probe_set',
+    type=str,
+    help='probe_set')
 
 force_mixin = argparse.ArgumentParser(add_help=False)
 force_mixin.add_argument(
-        '-f',
-        '--force',
-        action='store_true',
-        help='force')
+    '-f',
+    '--force',
+    action='store_true',
+    help='force')

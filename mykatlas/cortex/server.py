@@ -109,7 +109,7 @@ class WebServer(object):
         try:
             proc = Popen(["mccortex31",
                           "server",
-                          "-m", "1GB",                          
+                          "-m", "1GB",
                           "--single-line",
                           "--coverages"] + self.args,
                          stdin=PIPE,
@@ -218,7 +218,7 @@ class McCortexQueryResult(object):
     @property
     def depth(self):
         try:
-            return int(self.data.get("colours",[0])[0])
+            return int(self.data.get("colours", [0])[0])
         except ValueError:
             logger.error(
                 "parsing edges %s:%s " %
