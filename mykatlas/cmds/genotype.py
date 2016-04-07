@@ -24,7 +24,6 @@ def run_main(parser, args):
         threads=args.threads,
         mccortex31_path=args.mccortex31_path)
     cp.run()
-
     if args.expected_depth is None:
         args.expected_depth = cp.estimate_depth()
 

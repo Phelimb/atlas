@@ -3,7 +3,10 @@ from __future__ import print_function
 import os
 import subprocess
 import urllib2
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class McCortexRunner(object):
 
@@ -17,7 +20,8 @@ class McCortexGenoRunner(McCortexRunner):
             self,
             sample,
             panels,
-            seq,
+            seq = None,
+            ctx = None,
             kmer=31,
             threads=2,
             force=False,
@@ -29,6 +33,7 @@ class McCortexGenoRunner(McCortexRunner):
         self.sample = sample
         self.panels = panels
         self.seq = seq
+        self.ctx = ctx
         self.kmer = kmer
         self.force = force
         self._panel_name = panel_name
@@ -43,7 +48,8 @@ class McCortexGenoRunner(McCortexRunner):
                     skeleton_dir))
         self.skeleton_dir = skeleton_dir
         self.mccortex31_path = mccortex31_path
-
+        if self.seq and self.ctx:
+            raise ValueError("Can't have both -1 and -c")
     def run(self):
         if self.force or not os.path.exists(self.covg_tmp_file_path):
             self._check_panels()
@@ -93,6 +99,7 @@ class McCortexGenoRunner(McCortexRunner):
                 os.remove(self.ctx_tmp_filepath)
             if os.path.exists(self.covg_tmp_file_path):
                 os.remove(self.covg_tmp_file_path)
+            logger.debug("running %s" % " ".join(self.coverages_cmd))
             subprocess.check_output(self.coverages_cmd)
         else:
             # print "Warning: Using pre-built binaries. Run with --force if
@@ -101,12 +108,34 @@ class McCortexGenoRunner(McCortexRunner):
 
     @property
     def coverages_cmd(self):
-        cmd = [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
-               "-I", self.ctx_skeleton_filepath,
-               "-k", str(self.kmer), "-s", self.sample_name,
+        if self.seq:
+            return self.coverages_cmd_seq
+        elif self.ctx:
+            return self.coverages_cmd_ctx
+        else:
+            raise ValueError("Need either seq or ctx binary to run coverages")
+
+    @property
+    def base_geno_command(self):
+        return [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
+               "-k", str(self.kmer), 
                "-o", self.covg_tmp_file_path]
+    @property
+    def coverages_cmd_seq(self):    
+        cmd = self.base_geno_command
+        cmd.extend(["-I", self.ctx_skeleton_filepath])
+        cmd.extend(["-s", self.sample_name])
         for seq in self.seq:
             cmd.extend(["-1", seq])
+        for panel in self.panels:
+            cmd.extend(["-c", panel.filepath])
+        cmd.append(self.ctx_tmp_filepath)
+        return cmd
+
+    @property
+    def coverages_cmd_ctx(self):    
+        cmd = self.base_geno_command
+        cmd.extend(["-g", self.ctx])
         for panel in self.panels:
             cmd.extend(["-c", panel.filepath])
         cmd.append(self.ctx_tmp_filepath)

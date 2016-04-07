@@ -82,25 +82,29 @@ def get_paths_for_gene(gene_name, gene_dict, gw):
     paths = {}
     current_prots = []
     for pd in gene_dict["pathdetails"]:
-        path_for_pd = gw.breath_first_search(
-            N=pd.length,
-            seed=pd.start_kmer,
-            end_kmers=[
-                pd.last_kmer],
-            known_kmers=gene_dict["known_kmers"],
-            repeat_kmers=pd.repeat_kmers,
-            N_left=pd.skipped)
-        if path_for_pd:
-            keep_p = []
-            for p in path_for_pd:
-                if p["prot"] not in current_prots:
-                    keep_p.append(p)
-                    current_prots.append(p["prot"])
-            if keep_p:
-                if len(keep_p) > 1:
-                    raise NotImplementedError()
-                else:
-                    paths[pd.version] = keep_p[0]
+        try:
+            path_for_pd = gw.breath_first_search(
+                N=pd.length,
+                seed=pd.start_kmer,
+                end_kmers=[
+                    pd.last_kmer],
+                known_kmers=gene_dict["known_kmers"],
+                repeat_kmers=pd.repeat_kmers,
+                N_left=pd.skipped)
+            if path_for_pd:
+                keep_p = []
+                for p in path_for_pd:
+                    p["seed_version"] = pd.version
+                    if p["prot"] not in current_prots:
+                        keep_p.append(p)
+                        current_prots.append(p["prot"])
+                if keep_p:
+                    if len(keep_p) > 1:
+                        raise NotImplementedError()
+                    else:
+                        paths[pd.version] = keep_p[0]
+        except ValueError, e:
+            logger.error(e)
     return paths
 
 
@@ -123,14 +127,13 @@ def run(parser, args):
     check_args(args)
     if args.seq:
         build_binary()
+    _out_dict = run_genotype(parser, args)
+    _out_dict[args.sample]["paths"] = {}
+    out_dict = _out_dict[args.sample]["paths"]
     wb = WebServer(port=0, args=[args.ctx])
     logger.debug("Loading binary")
     wb.start()
-    logger.debug("Walking the graph")
-    # _out_dict = run_genotype(parser, args)#{args.sample : {"paths"}}
-    _out_dict = {args.sample: {}}
-    _out_dict[args.sample]["paths"] = {}
-    out_dict = _out_dict[args.sample]["paths"]
+    logger.debug("Walking the graph")    
     gw = GraphWalker(proc=wb.mccortex, kmer_size=args.kmer, print_depths=True)
     with open(args.probe_set, 'r') as infile:
         for i, record in enumerate(SeqIO.parse(infile, "fasta")):
@@ -158,24 +161,18 @@ def run(parser, args):
 
     for gene_name, gene_dict in genes.items():
         logger.debug("Walking graph with seeds defined by %s" % gene_name)
-        try:
-            paths = get_paths_for_gene(gene_name, gene_dict, gw)
-            if args.show_all_paths:
-                out_dict[gene_name] = paths.values()
+        paths = get_paths_for_gene(gene_name, gene_dict, gw)
+        if args.show_all_paths:
+            out_dict[gene_name] = paths.values()
+        else:
+            if len(paths.keys()) > 1:
+                # choose best version
+                best_path = choose_best_assembly(paths.values())
+            elif len(paths.keys()) == 1:
+                best_path = paths.values()[0]
             else:
-                if len(paths.keys()) > 1:
-                    # choose best version
-                    best_path = choose_best_assembly(paths.values())
-                elif len(paths.keys()) == 1:
-                    best_path = paths.values()[0]
-                else:
-                    best_path = {"found": False}
-                out_dict[gene_name] = [best_path]
-        except ValueError:
-            out_dict[gene_name] = {"found": False, reason: "walking failed"}
-            logger.error(
-                "Going around in circles? We failed to complete graph search for %s" %
-                gene_name)
+                best_path = {"found": False}
+            out_dict[gene_name] = [best_path]
     print (json.dumps(_out_dict, sort_keys=False, indent=4))
     logger.info("Cleaning up")
     if wb is not None:

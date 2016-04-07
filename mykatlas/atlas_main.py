@@ -164,12 +164,6 @@ def main():
             force_mixin],
         help='genotype a sample using a probe set')
     parser_geno.add_argument(
-        '--expected_depth',
-        metavar='expected depth',
-        type=int,
-        help='expected depth',
-        default=None)
-    parser_geno.add_argument(
         '--ignore_filtered',
         help="don't include filtered genotypes",
         default=False)
@@ -183,6 +177,9 @@ def main():
         parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin],
         help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
     parser_walk.add_argument('--show-all-paths', action="store_true")
+    parser_walk.add_argument(
+        '--ignore_filtered',
+        default=False, help=argparse.SUPPRESS)    
     parser_walk.set_defaults(func=run_subtool)
     args = parser.parse_args()
     args.func(parser, args)

@@ -18,7 +18,7 @@ from mykatlas.typing.typer.variant import VariantTyper
 from ga4ghmongo.schema import VariantCallSet
 from ga4ghmongo.schema import Variant
 
-from mykatlas.cortex import McCortexRunner
+from mykatlas.cortex import McCortexGenoRunner
 
 from mykatlas.utils import get_params
 from mykatlas.utils import split_var_name
@@ -68,16 +68,19 @@ class CoverageParser(object):
         for panel_file_path in self.panel_file_paths:
             panel = Panel(panel_file_path)
             self.panels.append(panel)
+        if self.seq and self.ctx:
+            raise ValueError("Can't have both -1 and -c")
 
     def run(self):
         self._run_cortex()
         self._parse_covgs()
 
     def _run_cortex(self):
-        self.mc_cortex_runner = McCortexRunner(
+        self.mc_cortex_runner = McCortexGenoRunner(
             sample=self.sample,
             panels=self.panels,
             seq=self.seq,
+            ctx=self.ctx,
             kmer=self.kmer,
             force=self.force,
             threads=self.threads,
@@ -93,7 +96,11 @@ class CoverageParser(object):
             for variant_covg in variant_coverages:
                 if variant_covg.reference_coverage.median_depth > 0:
                     depth.append(variant_covg.reference_coverage.median_depth)
-        return median(depth)
+        _median = median(depth)
+        if _median < 1:
+            return 1
+        else:
+            return _median
 
     def remove_temporary_files(self):
         self.mc_cortex_runner.remove_temporary_files()
@@ -229,7 +236,10 @@ class Genotyper(object):
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
         self.out_json = base_json
-        self.expected_depths = expected_depths
+        if expected_depths < 1:
+           self.expected_depths = 1
+        else: 
+            self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths
         self.variant_calls = {}
         self.sequence_calls = {}
