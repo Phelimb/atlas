@@ -34,6 +34,10 @@ sequence_or_graph_parser_mixin.add_argument(
     help='tmp directory (default: /tmp/)',
     default="/tmp/")
 sequence_or_graph_parser_mixin.add_argument(
+    '--keep_tmp',
+    help="Dont remove tmp files",
+    action = "store_true")
+sequence_or_graph_parser_mixin.add_argument(
     '--skeleton_dir',
     help='directory for skeleton binaries',
     default="atlas/data/skeletons/")
@@ -49,7 +53,6 @@ sequence_or_graph_parser_mixin.add_argument(
     default=1)
 sequence_or_graph_parser_mixin.add_argument(
     '--expected_depth',
-    metavar='expected depth',
     type=int,
     help='expected depth',
     default=None)
