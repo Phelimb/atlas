@@ -96,6 +96,10 @@ class CoverageParser(object):
             for variant_covg in variant_coverages:
                 if variant_covg.reference_coverage.median_depth > 0:
                     depth.append(variant_covg.reference_coverage.median_depth)
+        for sequence_probe_coverages in self.gene_presence_covgs.values():
+            __median_depth = median([sequence_probe_coverage.median_depth for sequence_probe_coverage in sequence_probe_coverages.values()])
+            if __median_depth > 0:
+                depth.append(__median_depth)
         _median = median(depth)
         if _median < 1:
             return 1
@@ -237,8 +241,8 @@ class Genotyper(object):
         self.gene_presence_covgs = gene_presence_covgs
         self.out_json = base_json
         if expected_depths < 1:
-           self.expected_depths = 1
-        else: 
+            self.expected_depths = 1
+        else:
             self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths
         self.variant_calls = {}

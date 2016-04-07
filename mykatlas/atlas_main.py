@@ -179,7 +179,7 @@ def main():
     parser_walk.add_argument('--show-all-paths', action="store_true")
     parser_walk.add_argument(
         '--ignore_filtered',
-        default=False, help=argparse.SUPPRESS)    
+        default=False, help=argparse.SUPPRESS)
     parser_walk.set_defaults(func=run_subtool)
     args = parser.parse_args()
     args.func(parser, args)

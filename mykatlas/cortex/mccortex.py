@@ -8,6 +8,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 class McCortexRunner(object):
 
     def __init__(self):
@@ -20,8 +21,8 @@ class McCortexGenoRunner(McCortexRunner):
             self,
             sample,
             panels,
-            seq = None,
-            ctx = None,
+            seq=None,
+            ctx=None,
             kmer=31,
             threads=2,
             force=False,
@@ -50,6 +51,7 @@ class McCortexGenoRunner(McCortexRunner):
         self.mccortex31_path = mccortex31_path
         if self.seq and self.ctx:
             raise ValueError("Can't have both -1 and -c")
+
     def run(self):
         if self.force or not os.path.exists(self.covg_tmp_file_path):
             self._check_panels()
@@ -118,10 +120,11 @@ class McCortexGenoRunner(McCortexRunner):
     @property
     def base_geno_command(self):
         return [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
-               "-k", str(self.kmer), 
-               "-o", self.covg_tmp_file_path]
+                "-k", str(self.kmer),
+                "-o", self.covg_tmp_file_path]
+
     @property
-    def coverages_cmd_seq(self):    
+    def coverages_cmd_seq(self):
         cmd = self.base_geno_command
         cmd.extend(["-I", self.ctx_skeleton_filepath])
         cmd.extend(["-s", self.sample_name])
@@ -133,7 +136,7 @@ class McCortexGenoRunner(McCortexRunner):
         return cmd
 
     @property
-    def coverages_cmd_ctx(self):    
+    def coverages_cmd_ctx(self):
         cmd = self.base_geno_command
         cmd.extend(["-g", self.ctx])
         for panel in self.panels:

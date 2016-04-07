@@ -103,7 +103,7 @@ def get_paths_for_gene(gene_name, gene_dict, gw):
                         raise NotImplementedError()
                     else:
                         paths[pd.version] = keep_p[0]
-        except ValueError, e:
+        except ValueError as e:
             logger.error(e)
     return paths
 
@@ -133,7 +133,7 @@ def run(parser, args):
     wb = WebServer(port=0, args=[args.ctx])
     logger.debug("Loading binary")
     wb.start()
-    logger.debug("Walking the graph")    
+    logger.debug("Walking the graph")
     gw = GraphWalker(proc=wb.mccortex, kmer_size=args.kmer, print_depths=True)
     with open(args.probe_set, 'r') as infile:
         for i, record in enumerate(SeqIO.parse(infile, "fasta")):

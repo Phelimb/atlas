@@ -39,7 +39,7 @@ def run_main(parser, args):
                    contamination_depths=[],
                    ignore_filtered=args.ignore_filtered)
     gt.run()
-    cp.remove_temporary_files()
+    #cp.remove_temporary_files()
     return gt.out_json
 
 

@@ -48,11 +48,11 @@ sequence_or_graph_parser_mixin.add_argument(
     help='threads',
     default=1)
 sequence_or_graph_parser_mixin.add_argument(
-        '--expected_depth',
-        metavar='expected depth',
-        type=int,
-        help='expected depth',
-        default=None)
+    '--expected_depth',
+    metavar='expected depth',
+    type=int,
+    help='expected depth',
+    default=None)
 
 
 SEQUENCE_FILES_HELP_STRING = 'sequence files (fasta,fastq,bam)'
