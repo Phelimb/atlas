@@ -1,13 +1,17 @@
+from __future__ import print_function
 import sys
 import os
+import logging
 from os import path
 from ga4ghmongo.schema import Variant
 from ga4ghmongo.schema import VariantSet
 from ga4ghmongo.schema import VariantCall
 from ga4ghmongo.schema import VariantCallSet
-
+from mykatlas.utils import lazyprop
 sys.path.append(path.abspath("../"))
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class Placer(object):
 
@@ -18,10 +22,11 @@ class Placer(object):
         self.root = root
 
     def place(self, sample, verbose=False):
-        gvs = VariantCall.objects(
+        logger.debug("Placing sample %s on the tree" % sample)        
+        variant_calls = VariantCall.objects(
             call_set=VariantCallSet.objects.get(
-                name=sample)).distinct('name')
-        return self.root.search(variants=gvs, verbose=verbose)
+                name=sample))
+        return self.root.search(variant_calls=variant_calls, verbose=verbose)
 
 # class Tree(dict):
 #     """Tree is defined by a dict of nodes"""
@@ -50,8 +55,7 @@ class Node(object):
         self.children = children  # List of nodes
         for child in self.children:
             child.add_parent(self)
-        if self.is_node:
-            self.phylo_snps = self.calculate_phylo_snps()
+        self._phylo_snps = None
 
     def add_parent(self, parent):
         self.parent = parent
@@ -67,6 +71,12 @@ class Node(object):
         for child in self.children:
             samples.extend(child.samples)
         return samples  # List of sample below node in tree
+
+    def __str__(self):
+        return "Node with children %s " % ",".join(self.samples)
+
+    def __repr__(self):
+        return "Node with children %s " % ",".join(self.samples)
 
     @property
     def num_samples(self):
@@ -101,14 +111,13 @@ class Node(object):
         else:
             return 0
 
+
     def calculate_phylo_snps(self):
         out_dict = {}
         number_of_ingroup_samples = self.count_number_of_ingroup_call_sets()
         number_of_outgroup_samples = self.count_number_of_outgroup_call_sets()
-        print number_of_ingroup_samples, VariantCall.objects(call_set__in=self.in_group_call_sets).count()
         variants = VariantCall.objects(
             call_set__in=self.in_group_call_sets).distinct('variant')
-        print (variants)
         for variant in variants:
             count_ingroup = VariantCall.objects(
                 variant=variant,
@@ -125,12 +134,16 @@ class Node(object):
             out_dict[variant] = ingroup_freq - outgroup_freq
         return out_dict
 
-    def search(self, variants, verbose=False):
+    @lazyprop 
+    def phylo_snps(self):
+        return self.calculate_phylo_snps()
+
+    def search(self, variant_calls, verbose=False):
         assert self.children[0].parent is not None
         assert self.children[1].parent is not None
         overlap = []
         # Get the overlapping SNPS
-        variant_set = set(variants)
+        variant_set = set([vc.variant for vc in variant_calls])
         l0 = list(set(self.children[0].phylo_snps.keys()) & variant_set)
         l1 = list(set(self.children[1].phylo_snps.keys()) & variant_set)
         count0 = 0
@@ -143,14 +156,11 @@ class Node(object):
         if verbose:
             print (self.children[0], self.children[1], overlap)
         if overlap[0] > overlap[1]:
-            return self.children[0].search(variants)
+            return self.children[0].search(variant_calls)
         elif overlap[1] > overlap[0]:
-            return self.children[1].search(variants)
+            return self.children[1].search(variant_calls)
         else:
             return self.samples
-
-    def __repr__(self):
-        return "Node : %s " % ",".join(self.samples)
 
 
 class Leaf(Node):
@@ -159,7 +169,6 @@ class Leaf(Node):
 
         super(Leaf, self).__init__()
         self.sample = sample
-        self.phylo_snps = self.calculate_phylo_snps()
 
     @property
     def samples(self):

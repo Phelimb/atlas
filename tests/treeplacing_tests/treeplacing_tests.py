@@ -37,21 +37,20 @@ class BaseTest(TestCase):
 
 
 class TestNodes(BaseTest):
-
     pass
 
-#     def test_single_node_no_children(self):
-#         node = Node()
-#         assert node.children == []
-#         assert node.num_samples == 0
-#         assert node.is_leaf is False
+    # def test_single_node_no_children(self):
+    #     node = Node()
+    #     assert node.children == []
+    #     assert node.num_samples == 0
+    #     assert node.is_leaf is False
 
-#     def test_node_triplet(self):
-#         node1 = Leaf(sample='C1')
-#         node2 = Leaf(sample='C2')
-#         root = Node(children=[node1, node2])
-#         assert root.num_samples == 2
-#         assert root.samples == ['C1', 'C2']
+    # def test_node_triplet(self):
+    #     node1 = Leaf(sample='C1')
+    #     node2 = Leaf(sample='C2')
+    #     root = Node(children=[node1, node2])
+    #     assert root.num_samples == 2
+    #     assert root.samples == ['C1', 'C2']
 
 
 class TestMultiNode(TestNodes):
@@ -67,50 +66,42 @@ class TestMultiNode(TestNodes):
             name="ref1",
             md5checksum="sdf",
             reference_sets=[self.reference_set])
-        vs1 = VariantSet.create_and_save(
-            name="C1", reference_set=self.reference_set)
+        self.vs = VariantSet.create_and_save(
+            name="global", reference_set=self.reference_set)
         cs1 = VariantCallSet.create_and_save(
-            sample_id="C1", name="C1", variant_sets=vs1)
-        vs2 = VariantSet.create_and_save(
-            name="C2", reference_set=self.reference_set)
+            sample_id="C1", name="C1", variant_sets=self.vs)
         cs2 = VariantCallSet.create_and_save(
-            sample_id="C2", name="C2", variant_sets=vs2)
-        vs3 = VariantSet.create_and_save(
-            name="C3", reference_set=self.reference_set)
+            sample_id="C2", name="C2", variant_sets=self.vs)
         cs3 = VariantCallSet.create_and_save(
-            sample_id="C3", name="C3", variant_sets=vs3)
-        vs4 = VariantSet.create_and_save(
-            name="C4", reference_set=self.reference_set)
+            sample_id="C3", name="C3", variant_sets=self.vs)
         cs4 = VariantCallSet.create_and_save(
-            sample_id="C4", name="C4", variant_sets=vs4)
-        vs5 = VariantSet.create_and_save(
-            name="C5", reference_set=self.reference_set)
+            sample_id="C4", name="C4", variant_sets=self.vs)
         cs5 = VariantCallSet.create_and_save(
-            sample_id="C5", name="C5", variant_sets=vs5)
+            sample_id="C5", name="C5", variant_sets=self.vs)
         assert VariantCallSet.objects(sample_id__in=["C1", "C2"]).count() > 1
 
-        self.v1 = Variant.create_and_save(variant_sets=[vs1.id],
+        self.v1 = Variant.create_and_save(variant_sets=[self.vs.id],
                                           start=1,
                                           end=2,
                                           reference_bases="A",
                                           alternate_bases=["T"],
                                           reference=self.ref)
 
-        self.v2 = Variant.create_and_save(variant_sets=[vs2.id],
+        self.v2 = Variant.create_and_save(variant_sets=[self.vs.id],
                                           start=2,
                                           end=2,
                                           reference_bases="A",
                                           alternate_bases=["T"],
                                           reference=self.ref)
 
-        self.v3 = Variant.create_and_save(variant_sets=[vs3.id],
+        self.v3 = Variant.create_and_save(variant_sets=[self.vs.id],
                                           start=3,
                                           end=2,
                                           reference_bases="A",
                                           alternate_bases=["T"],
                                           reference=self.ref)
 
-        self.v4 = Variant.create_and_save(variant_sets=[vs4.id],
+        self.v4 = Variant.create_and_save(variant_sets=[self.vs.id],
                                           start=4,
                                           end=2,
                                           reference_bases="A",
@@ -153,55 +144,65 @@ class TestMultiNode(TestNodes):
         self.node2 = Node(children=[self.l4, self.l5])
         self.node3 = Node(children=[self.node2, self.l3])
         self.root = Node(children=[self.node1, self.node3])
+        #                        | -- l2
+        #                        |
+        #           |-- node 1 - | -- l1
+        #   root -- |            
+        #           |            | -- l3
+        #           |-- node 3 - |             | -- l4
+        #                        | -- node2 -- |
+        #                                      | -- l5
 
     def test_multi_node(self):
         assert self.root.num_samples == 5
         assert sorted(self.root.samples) == ['C1', 'C2', 'C3', 'C4', 'C5']
+        assert self.l1.parent == self.node1
+        assert self.l4.parent == self.node2
+        assert self.node2.parent == self.node3
 
     def test_phylo_snps(self):
-        print (self.node1.phylo_snps)
         assert self.node1.count_number_of_ingroup_call_sets() > 0
-        assert self.node1.phylo_snps == {self.v1: 0.5, self.v2: 0.5}
-        assert self.node2.phylo_snps == {self.v4: 1}
-        assert self.node3.phylo_snps == {
+        assert self.node1.calculate_phylo_snps() == {self.v1: 0.5, self.v2: 0.5}
+        assert self.node2.calculate_phylo_snps() == {self.v4: 1}
+        assert self.node3.calculate_phylo_snps() == {
             self.v3: 0.3333333333333333,
             self.v4: 0.6666666666666666}
-        assert self.root.phylo_snps == {
+        assert self.root.calculate_phylo_snps() == {
             self.v1: 0.2,
             self.v2: 0.2,
             self.v3: 0.2,
             self.v4: 0.4}
 
-        assert self.l1.phylo_snps == {self.v1: 1}
-        assert self.l2.phylo_snps == {self.v2: 1}
-        assert self.l3.phylo_snps == {self.v3: 1}
-        print (self.l4.phylo_snps)
-        assert self.l4.phylo_snps == {self.v4: 0}
-        assert self.l5.phylo_snps == {self.v5: 0}
+        assert self.l1.calculate_phylo_snps() == {self.v1: 1}
+        assert self.l2.calculate_phylo_snps() == {self.v2: 1}
+        assert self.l3.calculate_phylo_snps() == {self.v3: 1}
+        print ("L4", self.l4.calculate_phylo_snps())
+        assert self.l4.calculate_phylo_snps() == {self.v4: 0}
+        print ("L5", self.l4.calculate_phylo_snps())
+        assert self.l5.calculate_phylo_snps() == {self.v4: 0}
 
-#     def test_placement(self):
-#         new_call_set = VariantCallSet.create(sample_id="123", name="C6")
-#         VariantCall.create(
-#             name="A1T",
-#             call_set=new_call_set.id,
-#             reference_median_depth=0,
-#             reference_percent_coverage=100,
-#             alternate_median_depth=0,
-#             alternate_percent_coverage=30,
-#             gt="1/1")
-#         assert Placer(root=self.root).place("C6") == "C1"
+    def test_placement(self):
+        new_call_set = VariantCallSet.create_and_save(
+            sample_id="C6", name="C6", variant_sets=self.vs)
+        VariantCall.create_and_save(
+            variant=self.v1,
+            call_set=new_call_set,
+            genotype="1/1",
+            genotype_likelihoods=[0, 0, 1])
 
-#     def test_abigious_placement(self):
-#         new_call_set = VariantCallSet.create(sample_id="123", name="C7")
-#         VariantCall.create(
-#             name="A4T",
-#             call_set=new_call_set.id,
-#             reference_median_depth=0,
-#             reference_percent_coverage=100,
-#             alternate_median_depth=0,
-#             alternate_percent_coverage=30,
-#             gt="1/1")
-#         assert Placer(root=self.root).place("C7") == ["C4", "C5"]
+        assert Placer(root=self.root).place("C6", verbose = True) == "C1"
+
+    def test_abigious_placement(self):
+        new_call_set = VariantCallSet.create_and_save(
+            sample_id="C7", name="C7", variant_sets=self.vs)
+
+        VariantCall.create_and_save(
+            variant=self.v4,
+            call_set=new_call_set,
+            genotype="1/1",
+            genotype_likelihoods=[0, 0, 1])
+        
+        assert Placer(root=self.root).place("C7") == ["C4", "C5"]
 
 
 # class TestMultiNodeHomoplasy(TestNodes):

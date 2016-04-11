@@ -67,7 +67,9 @@ def make_variant_probe(al, variant, kmer, DB=None, no_backgrounds=False):
         else:
             context = []
     if context:
-        logging.info("Found %i variants in context of %s" % (len(context), variant))
+        logging.info(
+            "Found %i variants in context of %s" %
+            (len(context), variant))
     variant_probe = None
     contexts_seen_together = seen_together(context)
     alts = []
