@@ -68,11 +68,13 @@ def load_json(f):
     with open(f, 'r') as infile:
         return json.load(infile)
 
+
 def lazyprop(fn):
     attr_name = '_' + fn.__name__
+
     @property
     def _lazyprop(self):
         if not hasattr(self, attr_name):
             setattr(self, attr_name, fn(self))
         return getattr(self, attr_name)
-    return _lazyprop        
+    return _lazyprop

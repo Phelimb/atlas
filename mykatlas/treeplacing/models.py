@@ -13,6 +13,7 @@ sys.path.append(path.abspath("../"))
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 class Placer(object):
 
     """Placer"""
@@ -22,7 +23,7 @@ class Placer(object):
         self.root = root
 
     def place(self, sample, verbose=False):
-        logger.debug("Placing sample %s on the tree" % sample)        
+        logger.debug("Placing sample %s on the tree" % sample)
         variant_calls = VariantCall.objects(
             call_set=VariantCallSet.objects.get(
                 name=sample))
@@ -111,7 +112,6 @@ class Node(object):
         else:
             return 0
 
-
     def calculate_phylo_snps(self):
         out_dict = {}
         number_of_ingroup_samples = self.count_number_of_ingroup_call_sets()
@@ -134,7 +134,7 @@ class Node(object):
             out_dict[variant] = ingroup_freq - outgroup_freq
         return out_dict
 
-    @lazyprop 
+    @lazyprop
     def phylo_snps(self):
         return self.calculate_phylo_snps()
 
