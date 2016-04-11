@@ -25,8 +25,8 @@ from mykatlas.panelgeneration import AlleleGenerator
 from mykatlas.panelgeneration import make_variant_probe
 
 
-# logging = logging.getLogger(__name__)
-# logging.setLevel(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def run(parser, args):
@@ -34,6 +34,8 @@ def run(parser, args):
     if DB is not None:
         try:
             Variant.objects()
+            logging.info(
+                "Connected to atlas-%s" % (args.db_name))
         except (ServerSelectionTimeoutError, ConnectionError):
             DB = None
             logging.warning(

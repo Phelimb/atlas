@@ -80,9 +80,9 @@ optional arguments:
 
 ### Examples
 
-	mykrobe make-probes -f example-data/staph-panel.txt -g BX571856.1.gb BX571856.1.fasta
+	mykrobe make-probes -t example-data/staph-panel.txt -g BX571856.1.gb BX571856.1.fasta
 
-	mykrobe make-probes -f example-data/tb-walker-2015-panel.txt -g data/NC_000962.3.gb data/NC_000962.3.fasta
+	mykrobe make-probes -t example-data/tb-walker-2015-panel.txt -g data/NC_000962.3.gb data/NC_000962.3.fasta
 
 
 ### Paper, citation 

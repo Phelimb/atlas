@@ -97,7 +97,8 @@ class CoverageParser(object):
                 if variant_covg.reference_coverage.median_depth > 0:
                     depth.append(variant_covg.reference_coverage.median_depth)
         for spcs in self.gene_presence_covgs.values():
-            __median_depth = median([spc.median_depth for spc in spcs.values()])
+            __median_depth = median(
+                [spc.median_depth for spc in spcs.values()])
             if __median_depth > 0:
                 depth.append(__median_depth)
         _median = median(depth)

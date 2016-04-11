@@ -36,7 +36,7 @@ sequence_or_graph_parser_mixin.add_argument(
 sequence_or_graph_parser_mixin.add_argument(
     '--keep_tmp',
     help="Dont remove tmp files",
-    action = "store_true")
+    action="store_true")
 sequence_or_graph_parser_mixin.add_argument(
     '--skeleton_dir',
     help='directory for skeleton binaries',
@@ -74,6 +74,7 @@ sequence_or_binary_parser_mixin.add_argument(
     '--seq',
     metavar='seq',
     type=str,
+    nargs='+',
     help=SEQUENCE_FILES_HELP_STRING)
 sequence_or_binary_parser_mixin.add_argument(
     '-c',
