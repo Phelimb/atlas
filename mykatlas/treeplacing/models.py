@@ -20,7 +20,7 @@ class Placer(object):
 
     """Placer"""
 
-    def __init__(self, root = None):
+    def __init__(self, root=None):
         super(Placer, self).__init__()
         self.root = root
 
@@ -35,43 +35,46 @@ class Placer(object):
     def _query_call_sets_for_distinct_variants(self):
         return VariantCall._get_collection().aggregate([
             {"$match": {
-                }
+            }
             },
             {"$group": {
                 "_id": {"call_set": "$call_set"},
-                "variants" : {"$addToSet" : "$variant"}
-                }
+                "variants": {"$addToSet": "$variant"}
             }
-        ])   
+            }
+        ])
 
     def _parse_distinct_variant_query(self, variant_call_sets):
         call_set_to_distinct_variants = {}
         for vc in variant_call_sets:
-            ## Update dict
+            # Update dict
             call_set_id = str(vc.get("_id").get("call_set"))
             variant_id_list = [str(v) for v in vc.get("variants")]
             call_set_to_distinct_variants[call_set_id] = variant_id_list
         return call_set_to_distinct_variants
 
     def _print_top_10_matches(self, sample_to_distance_metrics):
-        sorted_sample_to_distance_metrics = sorted(sample_to_distance_metrics.items(), key=operator.itemgetter(1))
-        for i in range(10):
-            print (i+1, sorted_sample_to_distance_metrics[i][0],sorted_sample_to_distance_metrics[i][1])
+        sorted_sample_to_distance_metrics_keys = sorted(sample_to_distance_metrics.keys(), key=lambda x: (sample_to_distance_metrics[x]['symmetric_difference_count'], sample_to_distance_metrics[x]['intersection_count']))
+        for i,k in enumerate(sorted_sample_to_distance_metrics_keys):
+            print (i, k, sample_to_distance_metrics[k].get("symmetric_difference_count"), sample_to_distance_metrics[k].get("intersection_count"))
 
     def _load_call_set_to_distinct_variants_from_cache(self):
         logger.info("Loading distinct_variants query from cache")
         with open("/tmp/call_set_to_distinct_variants_cache.json", 'r') as infile:
-            return json.load(infile)     
+            return json.load(infile)
 
-    def _dump_call_set_to_distinct_variants_to_cache(self, call_set_to_distinct_variants):
+    def _dump_call_set_to_distinct_variants_to_cache(
+            self, call_set_to_distinct_variants):
         with open("/tmp/call_set_to_distinct_variants_cache.json", 'w') as outfile:
-            json.dump(call_set_to_distinct_variants, outfile)   
+            json.dump(call_set_to_distinct_variants, outfile)
 
     def _calculate_call_set_to_distinct_variants(self):
-        logger.info("Running distinct_variants query in DB")        
+        logger.info("Running distinct_variants query in DB")
         variant_call_sets = self._query_call_sets_for_distinct_variants()
-        call_set_to_distinct_variants = self._parse_distinct_variant_query(variant_call_sets)
-        self._dump_call_set_to_distinct_variants_to_cache(call_set_to_distinct_variants)        
+        call_set_to_distinct_variants = self._parse_distinct_variant_query(
+            variant_call_sets)
+        self._dump_call_set_to_distinct_variants_to_cache(
+            call_set_to_distinct_variants)
         return call_set_to_distinct_variants
 
     def _get_call_set_to_distinct_variants(self, use_cache):
@@ -81,38 +84,47 @@ class Placer(object):
             except (IOError, ValueError):
                 call_set_to_distinct_variants = self._calculate_call_set_to_distinct_variants()
         else:
-            call_set_to_distinct_variants = self._calculate_call_set_to_distinct_variants()        
+            call_set_to_distinct_variants = self._calculate_call_set_to_distinct_variants()
         return call_set_to_distinct_variants
 
     def exhaustive_overlap(self, query_sample, use_cache=True):
-        query_sample_call_set=VariantCallSet.objects.get(sample_id=query_sample)
-        call_set_to_distinct_variants = self._get_call_set_to_distinct_variants(use_cache)
+        query_sample_call_set = VariantCallSet.objects.get(
+            sample_id=query_sample)
+        call_set_to_distinct_variants = self._get_call_set_to_distinct_variants(
+            use_cache)
         best_sample_symmetric_difference_count = 10000
         best_sample = None
         best_intersect = 0
         sample_to_distance_metrics = {}
-        sample_variants_set = set([str(v.id) for v in VariantCall.objects(call_set = query_sample_call_set).distinct("variant")])
-        logger.info("calculating distinct metrics againsts all %i samples" % len(call_set_to_distinct_variants))
+        sample_variants_set = set([str(v.id) for v in VariantCall.objects(
+            call_set=query_sample_call_set).distinct("variant")])
+        logger.info(
+            "calculating distinct metrics againsts all %i samples" %
+            len(call_set_to_distinct_variants))
         for call_set_id, variant_id_list in call_set_to_distinct_variants.items():
-            ## Check similarity
-            sample = VariantCallSet.objects.get(id = call_set_id).sample_id            
-            current_sample_variant_set= set(variant_id_list)            
-            intersection_count = len(current_sample_variant_set & sample_variants_set)
-            symmetric_difference_count = len(current_sample_variant_set ^ sample_variants_set)
+            # Check similarity
+            sample = VariantCallSet.objects.get(id=call_set_id).sample_id
+            csvs = set(variant_id_list)
+            intersection_count = len(csvs & sample_variants_set)
+            symmetric_difference_count = len(csvs ^ sample_variants_set)
             if call_set_id != str(query_sample_call_set.id):
-                sample_to_distance_metrics[sample] = symmetric_difference_count
-                if symmetric_difference_count < best_sample_symmetric_difference_count :
+                sample_to_distance_metrics[sample] = {}
+                sample_to_distance_metrics[sample]["symmetric_difference_count"] = symmetric_difference_count
+                sample_to_distance_metrics[sample]["intersection_count"] = intersection_count
+
+                if symmetric_difference_count < best_sample_symmetric_difference_count:
                     best_sample_symmetric_difference_count = symmetric_difference_count
                     best_sample = sample
                     best_intersect = intersection_count
 
-
-        logger.info("Finished searching %i samples - closest sample is %s with %i overlapping variants and %i variants between them" % (len(call_set_to_distinct_variants),best_sample, best_intersect, best_sample_symmetric_difference_count))
+        logger.info(
+            "Finished searching %i samples - closest sample is %s with %i overlapping variants and %i variants between them" %
+            (len(call_set_to_distinct_variants), best_sample, best_intersect, best_sample_symmetric_difference_count))
         self._print_top_10_matches(sample_to_distance_metrics)
-        return best_sample 
+        return best_sample
 
-    def place(self, sample, use_cache = True):     
-        return self.exhaustive_overlap(sample, use_cache = use_cache)
+    def place(self, sample, use_cache=True):
+        return self.exhaustive_overlap(sample, use_cache=use_cache)
 
 # class Tree(dict):
 #     """Tree is defined by a dict of nodes"""
