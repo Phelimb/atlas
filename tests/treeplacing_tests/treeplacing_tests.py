@@ -312,7 +312,8 @@ class TestMultiNodeHomoplasy(TestNodes):
             str(self.v1.id): 0.5 -
             0.3333333333333333,
             str(self.v2.id): 0.5}
-        assert self.node2.phylo_snps == {str(self.v1.id): 0.5, str(self.v4.id): 0.5}
+        assert self.node2.phylo_snps == {
+            str(self.v1.id): 0.5, str(self.v4.id): 0.5}
         assert self.node3.phylo_snps == {
             str(self.v1.id): 0.3333333333333333 - 0.5,
             str(self.v3.id): 0.3333333333333333,

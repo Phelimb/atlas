@@ -37,7 +37,7 @@ def run_subtool(parser, args):
     elif args.command == "walk":
         from mykatlas.cmds.walk import run
     elif args.command == "place":
-        from mykatlas.cmds.place import run        
+        from mykatlas.cmds.place import run
     # run the chosen submodule.
     run(parser, args)
 
@@ -187,16 +187,21 @@ def main():
     ##############
     ## Place ##
     #############
-    parser_place = subparsers.add_parser( 'place', help='Place a sample on a prebuilt tree',
-        parents=[db_parser_mixin, force_mixin])
-    parser_place.add_argument('sample', metavar='sample', type=str, help='sample id')
+    parser_place = subparsers.add_parser(
+        'place', help='Place a sample on a prebuilt tree', parents=[
+            db_parser_mixin, force_mixin])
+    parser_place.add_argument(
+        'sample',
+        metavar='sample',
+        type=str,
+        help='sample id')
     parser_place.add_argument('tree', metavar='tree', type=str, help='tree')
     parser_place.set_defaults(func=run_subtool)
 
-    ## 
+    ##
 
     args = parser.parse_args()
-    args.func(parser, args)    
+    args.func(parser, args)
 
 
 if __name__ == "__main__":
