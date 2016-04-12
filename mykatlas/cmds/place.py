@@ -6,6 +6,8 @@ from mykatlas.treeplacing import Node
 from mykatlas.treeplacing import Leaf
 from mykatlas.treeplacing import Placer
 from mykatlas.treeplacing import newick2json
+from mykatlas.version import __version__
+
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from mongoengine import connect
@@ -45,24 +47,8 @@ def load_tree_if_required(args):
 def run(parser, args):
     connect('atlas-%s' % (args.db_name))
     root = load_tree_if_required(args)
-    neighbours = Placer(root).place(args.sample, use_cache=not args.no_cache)
     base_json = {args.sample: {}}
-    base_json[args.sample]["version"] = __version__    
-    base_json[args.sample]["neighbours"] = neighbours    
+    base_json[args.sample]["version"] = __version__
+    neighbours = Placer(root).place(args.sample, use_cache=not args.no_cache)        
+    base_json[args.sample]["neighbours"] = neighbours
     print(json.dumps(base_json, indent=4))
-
-    # if isinstance(neighbours, list):
-    #     print "Nearest Neighbours are %s" % ",".join(neighbours)
-    # else:
-    #     print "Nearest Neighbour is found to be %s" % neighbours
-
-    # pickle.dump( root, open( "/tmp/tree.p", "wb" ) )
-    # print "Dumped tree to /tmp/tree.p with cached queries. Use this tree
-    # next time for faster results"
-
-    # a=PhyloTree()
-    # a.setData(')
-    # a.view()
-    # a.markClade(neighbours,'red')
-    # while True:
-    #     time.sleep(10)

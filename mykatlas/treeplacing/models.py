@@ -54,13 +54,17 @@ class Placer(object):
             call_set_to_distinct_variants[call_set_id] = variant_id_list
         return call_set_to_distinct_variants
 
-    def _within_250_matches(self, sample_to_distance_metrics):
+    def _within_N_matches(self, sample_to_distance_metrics, N = 250):
         out = {}
-        sorted_sample_to_distance_metrics_keys = sorted(sample_to_distance_metrics.keys(), key=lambda x: (sample_to_distance_metrics[x]['symmetric_difference_count'], sample_to_distance_metrics[x]['intersection_count']))
-        for i,k in enumerate(sorted_sample_to_distance_metrics_keys):
-            if k < 250:
-                out[i] = {k : sample_to_distance_metrics[k]}
-        return out 
+        sorted_sample_to_distance_metrics_keys = sorted(
+            sample_to_distance_metrics.keys(),
+            key=lambda x: (
+                sample_to_distance_metrics[x]['symmetric_difference_count'],
+                sample_to_distance_metrics[x]['intersection_count']))
+        for i, k in enumerate(sorted_sample_to_distance_metrics_keys):
+            if sample_to_distance_metrics[k]["symmetric_difference_count"] < N:
+                out[i] = {k: sample_to_distance_metrics[k]}
+        return out
 
     def _load_call_set_to_distinct_variants_from_cache(self):
         logger.info("Loading distinct_variants query from cache")
@@ -96,7 +100,9 @@ class Placer(object):
             query_sample_call_set = VariantCallSet.objects.get(
                 sample_id=query_sample)
         except DoesNotExist:
-            raise ValueError("\n\n%s does not exist in the database. \n\nPlease run `atlas genotype --save` before `atlas place` " % query_sample)
+            raise ValueError(
+                "\n\n%s does not exist in the database. \n\nPlease run `atlas genotype --save` before `atlas place` " %
+                query_sample)
         call_set_to_distinct_variants = self._get_call_set_to_distinct_variants(
             use_cache)
         best_sample_symmetric_difference_count = 10000
@@ -116,8 +122,10 @@ class Placer(object):
             symmetric_difference_count = len(csvs ^ sample_variants_set)
             if call_set_id != str(query_sample_call_set.id):
                 sample_to_distance_metrics[sample] = {}
-                sample_to_distance_metrics[sample]["symmetric_difference_count"] = symmetric_difference_count
-                sample_to_distance_metrics[sample]["intersection_count"] = intersection_count
+                sample_to_distance_metrics[sample][
+                    "symmetric_difference_count"] = symmetric_difference_count
+                sample_to_distance_metrics[sample][
+                    "intersection_count"] = intersection_count
 
                 if symmetric_difference_count < best_sample_symmetric_difference_count:
                     best_sample_symmetric_difference_count = symmetric_difference_count
@@ -127,7 +135,7 @@ class Placer(object):
         logger.info(
             "Finished searching %i samples - closest sample is %s with %i overlapping variants and %i variants between them" %
             (len(call_set_to_distinct_variants), best_sample, best_intersect, best_sample_symmetric_difference_count))
-        return self._within_250_matches(sample_to_distance_metrics)
+        return self._within_N_matches(sample_to_distance_metrics, N = 500)
 
     def place(self, sample, use_cache=True):
         return self.exhaustive_overlap(sample, use_cache=use_cache)
