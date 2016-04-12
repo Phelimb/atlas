@@ -46,10 +46,15 @@ def run(parser, args):
     connect('atlas-%s' % (args.db_name))
     root = load_tree_if_required(args)
     neighbours = Placer(root).place(args.sample, use_cache=not args.no_cache)
-    if isinstance(neighbours, list):
-        print "Nearest Neighbours are %s" % ",".join(neighbours)
-    else:
-        print "Nearest Neighbour is found to be %s" % neighbours
+    base_json = {args.sample: {}}
+    base_json[args.sample]["version"] = __version__    
+    base_json[args.sample]["neighbours"] = neighbours    
+    print(json.dumps(base_json, indent=4))
+
+    # if isinstance(neighbours, list):
+    #     print "Nearest Neighbours are %s" % ",".join(neighbours)
+    # else:
+    #     print "Nearest Neighbour is found to be %s" % neighbours
 
     # pickle.dump( root, open( "/tmp/tree.p", "wb" ) )
     # print "Dumped tree to /tmp/tree.p with cached queries. Use this tree

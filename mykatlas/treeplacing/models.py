@@ -9,6 +9,7 @@ from ga4ghmongo.schema import Variant
 from ga4ghmongo.schema import VariantSet
 from ga4ghmongo.schema import VariantCall
 from ga4ghmongo.schema import VariantCallSet
+from mongoengine import DoesNotExist
 from mykatlas.utils import lazyprop
 sys.path.append(path.abspath("../"))
 
@@ -53,10 +54,13 @@ class Placer(object):
             call_set_to_distinct_variants[call_set_id] = variant_id_list
         return call_set_to_distinct_variants
 
-    def _print_top_10_matches(self, sample_to_distance_metrics):
+    def _within_250_matches(self, sample_to_distance_metrics):
+        out = {}
         sorted_sample_to_distance_metrics_keys = sorted(sample_to_distance_metrics.keys(), key=lambda x: (sample_to_distance_metrics[x]['symmetric_difference_count'], sample_to_distance_metrics[x]['intersection_count']))
         for i,k in enumerate(sorted_sample_to_distance_metrics_keys):
-            print (i, k, sample_to_distance_metrics[k].get("symmetric_difference_count"), sample_to_distance_metrics[k].get("intersection_count"))
+            if k < 250:
+                out[i] = {k : sample_to_distance_metrics[k]}
+        return out 
 
     def _load_call_set_to_distinct_variants_from_cache(self):
         logger.info("Loading distinct_variants query from cache")
@@ -88,8 +92,11 @@ class Placer(object):
         return call_set_to_distinct_variants
 
     def exhaustive_overlap(self, query_sample, use_cache=True):
-        query_sample_call_set = VariantCallSet.objects.get(
-            sample_id=query_sample)
+        try:
+            query_sample_call_set = VariantCallSet.objects.get(
+                sample_id=query_sample)
+        except DoesNotExist:
+            raise ValueError("\n\n%s does not exist in the database. \n\nPlease run `atlas genotype --save` before `atlas place` " % query_sample)
         call_set_to_distinct_variants = self._get_call_set_to_distinct_variants(
             use_cache)
         best_sample_symmetric_difference_count = 10000
@@ -120,8 +127,7 @@ class Placer(object):
         logger.info(
             "Finished searching %i samples - closest sample is %s with %i overlapping variants and %i variants between them" %
             (len(call_set_to_distinct_variants), best_sample, best_intersect, best_sample_symmetric_difference_count))
-        self._print_top_10_matches(sample_to_distance_metrics)
-        return best_sample
+        return self._within_250_matches(sample_to_distance_metrics)
 
     def place(self, sample, use_cache=True):
         return self.exhaustive_overlap(sample, use_cache=use_cache)
