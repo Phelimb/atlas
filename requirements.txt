@@ -3,3 +3,4 @@ Biopython
 mongoengine
 pyvcf
 ga4ghmongo
+ete2

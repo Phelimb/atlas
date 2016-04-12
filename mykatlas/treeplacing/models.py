@@ -26,8 +26,9 @@ class Placer(object):
         logger.debug("Placing sample %s on the tree" % sample)
         variant_calls = VariantCall.objects(
             call_set=VariantCallSet.objects.get(
-                name=sample))
-        return self.root.search(variant_calls=variant_calls, verbose=verbose)
+                sample_id=sample))
+        logger.debug("Using %i variant calls" % len(variant_calls))        
+        return self.root.search(variant_calls=variant_calls)
 
 # class Tree(dict):
 #     """Tree is defined by a dict of nodes"""
@@ -112,40 +113,78 @@ class Node(object):
         else:
             return 0
 
+    def query_variant_count(self, call_sets, variants):
+        variant_calls = VariantCall._get_collection().aggregate([
+                {"$match" : {
+                    "call_set" : {"$in" : [cs.id for cs in call_sets]},
+                    "variant" : {"$in" : [v.id for v in variants]}
+                    }
+                },
+                {"$group" : { 
+                    "_id" : {"variant" : "$variant"},
+                    "count" : {"$sum" : 1}
+                    }
+                },
+                {"$match" : {
+                    "count" : {"$gt" : 0}
+                    }
+                }
+            ])
+        counts = {}
+        for res in variant_calls:
+            counts[str(res.get("_id", {}).get("variant"))] = res.get("count", 0)
+        return counts
+
     def calculate_phylo_snps(self):
+        logger.debug("calculating phylo_snps for %s" % self)    
         out_dict = {}
         number_of_ingroup_samples = self.count_number_of_ingroup_call_sets()
+        logger.debug("Ingroup call sets %i" % number_of_ingroup_samples)    
         number_of_outgroup_samples = self.count_number_of_outgroup_call_sets()
+        logger.debug("Outgroup call sets %i" % number_of_outgroup_samples)    
+
         variants = VariantCall.objects(
             call_set__in=self.in_group_call_sets).distinct('variant')
+        logging.debug("%i variant_calls" % len(variants))
+
+        logging.debug("Querying for in_group_variant_calls_counts")        
+        in_group_variant_calls_counts = self.query_variant_count(self.in_group_call_sets, variants)
+        logging.debug("Querying for out_group_variant_calls_counts")                
+        out_group_variant_calls_counts = self.query_variant_count(self.outgroup_call_set, variants)
+
         for variant in variants:
-            count_ingroup = VariantCall.objects(
-                variant=variant,
-                call_set__in=self.in_group_call_sets).count()
+            variant = str(variant.id)
+            count_ingroup = in_group_variant_calls_counts.get(variant, 0)
             ingroup_freq = float(count_ingroup) / number_of_ingroup_samples
             if number_of_outgroup_samples != 0:
-                count_outgroup = VariantCall.objects(
-                    variant=variant,
-                    call_set__in=self.outgroup_call_set).count()
+                count_outgroup = out_group_variant_calls_counts.get(variant, 0)
                 outgroup_freq = float(
                     count_outgroup) / number_of_outgroup_samples
             else:
+                count_outgroup = 0
                 outgroup_freq = 0
+            logging.debug("%s has ingroup count %i freq %f.  outgroup count %i freq %f. Diff %f" % (variant, count_ingroup, ingroup_freq, count_outgroup, outgroup_freq, ingroup_freq - outgroup_freq))                
             out_dict[variant] = ingroup_freq - outgroup_freq
-        return out_dict
+        self._phylo_snps = out_dict
+        return self._phylo_snps
 
     @lazyprop
     def phylo_snps(self):
         return self.calculate_phylo_snps()
 
-    def search(self, variant_calls, verbose=False):
+    def search(self, variant_calls):
         assert self.children[0].parent is not None
         assert self.children[1].parent is not None
+        logging.info("step %s %s %s " % (self, self.children[0], self.children[1]))
+
         overlap = []
         # Get the overlapping SNPS
-        variant_set = set([vc.variant for vc in variant_calls])
+        variant_set = set([str(vc.variant.id) for vc in variant_calls])
+        logging.info("step %s %s %s" % (self, self.children[0], self.children[1]))
+
         l0 = list(set(self.children[0].phylo_snps.keys()) & variant_set)
         l1 = list(set(self.children[1].phylo_snps.keys()) & variant_set)
+        logging.info("left %i right %i " % (len(l0), len(l1)))
         count0 = 0
         count1 = 0
         for k in l0:
@@ -153,8 +192,7 @@ class Node(object):
         for k in l1:
             count1 += self.children[1].phylo_snps[k]
         overlap = (count0, count1)
-        if verbose:
-            print (self.children[0], self.children[1], overlap)
+        logging.info("%s %s %s" % (self.children[0], self.children[1], overlap))
         if overlap[0] > overlap[1]:
             return self.children[0].search(variant_calls)
         elif overlap[1] > overlap[0]:

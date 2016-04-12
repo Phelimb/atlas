@@ -164,22 +164,22 @@ class TestMultiNode(TestNodes):
     def test_phylo_snps(self):
         assert self.node1.count_number_of_ingroup_call_sets() > 0
         assert self.node1.calculate_phylo_snps() == {
-            self.v1: 0.5, self.v2: 0.5}
-        assert self.node2.calculate_phylo_snps() == {self.v4: 1}
+            str(self.v1.id): 0.5, str(self.v2.id): 0.5}
+        assert self.node2.calculate_phylo_snps() == {str(self.v4.id): 1}
         assert self.node3.calculate_phylo_snps() == {
-            self.v3: 0.3333333333333333,
-            self.v4: 0.6666666666666666}
+            str(self.v3.id): 0.3333333333333333,
+            str(self.v4.id): 0.6666666666666666}
         assert self.root.calculate_phylo_snps() == {
-            self.v1: 0.2,
-            self.v2: 0.2,
-            self.v3: 0.2,
-            self.v4: 0.4}
+            str(self.v1.id): 0.2,
+            str(self.v2.id): 0.2,
+            str(self.v3.id): 0.2,
+            str(self.v4.id): 0.4}
 
-        assert self.l1.calculate_phylo_snps() == {self.v1: 1}
-        assert self.l2.calculate_phylo_snps() == {self.v2: 1}
-        assert self.l3.calculate_phylo_snps() == {self.v3: 1}
-        assert self.l4.calculate_phylo_snps() == {self.v4: 0}
-        assert self.l5.calculate_phylo_snps() == {self.v4: 0}
+        assert self.l1.calculate_phylo_snps() == {str(self.v1.id): 1}
+        assert self.l2.calculate_phylo_snps() == {str(self.v2.id): 1}
+        assert self.l3.calculate_phylo_snps() == {str(self.v3.id): 1}
+        assert self.l4.calculate_phylo_snps() == {str(self.v4.id): 0}
+        assert self.l5.calculate_phylo_snps() == {str(self.v4.id): 0}
 
     def test_placement(self):
         new_call_set = VariantCallSet.create_and_save(
@@ -234,19 +234,18 @@ class TestMultiNodeHomoplasy(TestNodes):
             name="global", reference_set=self.reference_set)
         cs1 = VariantCallSet.create_and_save(
             sample_id="C1", name="C1", variant_sets=self.vs)
-         
+
         cs2 = VariantCallSet.create_and_save(
             sample_id="C2", name="C2", variant_sets=self.vs)
-         
+
         cs3 = VariantCallSet.create_and_save(
             sample_id="C3", name="C3", variant_sets=self.vs)
-         
+
         cs4 = VariantCallSet.create_and_save(
             sample_id="C4", name="C4", variant_sets=self.vs)
-         
+
         cs5 = VariantCallSet.create_and_save(
             sample_id="C5", name="C5", variant_sets=self.vs)
-
 
         self.v1 = Variant.create_and_save(variant_sets=[self.vs.id],
                                           start=1,
@@ -274,8 +273,7 @@ class TestMultiNodeHomoplasy(TestNodes):
                                           end=2,
                                           reference_bases="A",
                                           alternate_bases=["T"],
-                                          reference=self.ref)        
- 
+                                          reference=self.ref)
 
         VariantCall.create_and_save(
             variant=self.v1,
@@ -305,32 +303,31 @@ class TestMultiNodeHomoplasy(TestNodes):
             genotype="1/1",
             genotype_likelihoods=[0, 0, 1])
 
-
     def test_multi_node(self):
         assert self.root.num_samples == 5
         assert sorted(self.root.samples) == ['C1', 'C2', 'C3', 'C4', 'C5']
 
     def test_phylo_snps(self):
         assert self.node1.phylo_snps == {
-            self.v1: 0.5 -
+            str(self.v1.id): 0.5 -
             0.3333333333333333,
-            self.v2: 0.5}
-        assert self.node2.phylo_snps == {self.v1: 0.5, self.v4: 0.5}
+            str(self.v2.id): 0.5}
+        assert self.node2.phylo_snps == {str(self.v1.id): 0.5, str(self.v4.id): 0.5}
         assert self.node3.phylo_snps == {
-            self.v1: 0.3333333333333333 - 0.5,
-            self.v3: 0.3333333333333333,
-            self.v4: 0.3333333333333333}
+            str(self.v1.id): 0.3333333333333333 - 0.5,
+            str(self.v3.id): 0.3333333333333333,
+            str(self.v4.id): 0.3333333333333333}
         assert self.root.phylo_snps == {
-            self.v1: 0.4,
-            self.v2: 0.2,
-            self.v3: 0.2,
-            self.v4: 0.2}
+            str(self.v1.id): 0.4,
+            str(self.v2.id): 0.2,
+            str(self.v3.id): 0.2,
+            str(self.v4.id): 0.2}
 
-        assert self.l1.phylo_snps == {self.v1: 1}
-        assert self.l2.phylo_snps == {self.v2: 1}
-        assert self.l3.phylo_snps == {self.v3: 1}
-        assert self.l4.phylo_snps == {self.v4: 1}
-        assert self.l5.phylo_snps == {self.v1: 1}
+        assert self.l1.phylo_snps == {str(self.v1.id): 1}
+        assert self.l2.phylo_snps == {str(self.v2.id): 1}
+        assert self.l3.phylo_snps == {str(self.v3.id): 1}
+        assert self.l4.phylo_snps == {str(self.v4.id): 1}
+        assert self.l5.phylo_snps == {str(self.v1.id): 1}
 
     def test_placement(self):
         new_call_set = VariantCallSet.create_and_save(
