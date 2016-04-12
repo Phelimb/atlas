@@ -190,7 +190,7 @@ class TestMultiNode(TestNodes):
             genotype="1/1",
             genotype_likelihoods=[0, 0, 1])
 
-        assert Placer(root=self.root).place("C6", verbose=True) == "C1"
+        assert Placer(root=self.root).walker("C6", verbose=True) == "C1"
 
     def test_abigious_placement(self):
         new_call_set = VariantCallSet.create_and_save(
@@ -202,7 +202,7 @@ class TestMultiNode(TestNodes):
             genotype="1/1",
             genotype_likelihoods=[0, 0, 1])
 
-        assert Placer(root=self.root).place("C7") == ["C4", "C5"]
+        assert Placer(root=self.root).walker("C7") == ["C4", "C5"]
 
 
 class TestMultiNodeHomoplasy(TestNodes):
@@ -339,9 +339,9 @@ class TestMultiNodeHomoplasy(TestNodes):
             genotype="1/1",
             genotype_likelihoods=[0, 0, 1])
         # Note - I think the commented line hear should be correct behaviour
-        Placer(root=self.root).place("C8") == ["C1"]
-        # print Placer(root = self.root).place("C8", verbose=True)
-        # assert sorted(Placer(root = self.root).place("C8")) == sorted(['C1', 'C2', 'C3', 'C4', 'C5'])
+        Placer(root=self.root).walker("C8") == ["C1"]
+        # print Placer(root = self.root).walker("C8", verbose=True)
+        # assert sorted(Placer(root = self.root).walker("C8")) == sorted(['C1', 'C2', 'C3', 'C4', 'C5'])
 
     def test_abigious_placement(self):
         new_call_set = VariantCallSet.create_and_save(
@@ -353,4 +353,4 @@ class TestMultiNodeHomoplasy(TestNodes):
             genotype="1/1",
             genotype_likelihoods=[0, 0, 1])
 
-        assert Placer(root=self.root).place("C9") == "C4"
+        assert Placer(root=self.root).walker("C9") == "C4"

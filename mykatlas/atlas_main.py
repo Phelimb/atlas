@@ -195,7 +195,11 @@ def main():
         metavar='sample',
         type=str,
         help='sample id')
-    parser_place.add_argument('tree', metavar='tree', type=str, help='tree')
+    parser_place.add_argument('--tree', metavar='tree', type=str, help='tree')
+    parser_place.add_argument(
+        '--no-cache',
+        default=False,
+        action="store_true")    
     parser_place.set_defaults(func=run_subtool)
 
     ##
