@@ -54,7 +54,7 @@ class Placer(object):
             call_set_to_distinct_variants[call_set_id] = variant_id_list
         return call_set_to_distinct_variants
 
-    def _within_N_matches(self, sample_to_distance_metrics, N = 250):
+    def _within_N_matches(self, sample_to_distance_metrics, N=250):
         out = {}
         sorted_sample_to_distance_metrics_keys = sorted(
             sample_to_distance_metrics.keys(),
@@ -135,7 +135,7 @@ class Placer(object):
         logger.info(
             "Finished searching %i samples - closest sample is %s with %i overlapping variants and %i variants between them" %
             (len(call_set_to_distinct_variants), best_sample, best_intersect, best_sample_symmetric_difference_count))
-        return self._within_N_matches(sample_to_distance_metrics, N = 500)
+        return self._within_N_matches(sample_to_distance_metrics, N=500)
 
     def place(self, sample, use_cache=True):
         return self.exhaustive_overlap(sample, use_cache=use_cache)

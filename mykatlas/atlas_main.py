@@ -38,6 +38,8 @@ def run_subtool(parser, args):
         from mykatlas.cmds.walk import run
     elif args.command == "place":
         from mykatlas.cmds.place import run
+    elif args.command == "diff":
+        from mykatlas.cmds.diff import run        
     # run the chosen submodule.
     run(parser, args)
 
@@ -203,6 +205,26 @@ def main():
     parser_place.set_defaults(func=run_subtool)
 
     ##
+
+    ##############
+    ## Place ##
+    #############
+    parser_diff = subparsers.add_parser(
+        'diff', help='Outputs novel sequence by calculating the difference between the sequence and combined graph',
+             parents=[sequence_or_binary_parser_mixin])
+    parser_diff.add_argument(
+        'graph',
+        metavar='graph',
+        type=str,
+        help='The graph to compare new sample against')
+    parser_diff.add_argument(
+        '--add',
+        default=False,
+        action="store_true",
+        help = "after comparing, add the new sample to the graph")
+    parser_diff.set_defaults(func=run_subtool)    
+    ##
+
 
     args = parser.parse_args()
     args.func(parser, args)

@@ -49,6 +49,6 @@ def run(parser, args):
     root = load_tree_if_required(args)
     base_json = {args.sample: {}}
     base_json[args.sample]["version"] = __version__
-    neighbours = Placer(root).place(args.sample, use_cache=not args.no_cache)        
+    neighbours = Placer(root).place(args.sample, use_cache=not args.no_cache)
     base_json[args.sample]["neighbours"] = neighbours
     print(json.dumps(base_json, indent=4))
