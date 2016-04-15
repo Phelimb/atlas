@@ -12,17 +12,26 @@ logger = logging.getLogger(__name__)
 class McCortexRunner(object):
 
     def __init__(self, mccortex31_path):
-        self.mccortex31_path=mccortex31_path
+        self.mccortex31_path = mccortex31_path
+
 
 class McCortexJoin(McCortexRunner):
 
-    def __init__(self, sample, intersect_graph, ingraph, mccortex31_path = "mccortex31"):
+    def __init__(
+            self,
+            sample,
+            intersect_graph,
+            ingraph,
+            mccortex31_path="mccortex31"):
         super(McCortexJoin, self).__init__(mccortex31_path)
         self.sample = sample
         self.intersect_graph = intersect_graph
         self.ingraph = ingraph
         self.out_ctx_dir = tempfile.mkdtemp()
-        self.out_ctx_path = os.path.join(self.out_ctx_dir, "%s_int.ctx" % sample)
+        self.out_ctx_path = os.path.join(
+            self.out_ctx_dir,
+            "%s_int.ctx" %
+            sample)
 
     def run(self):
         self._run_cortex()
@@ -32,15 +41,16 @@ class McCortexJoin(McCortexRunner):
         cmd = [self.mccortex31_path,
                "join",
                "-q",
-                "--out", self.out_ctx_path,
-                "--intersect",
-                self.intersect_graph,
-                self.ingraph]
-        subprocess.check_output(cmd) 
+               "--out", self.out_ctx_path,
+               "--intersect",
+               self.intersect_graph,
+               self.ingraph]
+        subprocess.check_output(cmd)
+
 
 class McCortexUnitigs(McCortexRunner):
 
-    def __init__(self, ingraph, mccortex31_path = "mccortex31"):
+    def __init__(self, ingraph, mccortex31_path="mccortex31"):
         super(McCortexUnitigs, self).__init__(mccortex31_path)
         self.ingraph = ingraph
 
@@ -51,22 +61,31 @@ class McCortexUnitigs(McCortexRunner):
         cmd = [self.mccortex31_path,
                "unitigs",
                "-q",
-                self.ingraph]
+               self.ingraph]
         return subprocess.check_output(cmd)
+
 
 class McCortexSubgraph(McCortexRunner):
 
-
-    def __init__(self, sample, rmgraph, ingraph, tmp_dir = None, mccortex31_path = "mccortex31"):
-        super(McCortexSubgraph, self).__init__(mccortex31_path = mccortex31_path)
+    def __init__(
+            self,
+            sample,
+            rmgraph,
+            ingraph,
+            tmp_dir=None,
+            mccortex31_path="mccortex31"):
+        super(McCortexSubgraph, self).__init__(mccortex31_path=mccortex31_path)
         self.rmgraph = rmgraph
         self.sample = sample
-        self.ingraph = ingraph        
+        self.ingraph = ingraph
         if tmp_dir is None:
             self.out_ctx_dir = tempfile.mkdtemp()
         else:
             self.out_ctx_dir = tmp_dir
-        self.out_ctx_path = os.path.join(self.out_ctx_dir, "%s_new.ctx" % sample)        
+        self.out_ctx_path = os.path.join(
+            self.out_ctx_dir,
+            "%s_new.ctx" %
+            sample)
 
     def run(self):
         self._run_cortex()
@@ -79,7 +98,7 @@ class McCortexSubgraph(McCortexRunner):
                "-k",
                self.rmgraph,
                "|",
-               "awk", 
+               "awk",
                "'{print $1}'",
                "|",
                self.mccortex31_path,
@@ -91,11 +110,10 @@ class McCortexSubgraph(McCortexRunner):
                "--seq",
                "-",
                self.ingraph
-                ]
+               ]
         logger.debug(subprocess.list2cmdline(cmd))
         logger.debug(" ".join(cmd))
-        cmd = subprocess.Popen( " ".join(cmd), shell=True ).wait()
-
+        cmd = subprocess.Popen(" ".join(cmd), shell=True).wait()
 
 
 class McCortexGenoRunner(McCortexRunner):
