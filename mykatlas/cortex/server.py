@@ -55,7 +55,7 @@ def preexec_function():
 
 class WebServer(object):
 
-    def __init__(self, port, args, memory = "1GB"):
+    def __init__(self, port, args, memory="1GB"):
         self.port = port
         self.args = args
         self.mccortex = None
