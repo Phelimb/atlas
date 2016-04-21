@@ -120,8 +120,8 @@ def get_variant_calls(d):
 if args.format == "long":
     header = [
         "file",
-        "plate_name",
-        "sample",
+        # "plate_name",
+        # "sample",
         "drug",
         "phylo_group",
         "species",
@@ -141,44 +141,43 @@ if args.format == "long":
             d = load_json(f)
         except ValueError:
             d = {}
-        file = get_file_name(f)
+        for file in d.keys():
+            phylo_group,phylo_group_per_covg,phylo_group_depth  = get_phylo_group_string(d[file])
+            species,species_per_covg,species_depth  = get_species_string(d[file])
+            lineage,lineage_per_covg,lineage_depth  = get_lineage_string(d[file])
+            # sample_name = get_sample_name(f)
+            # plate_name = get_plate_name(f)
 
-        phylo_group,phylo_group_per_covg,phylo_group_depth  = get_phylo_group_string(d[file])
-        species,species_per_covg,species_depth  = get_species_string(d[file])
-        lineage,lineage_per_covg,lineage_depth  = get_lineage_string(d[file])
-        sample_name = get_sample_name(f)
-        plate_name = get_plate_name(f)
+            drug_list = sorted(d[file].get('susceptibility', {}).keys())
+            drugs = sorted(drug_list)
 
-        drug_list = sorted(d[file].get('susceptibility', {}).keys())
-        drugs = sorted(drug_list)
-
-        if not drugs:
-            drugs = ["NA"]
+            if not drugs:
+                drugs = ["NA"]
 
 
-        for drug in drugs:
-            call = d[file].get('susceptibility', {}).get(drug, {})
-            called_by = get_variant_calls(call.get("called_by",{}))
-            row = [
-                file,
-                plate_name,
-                sample_name,
-                drug,
-                phylo_group,
-                species,
-                lineage,
-                phylo_group_per_covg,
-                species_per_covg,
-                lineage_per_covg,                  
-                phylo_group_depth,
-                species_depth,
-                lineage_depth,                
-                call.get(
-                    "predict",
-                    'N'),
-                called_by]
-            # rows.append(row)
-            print "\t".join(row)
+            for drug in drugs:
+                call = d[file].get('susceptibility', {}).get(drug, {})
+                called_by = get_variant_calls(call.get("called_by",{}))
+                row = [
+                    file,
+                    # plate_name,
+                    # sample_name,
+                    drug,
+                    phylo_group,
+                    species,
+                    lineage,
+                    phylo_group_per_covg,
+                    species_per_covg,
+                    lineage_per_covg,                  
+                    phylo_group_depth,
+                    species_depth,
+                    lineage_depth,                
+                    call.get(
+                        "predict",
+                        'N'),
+                    called_by]
+                # rows.append(row)
+                print "\t".join(row)
 
 else:
     0 / 0

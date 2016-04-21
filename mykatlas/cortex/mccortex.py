@@ -126,6 +126,7 @@ class McCortexGenoRunner(McCortexRunner):
             ctx=None,
             kmer=31,
             threads=2,
+            memory="1GB",
             force=False,
             panel_name=None,
             tmp_dir='/tmp/',
@@ -141,6 +142,7 @@ class McCortexGenoRunner(McCortexRunner):
         self._panel_name = panel_name
         self.tmp_dir = tmp_dir
         self.threads = threads
+        self.memory = memory
         if skeleton_dir == 'atlas/data/skeletons/':
             skeleton_dir = os.path.realpath(
                 os.path.join(
@@ -180,7 +182,7 @@ class McCortexGenoRunner(McCortexRunner):
             seq_list = self._create_sequence_list()
             cmd = [self.mccortex31_path,
                    "build",
-                   "-m 5GB",
+                   "-m %s" % self.memory,
                    "-t", "%i" % self.threads,
                    "-k",
                    str(self.kmer)] + seq_list + [self.ctx_skeleton_filepath]
@@ -221,6 +223,7 @@ class McCortexGenoRunner(McCortexRunner):
     @property
     def base_geno_command(self):
         return [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
+                "-m %s" % self.memory,
                 "-k", str(self.kmer),
                 "-o", self.covg_tmp_file_path]
 

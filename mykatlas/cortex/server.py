@@ -55,11 +55,12 @@ def preexec_function():
 
 class WebServer(object):
 
-    def __init__(self, port, args):
+    def __init__(self, port, args, memory = "1GB"):
         self.port = port
         self.args = args
         self.mccortex = None
         self.httpd = None
+        self.memory = memory
 
     def start(self):
         self.mccortex = self._start_mccortex()
@@ -109,7 +110,7 @@ class WebServer(object):
         try:
             proc = Popen(["mccortex31",
                           "server",
-                          "-m", "1GB",
+                          "-m", self.memory,
                           "--single-line",
                           "--coverages"] + self.args,
                          stdin=PIPE,

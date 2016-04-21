@@ -52,6 +52,12 @@ sequence_or_graph_parser_mixin.add_argument(
     help='threads',
     default=1)
 sequence_or_graph_parser_mixin.add_argument(
+    '-m',
+    '--memory',
+    type=str,
+    help='memory for graph constuction',
+    default="1GB")
+sequence_or_graph_parser_mixin.add_argument(
     '--expected_depth',
     type=int,
     help='expected depth',

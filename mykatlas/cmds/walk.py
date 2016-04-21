@@ -130,7 +130,7 @@ def run(parser, args):
     _out_dict = run_genotype(parser, args)
     _out_dict[args.sample]["paths"] = {}
     out_dict = _out_dict[args.sample]["paths"]
-    wb = WebServer(port=0, args=[args.ctx])
+    wb = WebServer(port=0, args=[args.ctx], memory = args.memory)
     logger.debug("Loading binary")
     wb.start()
     logger.debug("Walking the graph")

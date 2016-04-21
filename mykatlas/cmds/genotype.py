@@ -22,6 +22,7 @@ def run_main(parser, args):
         tmp_dir=args.tmp,
         skeleton_dir=args.skeleton_dir,
         threads=args.threads,
+        memory=args.memory,
         mccortex31_path=args.mccortex31_path)
     cp.run()
     if args.expected_depth is None:

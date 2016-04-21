@@ -44,6 +44,7 @@ class CoverageParser(object):
             seq=None,
             ctx=None,
             threads=2,
+            memory="1GB",
             panels=None,
             verbose=True,
             tmp_dir='/tmp/',
@@ -65,6 +66,7 @@ class CoverageParser(object):
         self.panels = []
         self.mccortex31_path = mccortex31_path
         self.threads = threads
+        self.memory = memory
         for panel_file_path in self.panel_file_paths:
             panel = Panel(panel_file_path)
             self.panels.append(panel)
@@ -84,6 +86,7 @@ class CoverageParser(object):
             kmer=self.kmer,
             force=self.force,
             threads=self.threads,
+            memory=self.memory,
             panel_name=self.panel_name,
             tmp_dir=self.tmp_dir,
             skeleton_dir=self.skeleton_dir,
