@@ -81,6 +81,10 @@ class VariantTyper(Typer):
             else:
                 gt = "0/0"
                 info["filter"] = "MISSING_WT"
+        elif variant_probe_coverage.alternate_percent_coverage < 100 and variant_probe_coverage.reference_percent_coverage < 100:
+            info["filter"] = "LOW_PERCENT_COVERAGE"
+            if self.ignore_filtered:
+                gt = "-/-"
         return VariantCall.create(
             variant=variant,
             genotype=gt,

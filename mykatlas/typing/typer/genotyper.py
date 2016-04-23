@@ -27,11 +27,6 @@ from mykatlas.utils import median
 logger = logging.getLogger(__name__)
 
 
-def max_pnz_threshold(vp):
-    t = max(
-        100 - 2 * math.floor(float(max([len(alt) for alt in vp.alts])) / 100), 30)
-    return t
-
 
 class CoverageParser(object):
 

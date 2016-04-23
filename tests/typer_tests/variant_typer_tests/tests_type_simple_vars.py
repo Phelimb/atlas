@@ -189,6 +189,9 @@ class VariantTyperWithLowMinimum(TestCase):
         self.vt_no_contaim = VariantTyper(
             expected_depths=[100],
             contamination_depths=[])
+        self.vt2_no_contaim = VariantTyper(
+            expected_depths=[1],
+            contamination_depths=[])        
 
     def teardown(self):
         pass
@@ -236,4 +239,21 @@ class VariantTyperWithLowMinimum(TestCase):
 
         call = self.vt_no_contaim.type(v1)
         assert call.genotype == [0, 0]
+        assert call.info["filter"] != "PASS"
+
+    def test_3(self):
+        reference_coverage = ProbeCoverage(min_depth=2,
+                                           percent_coverage=59.52,
+                                           median_depth=2)
+        alt1 = ProbeCoverage(min_depth=1,
+                             percent_coverage=83.33,
+                             median_depth=1)
+        alternate_coverages = [alt1]
+        v1 = VariantProbeCoverage(var_name="A123T",
+                                  reference_coverage=reference_coverage,
+                                  alternate_coverages=alternate_coverages
+                                  )
+
+        call = self.vt2_no_contaim.type(v1)
+        assert call.genotype == [1, 1]
         assert call.info["filter"] != "PASS"
