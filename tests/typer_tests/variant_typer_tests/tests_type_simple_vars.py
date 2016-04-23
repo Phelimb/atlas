@@ -191,7 +191,7 @@ class VariantTyperWithLowMinimum(TestCase):
             contamination_depths=[])
         self.vt2_no_contaim = VariantTyper(
             expected_depths=[1],
-            contamination_depths=[])        
+            contamination_depths=[])
 
     def teardown(self):
         pass

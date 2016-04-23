@@ -27,7 +27,6 @@ from mykatlas.utils import median
 logger = logging.getLogger(__name__)
 
 
-
 class CoverageParser(object):
 
     def __init__(
