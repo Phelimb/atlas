@@ -1,3 +1,6 @@
 [submodule "mccortex"]
 	path = mccortex
-	url = git@github.com:Phelimb/mccortex.git
+	url = https://github.com/Phelimb/mccortex.git
+	ignore = dirty
+	branch = genotype
+
