@@ -14,6 +14,8 @@ from mykatlas.typing import Panel
 
 from mykatlas.typing.typer.presence import GeneCollectionTyper
 from mykatlas.typing.typer.variant import VariantTyper
+from mykatlas.typing.typer.base import DEFAULT_MINOR_FREQ
+from mykatlas.typing.typer.base import DEFAULT_ERROR_RATE
 
 from ga4ghmongo.schema import VariantCallSet
 from ga4ghmongo.schema import Variant
@@ -233,7 +235,8 @@ class Genotyper(object):
             contamination_depths=[],
             base_json={},
             include_hom_alt_calls=False,
-            ignore_filtered=False):
+            ignore_filtered=False,
+            minor_freq = DEFAULT_MINOR_FREQ):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -249,6 +252,7 @@ class Genotyper(object):
         self.sequence_calls_dict = {}
         self.include_hom_alt_calls = include_hom_alt_calls
         self.ignore_filtered = ignore_filtered
+        self.minor_freq = minor_freq
 
     def run(self):
         self._type()
@@ -273,7 +277,8 @@ class Genotyper(object):
         gt = VariantTyper(
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
-            ignore_filtered=self.ignore_filtered)
+            ignore_filtered=self.ignore_filtered,
+            minor_freq = self.minor_freq)
 
         for probe_name, probe_coverages in self.variant_covgs.items():
             variant = self._create_variant(probe_name)

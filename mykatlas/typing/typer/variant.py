@@ -1,11 +1,11 @@
 from mykatlas.typing.typer.base import Typer
 from mykatlas.stats import log_lik_R_S_coverage
 from mykatlas.typing.typer.base import MIN_LLK
-
+from mykatlas.typing.typer.base import DEFAULT_MINOR_FREQ
+from mykatlas.typing.typer.base import DEFAULT_ERROR_RATE
 from ga4ghmongo.schema import VariantCall
 
-DEFAULT_ERROR_RATE = 0.05
-DEFAULT_MINOR_FREQ = 0.2
+
 from mykatlas.stats import percent_coverage_from_expected_coverage
 
 
