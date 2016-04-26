@@ -236,7 +236,7 @@ class Genotyper(object):
             base_json={},
             include_hom_alt_calls=False,
             ignore_filtered=False,
-            minor_freq = DEFAULT_MINOR_FREQ):
+            minor_freq=DEFAULT_MINOR_FREQ):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -278,7 +278,7 @@ class Genotyper(object):
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
-            minor_freq = self.minor_freq)
+            minor_freq=self.minor_freq)
 
         for probe_name, probe_coverages in self.variant_covgs.items():
             variant = self._create_variant(probe_name)
