@@ -262,7 +262,7 @@ class TestVariantTyperWithLowMinimum(TestCase):
         vt = VariantTyper(
             expected_depths=[6],
             contamination_depths=[],
-            confidence_threshold = 3)
+            confidence_threshold=3)
         reference_coverage = ProbeCoverage(min_depth=1,
                                            percent_coverage=100,
                                            median_depth=2)
@@ -277,4 +277,4 @@ class TestVariantTyperWithLowMinimum(TestCase):
 
         call = vt.type(v1)
         assert call.genotype == [0, 1]
-        assert call.info["filter"] == "LOW_GT_CONF"        
+        assert call.info["filter"] == "LOW_GT_CONF"

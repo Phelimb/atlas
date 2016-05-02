@@ -236,9 +236,9 @@ class Genotyper(object):
             base_json={},
             include_hom_alt_calls=False,
             ignore_filtered=False,
-            minor_freq=DEFAULT_MINOR_FREQ, 
-            variant_confidence_threshold = 3,
-            sequence_confidence_threshold = 1):
+            minor_freq=DEFAULT_MINOR_FREQ,
+            variant_confidence_threshold=3,
+            sequence_confidence_threshold=1):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -269,7 +269,7 @@ class Genotyper(object):
         gt = GeneCollectionTyper(
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
-            confidence_threshold = self.sequence_confidence_threshold)
+            confidence_threshold=self.sequence_confidence_threshold)
         for gene_name, gene_collection in self.gene_presence_covgs.items():
             self.gene_presence_covgs[gene_name] = gt.type(gene_collection)
             self.sequence_calls_dict[gene_name] = self.gene_presence_covgs[
@@ -283,8 +283,8 @@ class Genotyper(object):
             expected_depths=self.expected_depths,
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
-            minor_freq=self.minor_freq, 
-            confidence_threshold = self.variant_confidence_threshold)
+            minor_freq=self.minor_freq,
+            confidence_threshold=self.variant_confidence_threshold)
 
         for probe_name, probe_coverages in self.variant_covgs.items():
             variant = self._create_variant(probe_name)

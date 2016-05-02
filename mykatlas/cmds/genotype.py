@@ -38,9 +38,9 @@ def run_main(parser, args):
                    gene_presence_covgs=cp.covgs["presence"],
                    base_json=base_json,
                    contamination_depths=[],
-                   ignore_filtered=args.ignore_filtered, 
-                   variant_confidence_threshold = args.min_variant_conf, 
-                   sequence_confidence_threshold = args.min_gene_conf)
+                   ignore_filtered=args.ignore_filtered,
+                   variant_confidence_threshold=args.min_variant_conf,
+                   sequence_confidence_threshold=args.min_gene_conf)
     gt.run()
     if not args.keep_tmp:
         cp.remove_temporary_files()

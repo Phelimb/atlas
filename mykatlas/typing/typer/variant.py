@@ -8,19 +8,22 @@ from ga4ghmongo.schema import VariantCall
 
 from mykatlas.stats import percent_coverage_from_expected_coverage
 
+
 def likelihoods_to_confidence(l):
     if not len(l) > 1:
-        raise ValueError("Must have at least 2 likelihoods to calculate confidence")
+        raise ValueError(
+            "Must have at least 2 likelihoods to calculate confidence")
     l = sorted(l, reverse=True)
-    return int(round(l[0]-l[1]))
+    return int(round(l[0] - l[1]))
+
 
 class VariantTyper(Typer):
 
     def __init__(self, expected_depths, contamination_depths=[],
                  error_rate=DEFAULT_ERROR_RATE,
                  minor_freq=DEFAULT_MINOR_FREQ,
-                 ignore_filtered=False, 
-                 confidence_threshold = 3):
+                 ignore_filtered=False,
+                 confidence_threshold=3):
 
         super(
             VariantTyper,
@@ -28,8 +31,8 @@ class VariantTyper(Typer):
             expected_depths,
             contamination_depths,
             error_rate,
-            ignore_filtered=ignore_filtered, 
-            confidence_threshold = confidence_threshold)
+            ignore_filtered=ignore_filtered,
+            confidence_threshold=confidence_threshold)
         self.method = "MAP"
         self.error_rate = error_rate
         self.minor_freq = minor_freq
@@ -82,8 +85,8 @@ class VariantTyper(Typer):
         info = {"coverage": variant_probe_coverage.coverage_dict,
                 "expected_depths": self.expected_depths,
                 "contamination_depths": self.contamination_depths,
-                "filter": "PASS", 
-                "conf" : confidence}
+                "filter": "PASS",
+                "conf": confidence}
         if gt == "-/-" and not self.ignore_filtered:
             if variant_probe_coverage.alternate_percent_coverage > variant_probe_coverage.reference_percent_coverage:
                 gt = "1/1"
@@ -97,7 +100,7 @@ class VariantTyper(Typer):
                 gt = "-/-"
 
         if confidence < self.confidence_threshold:
-            info["filter"] = "LOW_GT_CONF"            
+            info["filter"] = "LOW_GT_CONF"
 
         return VariantCall.create(
             variant=variant,

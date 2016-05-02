@@ -12,8 +12,8 @@ class Typer(object):
             contamination_depths=[],
             error_rate=0.05,
             ignore_filtered=False,
-            confidence_threshold = 1            
-            ):
+            confidence_threshold=1
+    ):
         self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths
         self.error_rate = error_rate

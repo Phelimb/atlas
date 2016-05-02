@@ -166,7 +166,7 @@ def main():
         parents=[
             sequence_or_binary_parser_mixin,
             probe_set_mixin,
-            force_mixin, 
+            force_mixin,
             genotyping_mixin],
         help='genotype a sample using a probe set')
     parser_geno.set_defaults(func=run_subtool)
