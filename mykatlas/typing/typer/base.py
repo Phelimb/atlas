@@ -11,11 +11,14 @@ class Typer(object):
             expected_depths,
             contamination_depths=[],
             error_rate=0.05,
-            ignore_filtered=False):
+            ignore_filtered=False,
+            confidence_threshold = 1            
+            ):
         self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths
         self.error_rate = error_rate
         self.ignore_filtered = ignore_filtered
+        self.confidence_threshold = confidence_threshold
 
     def type(self, l):
         raise NotImplemented("Implemented in sub class")

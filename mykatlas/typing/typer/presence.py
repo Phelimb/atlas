@@ -10,12 +10,14 @@ class PresenceTyper(Typer):
 
     "Initiated with expected depths and contamination depths"
 
-    def __init__(self, expected_depths, contamination_depths=[]):
+    def __init__(self, expected_depths, contamination_depths=[], 
+                 confidence_threshold = 1):
         super(
             PresenceTyper,
             self).__init__(
             expected_depths,
-            contamination_depths)
+            contamination_depths, 
+            confidence_threshold = confidence_threshold)
         if len(expected_depths) > 1:
             raise NotImplementedError("Mixed samples not supported")
 
@@ -127,12 +129,13 @@ class GeneCollectionTyper(Typer):
     """Types a collection of genes returning only the most likely version
         in the collection"""
 
-    def __init__(self, expected_depths, contamination_depths=[]):
+    def __init__(self, expected_depths, contamination_depths=[], confidence_threshold = 1):
         super(
             GeneCollectionTyper,
             self).__init__(
             expected_depths,
-            contamination_depths)
+            contamination_depths, 
+            confidence_threshold = confidence_threshold)
         self.presence_typer = PresenceTyper(
             expected_depths, contamination_depths)
 

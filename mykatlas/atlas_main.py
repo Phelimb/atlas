@@ -21,6 +21,7 @@ from base import sequence_parser_mixin
 from base import sequence_or_binary_parser_mixin
 from base import probe_set_mixin
 from base import force_mixin
+from base import genotyping_mixin
 
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
@@ -165,12 +166,9 @@ def main():
         parents=[
             sequence_or_binary_parser_mixin,
             probe_set_mixin,
-            force_mixin],
+            force_mixin, 
+            genotyping_mixin],
         help='genotype a sample using a probe set')
-    parser_geno.add_argument(
-        '--ignore_filtered',
-        help="don't include filtered genotypes",
-        default=False)
     parser_geno.set_defaults(func=run_subtool)
 
     ##############
@@ -178,12 +176,9 @@ def main():
     #############
     parser_walk = subparsers.add_parser(
         'walk',
-        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin],
+        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin, genotyping_mixin],
         help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
     parser_walk.add_argument('--show-all-paths', action="store_true")
-    parser_walk.add_argument(
-        '--ignore_filtered',
-        default=False, help=argparse.SUPPRESS)
     parser_walk.set_defaults(func=run_subtool)
 
     ##############

@@ -105,7 +105,7 @@ class VariantTyperWithContamination(TestCase):
         assert call.genotype == [0, 0]
 
 
-class VariantTyperWithMultipleAlternateCoverages(TestCase):
+class TestVariantTyperWithMultipleAlternateCoverages(TestCase):
 
     def setUp(self):
         self.vt_no_contaim = VariantTyper(
@@ -136,7 +136,7 @@ class VariantTyperWithMultipleAlternateCoverages(TestCase):
         assert call.genotype == [1, 1]
 
 
-class VariantTyperWithMultipleProbeCoverages(TestCase):
+class TestVariantTyperWithMultipleProbeCoverages(TestCase):
 
     def setUp(self):
         self.vt_no_contaim = VariantTyper(
@@ -183,7 +183,7 @@ class VariantTyperWithMultipleProbeCoverages(TestCase):
         assert call.genotype == [1, 1]
 
 
-class VariantTyperWithLowMinimum(TestCase):
+class TestVariantTyperWithLowMinimum(TestCase):
 
     def setUp(self):
         self.vt_no_contaim = VariantTyper(
@@ -257,3 +257,24 @@ class VariantTyperWithLowMinimum(TestCase):
         call = self.vt2_no_contaim.type(v1)
         assert call.genotype == [1, 1]
         assert call.info["filter"] != "PASS"
+
+    def test_4(self):
+        vt = VariantTyper(
+            expected_depths=[6],
+            contamination_depths=[],
+            confidence_threshold = 3)
+        reference_coverage = ProbeCoverage(min_depth=1,
+                                           percent_coverage=100,
+                                           median_depth=2)
+        alt1 = ProbeCoverage(min_depth=1,
+                             percent_coverage=100,
+                             median_depth=1)
+        alternate_coverages = [alt1]
+        v1 = VariantProbeCoverage(var_name="A123T",
+                                  reference_coverage=reference_coverage,
+                                  alternate_coverages=alternate_coverages
+                                  )
+
+        call = vt.type(v1)
+        assert call.genotype == [0, 1]
+        assert call.info["filter"] == "LOW_GT_CONF"        

@@ -102,3 +102,11 @@ force_mixin.add_argument(
     '--force',
     action='store_true',
     help='force')
+
+genotyping_mixin = argparse.ArgumentParser(add_help=False)
+genotyping_mixin.add_argument(
+    '--ignore_filtered',
+    help="don't include filtered genotypes",
+    default=False)
+genotyping_mixin.add_argument("--min_variant_conf", help = "minimum genotype confidence for variant genotyping", default = 3)
+genotyping_mixin.add_argument("--min_gene_conf", help = "minimum genotype confidence for gene genotyping", default = 1)
