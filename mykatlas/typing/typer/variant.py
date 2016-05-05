@@ -98,7 +98,6 @@ class VariantTyper(Typer):
             info["filter"] = "LOW_PERCENT_COVERAGE"
             if self.ignore_filtered:
                 gt = "-/-"
-
         if confidence < self.confidence_threshold:
             info["filter"] = "LOW_GT_CONF"
 
