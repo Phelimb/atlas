@@ -85,7 +85,6 @@ class VCF(object):
                 raise KeyError(
                     "Reference %s cannot be found in reference set %s (%s). Please add it to the database." %
                     (record.CHROM, self.reference_set.id, self.reference_set.name))
-            print ([record.ID])
             v = Variant.create_and_save(
                 variant_sets=self.variant_sets,
                 start=record.POS,

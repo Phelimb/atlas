@@ -237,8 +237,8 @@ class Genotyper(object):
             include_hom_alt_calls=False,
             ignore_filtered=False,
             minor_freq=DEFAULT_MINOR_FREQ,
-            variant_confidence_threshold=3,
-            sequence_confidence_threshold=1):
+            variant_confidence_threshold=0,
+            sequence_confidence_threshold=0):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -299,7 +299,8 @@ class Genotyper(object):
                                             ] = call.to_mongo().to_dict()
                     self.variant_calls[probe_name].variant = tmp_var
                 else:
-                    self.variant_calls_dict = call.to_mongo().to_dict()
+                    probe_id = probe_name.split("?")[0].split("-")[1]
+                    self.variant_calls_dict[probe_id] = call.to_mongo().to_dict()
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
 
     def _create_variant(self, probe_name):

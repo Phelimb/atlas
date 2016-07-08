@@ -30,7 +30,10 @@ def run_main(parser, args):
 
     base_json = {args.sample: {}}
     base_json[args.sample]["probe_set"] = args.probe_set
-    base_json[args.sample]["files"] = args.seq
+    if args.seq:
+        base_json[args.sample]["files"] = args.seq
+    else:
+        base_json[args.sample]["files"] = args.ctx
     base_json[args.sample]["kmer"] = args.kmer
     base_json[args.sample]["version"] = __version__
     gt = Genotyper(sample=args.sample, expected_depths=[args.expected_depth],

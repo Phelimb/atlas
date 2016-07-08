@@ -29,6 +29,8 @@ DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 def run_subtool(parser, args):
     if args.command == 'add':
         from mykatlas.cmds.add import run
+    elif args.command == "add-gt":
+        from mykatlas.cmds.atlasadd import run        
     elif args.command == "dump-probes":
         from mykatlas.cmds.dump import run
     elif args.command == "make-probes":
@@ -84,6 +86,20 @@ def main():
         help='variant caller method (e.g. CORTEX)',
         default="NotSpecified")
     parser_add.set_defaults(func=run_subtool)
+
+    parser_add_gt = subparsers.add_parser(
+        'add-gt',
+        help='adds a set of atlas genotype calls to the atlas',
+        parents=[db_parser_mixin, force_mixin])
+    parser_add_gt.add_argument('jsons', type=str,    nargs='+',
+                                help='json output from `atlas genotype`')
+    parser_add_gt.add_argument(
+        '-m',
+        '--method',
+        type=str,
+        help='variant caller method (e.g. CORTEX)',
+        default="atlas")
+    parser_add_gt.set_defaults(func=run_subtool)    
 
     # ##########
     # # Dump panel
