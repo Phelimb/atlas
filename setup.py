@@ -26,5 +26,5 @@ setup(
             'ga4ghmongo'],
     entry_points={
         'console_scripts': [
-            'atlas = atlas.atlas_main:main',
+            'atlas = mykatlas.atlas_main:main',
         ]})

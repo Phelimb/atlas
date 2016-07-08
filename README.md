@@ -39,7 +39,7 @@ You can deactivate at anytime by typing 'deactivate'.
 #### Install atlas
 
 
-	python setup.py install
+	pip install mykatlas
 
 
 ## Usage
