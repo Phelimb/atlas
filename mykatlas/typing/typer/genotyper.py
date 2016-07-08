@@ -300,7 +300,8 @@ class Genotyper(object):
                     self.variant_calls[probe_name].variant = tmp_var
                 else:
                     probe_id = probe_name.split("?")[0].split("-")[1]
-                    self.variant_calls_dict[probe_id] = call.to_mongo().to_dict()
+                    self.variant_calls_dict[
+                        probe_id] = call.to_mongo().to_dict()
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
 
     def _create_variant(self, probe_name):

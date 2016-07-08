@@ -32,23 +32,24 @@ class Placer(object):
         logger.debug("Placing sample %s on the tree" % sample)
         variant_calls = VariantCall.objects(
             call_set=VariantCallSet.objects.get(
-                sample_id=sample, info = {"variant_caller":"atlas"}))
+                sample_id=sample, info={"variant_caller": "atlas"}))
         logger.debug("Using %i variant calls" % len(variant_calls))
         return self.root.search(variant_calls=variant_calls)
 
-    @property 
+    @property
     def searchable_samples(self):
         return self.tree.samples
 
     @property
     def searchable_callsets(self):
-        callset_ids = VariantCallSet.objects(sample_id__in = self.searchable_samples).distinct("id")
+        callset_ids = VariantCallSet.objects(
+            sample_id__in=self.searchable_samples).distinct("id")
         return callset_ids
 
     def _query_call_sets_for_distinct_variants(self):
         return VariantCall._get_collection().aggregate([
             {"$match": {
-                "call_set" : {"$in" : self.searchable_callsets}
+                "call_set": {"$in": self.searchable_callsets}
             }
             },
             {"$group": {
@@ -74,9 +75,11 @@ class Placer(object):
             key=lambda x: (
                 sample_to_distance_metrics[x]['ratio'],
                 sample_to_distance_metrics[x]['intersection_count'],
-                -sample_to_distance_metrics[x]['symmetric_difference_count']), reverse=True)
+                -sample_to_distance_metrics[x]['symmetric_difference_count']),
+            reverse=True)
         for i, k in enumerate(sorted_sample_to_distance_metrics_keys):
-#            if sample_to_distance_metrics[k]["symmetric_difference_count"] < N:
+            # if sample_to_distance_metrics[k]["symmetric_difference_count"] <
+            # N:
             out[i] = {k: sample_to_distance_metrics[k]}
         return out
 
@@ -113,7 +116,7 @@ class Placer(object):
     def exhaustive_overlap(self, query_sample, use_cache=True):
         try:
             query_sample_call_set = VariantCallSet.objects.get(
-                sample_id=query_sample, info = {"variant_caller":"atlas"})
+                sample_id=query_sample, info={"variant_caller": "atlas"})
         except DoesNotExist:
             raise ValueError(
                 "\n\n%s does not exist in the database. \n\nPlease run `atlas genotype --save` before `atlas place` " %
@@ -129,7 +132,8 @@ class Placer(object):
         logger.info(
             "calculating distinct metrics againsts all %i samples" %
             len(call_set_to_distinct_variants))
-        for call_set_id, variant_id_list in call_set_to_distinct_variants.items():
+        for call_set_id, variant_id_list in call_set_to_distinct_variants.items(
+        ):
             # Check similarity
             sample = VariantCallSet.objects.get(id=call_set_id).sample_id
             csvs = set(variant_id_list)
@@ -141,8 +145,8 @@ class Placer(object):
                     "symmetric_difference_count"] = symmetric_difference_count
                 sample_to_distance_metrics[sample][
                     "intersection_count"] = intersection_count
-                sample_to_distance_metrics[sample][
-                    "ratio"] = float(intersection_count)/float(symmetric_difference_count)
+                sample_to_distance_metrics[sample]["ratio"] = float(
+                    intersection_count) / float(symmetric_difference_count)
                 if symmetric_difference_count < best_sample_symmetric_difference_count:
                     best_sample_symmetric_difference_count = symmetric_difference_count
                     best_sample = sample
@@ -150,14 +154,17 @@ class Placer(object):
         if best_intersect > 0:
             logger.info(
                 "Finished searching %i samples - closest sample to %s is %s with %i overlapping variants and %i variants between them" %
-                (len(call_set_to_distinct_variants),query_sample,  best_sample, best_intersect, best_sample_symmetric_difference_count))
-            return self._within_N_matches(sample_to_distance_metrics,N=1000)
+                (len(call_set_to_distinct_variants),
+                 query_sample,
+                 best_sample,
+                 best_intersect,
+                 best_sample_symmetric_difference_count))
+            return self._within_N_matches(sample_to_distance_metrics, N=1000)
         else:
             logger.info(
                 "Finished searching %i samples - could not place %s as no samples had overlapping variants" %
-                (len(call_set_to_distinct_variants),query_sample))
-            return self._within_N_matches(sample_to_distance_metrics,N=0)
-
+                (len(call_set_to_distinct_variants), query_sample))
+            return self._within_N_matches(sample_to_distance_metrics, N=0)
 
 
 # class Tree(dict):

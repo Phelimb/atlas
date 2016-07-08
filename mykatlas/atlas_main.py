@@ -30,7 +30,7 @@ def run_subtool(parser, args):
     if args.command == 'add':
         from mykatlas.cmds.add import run
     elif args.command == "add-gt":
-        from mykatlas.cmds.atlasadd import run        
+        from mykatlas.cmds.atlasadd import run
     elif args.command == "dump-probes":
         from mykatlas.cmds.dump import run
     elif args.command == "make-probes":
@@ -91,15 +91,15 @@ def main():
         'add-gt',
         help='adds a set of atlas genotype calls to the atlas',
         parents=[db_parser_mixin, force_mixin])
-    parser_add_gt.add_argument('jsons', type=str,    nargs='+',
-                                help='json output from `atlas genotype`')
+    parser_add_gt.add_argument('jsons', type=str, nargs='+',
+                               help='json output from `atlas genotype`')
     parser_add_gt.add_argument(
         '-m',
         '--method',
         type=str,
         help='variant caller method (e.g. CORTEX)',
         default="atlas")
-    parser_add_gt.set_defaults(func=run_subtool)    
+    parser_add_gt.set_defaults(func=run_subtool)
 
     # ##########
     # # Dump panel
@@ -192,7 +192,11 @@ def main():
     #############
     parser_walk = subparsers.add_parser(
         'walk',
-        parents=[sequence_or_binary_parser_mixin, probe_set_mixin, force_mixin, genotyping_mixin],
+        parents=[
+            sequence_or_binary_parser_mixin,
+            probe_set_mixin,
+            force_mixin,
+            genotyping_mixin],
         help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
     parser_walk.add_argument('--show-all-paths', action="store_true")
     parser_walk.set_defaults(func=run_subtool)

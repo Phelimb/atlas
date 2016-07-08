@@ -36,20 +36,20 @@ class AtlasGenotypeResult(object):
         self._create_calls()
 
     def _create_call_sets(self):
-            try:
-                self.call_set = VariantCallSet.create_and_save(
-                    name="_".join(
-                        [
-                            self.sample,
-                            self.method]),
-                    variant_sets=[self.global_variant_set],
-                    sample_id=self.sample,
-                    info={
-                        "variant_caller": self.method})
-            except NotUniqueError:
-                raise ValueError(
-                    "There is already a call set for sample %s with method %s " %
-                    (self.sample, self.method))
+        try:
+            self.call_set = VariantCallSet.create_and_save(
+                name="_".join(
+                    [
+                        self.sample,
+                        self.method]),
+                variant_sets=[self.global_variant_set],
+                sample_id=self.sample,
+                info={
+                    "variant_caller": self.method})
+        except NotUniqueError:
+            raise ValueError(
+                "There is already a call set for sample %s with method %s " %
+                (self.sample, self.method))
 
     def _create_calls(self):
         calls = []
@@ -61,13 +61,14 @@ class AtlasGenotypeResult(object):
                 call_set=self.call_set,
                 genotype=call["genotype"],
                 genotype_likelihoods=call["genotype_likelihoods"],
-                info = call["info"])
-            calls.append(c)  
+                info=call["info"])
+            calls.append(c)
         VariantCall.objects.insert(calls)
 
     @property
     def global_variant_set(self):
         return VariantSet.objects.get(name=GLOBAL_VARIANT_SET_NAME)
+
 
 def run(parser, args):
     args = parser.parse_args()
@@ -82,7 +83,7 @@ def run(parser, args):
     logger.debug("Using DB %s" % DBNAME)
 
     for f in args.jsons:
-        with open(f,'r') as inf:
+        with open(f, 'r') as inf:
             data = json.load(inf)
         for sample, calls in data.items():
             AtlasGenotypeResult(sample, "atlas", calls).add()
