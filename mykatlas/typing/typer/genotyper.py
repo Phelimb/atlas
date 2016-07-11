@@ -234,7 +234,7 @@ class Genotyper(object):
             gene_presence_covgs,
             contamination_depths=[],
             base_json={},
-            include_hom_alt_calls=False,
+            report_all_calls=False,
             ignore_filtered=False,
             minor_freq=DEFAULT_MINOR_FREQ,
             variant_confidence_threshold=0,
@@ -252,7 +252,7 @@ class Genotyper(object):
         self.sequence_calls = {}
         self.variant_calls_dict = {}
         self.sequence_calls_dict = {}
-        self.include_hom_alt_calls = include_hom_alt_calls
+        self.report_all_calls = report_all_calls
         self.ignore_filtered = ignore_filtered
         self.minor_freq = minor_freq
         self.variant_confidence_threshold = variant_confidence_threshold
@@ -290,7 +290,7 @@ class Genotyper(object):
             variant = self._create_variant(probe_name)
             call = gt.type(probe_coverages, variant=variant)
             if sum(
-                    call.genotype) > 0 or not call.genotype or self.include_hom_alt_calls:
+                    call.genotype) > 0 or not call.genotype or self.report_all_calls:
                 self.variant_calls[probe_name] = call
                 if variant is not None:
                     tmp_var = copy(call.variant)

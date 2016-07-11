@@ -109,6 +109,11 @@ genotyping_mixin.add_argument(
     help="don't include filtered genotypes",
     default=False)
 genotyping_mixin.add_argument(
+    '--report_all_calls',
+    help="report all calls",
+    action='store_true',    
+    default=False)
+genotyping_mixin.add_argument(
     "--min_variant_conf",
     help="minimum genotype confidence for variant genotyping",
     default=0, type=int)

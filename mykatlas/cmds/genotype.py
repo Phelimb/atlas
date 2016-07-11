@@ -42,6 +42,7 @@ def run_main(parser, args):
                    base_json=base_json,
                    contamination_depths=[],
                    ignore_filtered=args.ignore_filtered,
+                   report_all_calls=args.report_all_calls,
                    variant_confidence_threshold=args.min_variant_conf,
                    sequence_confidence_threshold=args.min_gene_conf)
     gt.run()

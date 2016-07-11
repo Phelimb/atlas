@@ -25,11 +25,12 @@ client = MongoClient()
 
 class AtlasGenotypeResult(object):
 
-    def __init__(self, sample, method, data):
+    def __init__(self, sample, method, data,force= False):
         self.sample = sample
         self.method = method
         self.data = data
         self.call_set = None
+        self.force = force
 
     def add(self):
         self._create_call_sets()
@@ -47,9 +48,19 @@ class AtlasGenotypeResult(object):
                 info={
                     "variant_caller": self.method})
         except NotUniqueError:
-            raise ValueError(
-                "There is already a call set for sample %s with method %s " %
-                (self.sample, self.method))
+            if self.force:
+                # logger.info("There is already a call set for sample %s with method %s but add has been called with --force so this callset is being removed from the DB" %
+                #     (self.sample, self.method))
+                cs = VariantCallSet.objects.get(name="_".join([
+                        self.sample,
+                        self.method]))
+                VariantCall.objects(call_set = cs).delete()
+                cs.delete()
+                self._create_call_sets()
+            else:
+                raise ValueError(
+                    "There is already a call set for sample %s with method %s " %
+                    (self.sample, self.method))
 
     def _create_calls(self):
         calls = []
@@ -86,4 +97,4 @@ def run(parser, args):
         with open(f, 'r') as inf:
             data = json.load(inf)
         for sample, calls in data.items():
-            AtlasGenotypeResult(sample, "atlas", calls).add()
+            AtlasGenotypeResult(sample, "atlas", calls, force = args.force).add()

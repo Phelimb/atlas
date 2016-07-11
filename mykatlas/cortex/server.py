@@ -55,12 +55,13 @@ def preexec_function():
 
 class WebServer(object):
 
-    def __init__(self, port, args, memory="1GB"):
+    def __init__(self, port, args, memory="1GB", mccortex_path="mccortex31"):
         self.port = port
         self.args = args
         self.mccortex = None
         self.httpd = None
         self.memory = memory
+        self.mccortex_path = mccortex_path
 
     def start(self):
         self.mccortex = self._start_mccortex()
@@ -108,7 +109,7 @@ class WebServer(object):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         # Adding two lists together appends one to the other
         try:
-            proc = Popen(["mccortex31",
+            proc = Popen([self.mccortex_path,
                           "server",
                           "-m", self.memory,
                           "--single-line",
