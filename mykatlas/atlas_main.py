@@ -198,6 +198,10 @@ def main():
             force_mixin,
             genotyping_mixin],
         help='Walk through a graph using an existing sequence probe set as seeds. default walking algorithm is a depth first search')
+    parser_walk.add_argument(
+        '--also-genotype',
+        default=False,
+        action="store_true")    
     parser_walk.add_argument('--show-all-paths', action="store_true")
     parser_walk.set_defaults(func=run_subtool)
 

@@ -46,7 +46,8 @@ class Placer(object):
     @property
     def searchable_callsets(self):
         callset_ids = VariantCallSet.objects(
-            sample_id__in=self.searchable_samples, info={"variant_caller": "atlas"}).distinct("id")
+            sample_id__in=self.searchable_samples, info={
+                "variant_caller": "atlas"}).distinct("id")
         return callset_ids
 
     def _query_call_sets_for_distinct_variants(self):
@@ -60,7 +61,7 @@ class Placer(object):
                 "variants": {"$addToSet": "$variant"}
             }
             }
-        ],allowDiskUse=True)
+        ], allowDiskUse=True)
 
     def _parse_distinct_variant_query(self, variant_call_sets):
         call_set_to_distinct_variants = {}
@@ -143,7 +144,7 @@ class Placer(object):
             intersection_count = len(csvs & sample_variants_set)
             symmetric_difference_count = len(csvs ^ sample_variants_set)
             in_query_not_in_searched_count = len(csvs - sample_variants_set)
-            not_in_query_in_searched_count = len(sample_variants_set - csvs )
+            not_in_query_in_searched_count = len(sample_variants_set - csvs)
             if call_set_id != str(query_sample_call_set.id):
                 sample_to_distance_metrics[sample] = {}
                 sample_to_distance_metrics[sample][
@@ -151,7 +152,7 @@ class Placer(object):
                 sample_to_distance_metrics[sample][
                     "in_query_not_in_searched_count"] = in_query_not_in_searched_count
                 sample_to_distance_metrics[sample][
-                    "not_in_query_in_searched_count"] = not_in_query_in_searched_count                                        
+                    "not_in_query_in_searched_count"] = not_in_query_in_searched_count
                 sample_to_distance_metrics[sample][
                     "intersection_count"] = intersection_count
                 sample_to_distance_metrics[sample]["ratio"] = float(
@@ -163,11 +164,7 @@ class Placer(object):
         if best_intersect > 0:
             logger.info(
                 "Finished searching %i samples - closest sample to %s is %s with %i overlapping variants and %i variants between them" %
-                (len(call_set_to_distinct_variants),
-                 query_sample,
-                 best_sample,
-                 best_intersect,
-                 best_sample_symmetric_difference_count))
+                (len(call_set_to_distinct_variants), query_sample, best_sample, best_intersect, best_sample_symmetric_difference_count))
             return self._within_N_matches(sample_to_distance_metrics, N=1000)
         else:
             logger.info(

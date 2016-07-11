@@ -111,7 +111,7 @@ genotyping_mixin.add_argument(
 genotyping_mixin.add_argument(
     '--report_all_calls',
     help="report all calls",
-    action='store_true',    
+    action='store_true',
     default=False)
 genotyping_mixin.add_argument(
     "--min_variant_conf",

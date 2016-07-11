@@ -42,7 +42,6 @@ def get_repeat_kmers(record, k):
     kmers = {}
     kmers_seq = []
     for i in range(len(record.seq) - k + 1):
-        print (record.seq)
         _kmers = [str(record.seq[i:i + k]),
                   str(record.seq[i:i + k].reverse_complement())]
         for kmer in _kmers:
@@ -128,10 +127,19 @@ def run(parser, args):
     check_args(args)
     if args.seq:
         build_binary()
-    _out_dict = run_genotype(parser, args)
+    if args.also_genotype:
+        _out_dict = run_genotype(parser, args)
+    else:
+        _out_dict = {}
+        _out_dict[args.sample] = {}
     _out_dict[args.sample]["paths"] = {}
     out_dict = _out_dict[args.sample]["paths"]
-    wb = WebServer(port=0, args=[args.ctx], memory=args.memory, mccortex_path = args.mccortex31_path)
+    wb = WebServer(
+        port=0,
+        args=[
+            args.ctx],
+        memory=args.memory,
+        mccortex_path=args.mccortex31_path)
     logger.debug("Loading binary")
     wb.start()
     logger.debug("Walking the graph")
