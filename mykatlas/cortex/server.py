@@ -167,7 +167,7 @@ class McCortexQueryResult(object):
     def __repr__(self):
         return str(self.data)
 
-    def forward(self, mcq = None, suggested_kmer=None):
+    def forward(self, mcq=None, suggested_kmer=None):
         forward_kmers = []
         if self.complement:
             for l in self.left:
@@ -179,9 +179,11 @@ class McCortexQueryResult(object):
         if len(forward_kmers) == 1:
             return forward_kmers
         elif mcq:
-            ## filter kmers with low depth
+            # filter kmers with low depth
             m_depth = max(self.depth * 0.1, 10)
-            forward_kmers = [k for k in forward_kmers if mcq.query(k,).depth > m_depth]
+            forward_kmers = [
+                k for k in forward_kmers if mcq.query(
+                    k,).depth > m_depth]
         if suggested_kmer is not None and suggested_kmer in forward_kmers:
             return [suggested_kmer]
         if len(forward_kmers) > 1 and self.known_kmers:
@@ -192,7 +194,7 @@ class McCortexQueryResult(object):
             assert len(forward_kmers) > 0
         return forward_kmers
 
-    def reverse(self, mcq = None, suggested_kmer=None):
+    def reverse(self, mcq=None, suggested_kmer=None):
         reverse_kmers = []
         if self.complement:
             for l in self.right:
@@ -204,9 +206,11 @@ class McCortexQueryResult(object):
         if len(reverse_kmers) == 1:
             return reverse_kmers
         elif mcq:
-            ## filter kmers with low depth
+            # filter kmers with low depth
             m_depth = max(self.depth * 0.1, 10)
-            reverse_kmers = [k for k in reverse_kmers if mcq.query(k,).depth > m_depth]                            
+            reverse_kmers = [
+                k for k in reverse_kmers if mcq.query(
+                    k,).depth > m_depth]
         if suggested_kmer is not None and suggested_kmer in reverse_kmers:
             return [suggested_kmer]
         if len(reverse_kmers) > 1 and self.known_kmers:
@@ -300,7 +304,10 @@ class GraphWalker(object):
             repeat_kmers,
             known_kmers,
             count):
-        kmers = q.forward(suggested_kmer=repeat_kmers.get(k, {}).get(count[k]), mcq = self.mcq)
+        kmers = q.forward(
+            suggested_kmer=repeat_kmers.get(
+                k, {}).get(
+                count[k]), mcq=self.mcq)
         if q.depth is not None:
             if self.print_depths:
                 paths[i]["depth"].append(q.depth)
@@ -323,7 +330,7 @@ class GraphWalker(object):
             repeat_kmers,
             known_kmers=[],
             count={}):
-        kmers = q.reverse(mcq = self.mcq)
+        kmers = q.reverse(mcq=self.mcq)
         if q.depth is not None:
             if len(kmers) > 1:
                 depth = max(q.depth * 0.1, 10)

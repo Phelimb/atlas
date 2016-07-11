@@ -201,7 +201,7 @@ def main():
     parser_walk.add_argument(
         '--also-genotype',
         default=False,
-        action="store_true")    
+        action="store_true")
     parser_walk.add_argument('--show-all-paths', action="store_true")
     parser_walk.set_defaults(func=run_subtool)
 
