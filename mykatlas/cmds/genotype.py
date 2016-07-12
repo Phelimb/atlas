@@ -36,16 +36,19 @@ def run_main(parser, args):
         base_json[args.sample]["files"] = args.ctx
     base_json[args.sample]["kmer"] = args.kmer
     base_json[args.sample]["version"] = __version__
-    gt = Genotyper(sample=args.sample, expected_depths=[args.expected_depth],
-                   variant_covgs=cp.variant_covgs,
-                   gene_presence_covgs=cp.covgs["presence"],
-                   base_json=base_json,
-                   contamination_depths=[],
-                   ignore_filtered=args.ignore_filtered,
-                   report_all_calls=args.report_all_calls,
-                   variant_confidence_threshold=args.min_variant_conf,
-                   sequence_confidence_threshold=args.min_gene_conf,
-                   min_gene_percent_covg_threshold=args.min_gene_percent_covg_threshold)
+    gt = Genotyper(
+        sample=args.sample,
+        expected_depths=[
+            args.expected_depth],
+        variant_covgs=cp.variant_covgs,
+        gene_presence_covgs=cp.covgs["presence"],
+        base_json=base_json,
+        contamination_depths=[],
+        ignore_filtered=args.ignore_filtered,
+        report_all_calls=args.report_all_calls,
+        variant_confidence_threshold=args.min_variant_conf,
+        sequence_confidence_threshold=args.min_gene_conf,
+        min_gene_percent_covg_threshold=args.min_gene_percent_covg_threshold)
     gt.run()
     if not args.keep_tmp:
         cp.remove_temporary_files()

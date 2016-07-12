@@ -273,8 +273,11 @@ class Genotyper(object):
             contamination_depths=self.contamination_depths,
             confidence_threshold=self.sequence_confidence_threshold)
         for gene_name, gene_collection in self.gene_presence_covgs.items():
-            self.gene_presence_covgs[gene_name] = gt.type(gene_collection, min_gene_percent_covg_threshold=self.min_gene_percent_covg_threshold)
-            self.sequence_calls_dict[gene_name] = [gpc.to_mongo().to_dict() for gpc in self.gene_presence_covgs[gene_name]]
+            self.gene_presence_covgs[gene_name] = gt.type(
+                gene_collection,
+                min_gene_percent_covg_threshold=self.min_gene_percent_covg_threshold)
+            self.sequence_calls_dict[gene_name] = [
+                gpc.to_mongo().to_dict() for gpc in self.gene_presence_covgs[gene_name]]
         self.out_json[self.sample][
             "sequence_calls"] = self.sequence_calls_dict
 

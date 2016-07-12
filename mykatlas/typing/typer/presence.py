@@ -143,19 +143,25 @@ class GeneCollectionTyper(Typer):
         self.presence_typer = PresenceTyper(
             expected_depths, contamination_depths)
 
-    def type(self, sequence_coverage_collection,min_gene_percent_covg_threshold=99):
+    def type(self, sequence_coverage_collection,
+             min_gene_percent_covg_threshold=99):
         """Types a collection of genes returning the most likely gene version
             in the collection with it's genotype"""
         best_versions = self.get_best_version(
-            sequence_coverage_collection.values(),min_gene_percent_covg_threshold)
-        return [self.presence_typer.type(best_version) for best_version in best_versions]
+            sequence_coverage_collection.values(),
+            min_gene_percent_covg_threshold)
+        return [self.presence_typer.type(best_version)
+                for best_version in best_versions]
 
-    def get_best_version(self, sequence_coverages,min_gene_percent_covg_threshold):
+    def get_best_version(
+            self,
+            sequence_coverages,
+            min_gene_percent_covg_threshold):
         sequence_coverages.sort(key=lambda x: x.percent_coverage, reverse=True)
         current_best_gene = sequence_coverages[0]
         current_best_genes = [current_best_gene]
         for gene in sequence_coverages[1:]:
-            ## Report if above threshold regardless if it is 
+            # Report if above threshold regardless if it is
             if gene.percent_coverage >= min_gene_percent_covg_threshold:
                 current_best_genes.append(gene)
             elif gene.percent_coverage < min_gene_percent_covg_threshold:
