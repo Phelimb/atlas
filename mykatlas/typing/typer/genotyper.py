@@ -238,7 +238,8 @@ class Genotyper(object):
             ignore_filtered=False,
             minor_freq=DEFAULT_MINOR_FREQ,
             variant_confidence_threshold=0,
-            sequence_confidence_threshold=0):
+            sequence_confidence_threshold=0,
+            min_gene_percent_covg_threshold=100):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -257,6 +258,7 @@ class Genotyper(object):
         self.minor_freq = minor_freq
         self.variant_confidence_threshold = variant_confidence_threshold
         self.sequence_confidence_threshold = sequence_confidence_threshold
+        self.min_gene_percent_covg_threshold = min_gene_percent_covg_threshold
 
     def run(self):
         self._type()
@@ -271,9 +273,8 @@ class Genotyper(object):
             contamination_depths=self.contamination_depths,
             confidence_threshold=self.sequence_confidence_threshold)
         for gene_name, gene_collection in self.gene_presence_covgs.items():
-            self.gene_presence_covgs[gene_name] = gt.type(gene_collection)
-            self.sequence_calls_dict[gene_name] = self.gene_presence_covgs[
-                gene_name].to_mongo().to_dict()
+            self.gene_presence_covgs[gene_name] = gt.type(gene_collection, min_gene_percent_covg_threshold=self.min_gene_percent_covg_threshold)
+            self.sequence_calls_dict[gene_name] = [gpc.to_mongo().to_dict() for gpc in self.gene_presence_covgs[gene_name]]
         self.out_json[self.sample][
             "sequence_calls"] = self.sequence_calls_dict
 
