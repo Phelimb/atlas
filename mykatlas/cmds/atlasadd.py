@@ -21,8 +21,9 @@ GLOBAL_VARIANT_SET_NAME = "global_atlas"
 
 logger = logging.getLogger(__name__)
 client = MongoClient()
+import redis
 
-
+r = redis.StrictRedis()
 class AtlasGenotypeResult(object):
 
     def __init__(self, sample, method, data, force=False):
@@ -33,16 +34,48 @@ class AtlasGenotypeResult(object):
         self.force = force
 
     def add(self):
-        self._create_call_sets()
-        self._create_calls()
+        # self._create_call_sets()
+        # self._create_calls()
+
+        sorted_calls = sorted(self.data["variant_calls"].items())
+        self._create_var_list(sorted_calls)
+        bitmap = self._create_genotype_bitmap(sorted_calls)
+        self._insert_bitmap(bitmap, name = "gt")
+        bitmap = self._create_conf_bitmap(sorted_calls)        
+        self._insert_bitmap(bitmap, name = "conf")
+
+    def _insert_bitmap(self, bitmap, name = ""):
+        pipe = r.pipeline()
+        for i,j in enumerate(bitmap):
+            pipe.setbit("_".join([self.call_set_name , name]),i,j)
+        pipe.execute()
+
+    def _create_var_list(self,sorted_calls):
+        key = "var_hash" #"_".join([self.call_set_name , "var_hash"])
+        variants = [call[0][:64] for call in sorted_calls]
+        r.delete(key)
+        pipe = r.pipeline()
+        for i in variants:
+            pipe.rpush(key,i)
+        pipe.execute()
+        return variants
+
+    def _create_genotype_bitmap(self,sorted_calls):
+        bitmap = [int(sum(call[1]["genotype"])>1) for call in sorted_calls]
+        return bitmap
+
+    def _create_conf_bitmap(self,sorted_calls):
+        bitmap = [int(call[1]["info"]["conf"]>1) for call in sorted_calls]
+        return bitmap        
+
+    @property
+    def call_set_name(self):
+        return "_".join([self.sample, self.method])
 
     def _create_call_sets(self):
         try:
             self.call_set = VariantCallSet.create_and_save(
-                name="_".join(
-                    [
-                        self.sample,
-                        self.method]),
+                name=self.call_set_name,
                 variant_sets=[self.global_variant_set],
                 sample_id=self.sample,
                 info={

@@ -217,7 +217,11 @@ def main():
         type=str,
         help='sample id')
     parser_place.add_argument('--tree', metavar='tree', type=str, help='tree')
-    parser_place.add_argument('--searchable_samples', metavar='searchable_samples', type=str, help='list of samples (file)')
+    parser_place.add_argument(
+        '--searchable_samples',
+        metavar='searchable_samples',
+        type=str,
+        help='list of samples (file)')
     parser_place.add_argument(
         '--no-cache',
         default=False,
