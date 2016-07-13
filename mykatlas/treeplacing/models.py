@@ -4,6 +4,7 @@ import sys
 import os
 import logging
 import operator
+import csv
 from os import path
 from ga4ghmongo.schema import Variant
 from ga4ghmongo.schema import VariantSet
@@ -21,12 +22,16 @@ class Placer(object):
 
     """Placer"""
 
-    def __init__(self, root=None):
+    def __init__(self, root=None, searchable_samples_file = None):
         super(Placer, self).__init__()
         self.tree = root
+        self.searchable_samples_file = searchable_samples_file
 
     def place(self, sample, use_cache=True):
-        return self.exhaustive_overlap(sample, use_cache=use_cache)
+        # return self.exhaustive_overlap(sample, use_cache=use_cache)
+        print (len(self.searchable_samples))
+        return self.dissimilarity(sample, use_cache=use_cache)
+
 
     def walker(self, sample, verbose=False):
         logger.debug("Placing sample %s on the tree" % sample)
@@ -40,6 +45,13 @@ class Placer(object):
     def searchable_samples(self):
         if self.tree is not None:
             return self.tree.samples
+        elif self.searchable_samples_file:
+            searchable_samples = []
+            with open(self.searchable_samples_file,'r') as infile:
+                reader = csv.reader(infile)
+                for row in reader:
+                    searchable_samples.extend(row)
+            return searchable_samples
         else:
             return VariantCallSet.objects().distinct("sample_id")
 
@@ -49,6 +61,9 @@ class Placer(object):
             sample_id__in=self.searchable_samples, info={
                 "variant_caller": "atlas"}).distinct("id")
         return callset_ids
+
+    def _get_confident_variant_id(self, call_set):
+        return VariantCall.objects(call_set = call_set, info__conf__gt = 1, info__filter = "PASS").distinct('variant')       
 
     def _query_call_sets_for_distinct_variants(self):
         return VariantCall._get_collection().aggregate([
@@ -117,14 +132,87 @@ class Placer(object):
             call_set_to_distinct_variants = self._calculate_call_set_to_distinct_variants()
         return call_set_to_distinct_variants
 
-    def exhaustive_overlap(self, query_sample, use_cache=True):
+    def _get_variant_call_set(self,query_sample):
         try:
             query_sample_call_set = VariantCallSet.objects.get(
                 sample_id=query_sample, info={"variant_caller": "atlas"})
+            return query_sample_call_set 
         except DoesNotExist:
             raise ValueError(
                 "\n\n%s does not exist in the database. \n\nPlease run `atlas genotype --save` before `atlas place` " %
                 query_sample)
+
+    def _get_genotype_dict(self, use_cache):
+        if use_cache:
+            try:
+                call_set_to_genotype_dict = self._load_call_set_to_genotype_dict_from_cache()
+            except (IOError, ValueError):
+                logger.info("Couldn't find cached query")
+                call_set_to_genotype_dict = self._calculate_call_set_to_genotype_dict()
+        else:
+            call_set_to_genotype_dict = self._calculate_call_set_to_genotype_dict()
+        return call_set_to_genotype_dict  
+
+    def _calculate_call_set_to_genotype_dict(self):
+        out = {}
+        for call_set in self.searchable_callsets:
+            logger.info("Extracting genotypes %s" % call_set)
+            genotypes_compare = self._get_genotypes(call_set_id = call_set)
+            out[str(call_set)] =  genotypes_compare
+        self._dump_call_set_to_genotype_dict_to_cache(out)
+        return out
+
+    def _load_call_set_to_genotype_dict_from_cache(self):
+        logger.info("Loading distinct_variants query from cache")
+        with open("/tmp/call_set_to_genotype_dict_cache.json", 'r') as infile:
+            return json.load(infile)
+
+    def _dump_call_set_to_genotype_dict_to_cache(
+            self, call_set_to_genotype_dict):
+        with open("/tmp/call_set_to_genotype_dict_cache.json", 'w') as outfile:
+            json.dump(call_set_to_genotype_dict, outfile)            
+
+    def dissimilarity(self, query_sample, use_cache = True):
+        query_sample_call_set = self._get_variant_call_set(query_sample)
+        sample_to_distance_metrics = {}
+        logger.info("Extracting genotypes for query and DB") 
+        genotype_dict = self._get_genotype_dict(use_cache)
+        # query_confident_variants=set(self._get_confident_variant_id(query_sample_call_set.id))
+        genotypes_query = genotype_dict[str(query_sample_call_set.id)]
+        for compare_call_set, genotypes_compare in genotype_dict.items():
+            if str(compare_call_set) != str(query_sample_call_set.id):
+                sample = VariantCallSet.objects.get(id=compare_call_set).sample_id
+                assert len(genotypes_query) == len(genotypes_compare)
+                diff_count = 0
+                logger.info("Comparing genotypes")   
+                for i,j in zip(genotypes_query,genotypes_compare):
+                    if i[0] != j[0] and j[1] and i[1] and i[0] != 1 and j[0] !=1:
+                        diff_count += 1
+                sample_to_distance_metrics[sample] = {}
+                sample_to_distance_metrics[sample]["distance"] = diff_count
+        return self._sort_dist(sample_to_distance_metrics)
+
+    def _sort_dist(self,sample_to_distance_metrics):
+        out = {}
+        sorted_sample_to_distance_metrics_keys = sorted(
+            sample_to_distance_metrics.keys(),
+            key=lambda x: (
+                sample_to_distance_metrics[x]['distance']),
+            reverse=False)
+        for i, k in enumerate(sorted_sample_to_distance_metrics_keys):
+            out[i] = {k: sample_to_distance_metrics[k]}
+        return out
+
+    def _get_genotypes(self, call_set_id, variants = None):
+        if variants:
+            q = VariantCall.objects(call_set = call_set_id, variant__in = variants).only('genotype','info.conf','variant').order_by('variant').as_pymongo()
+        else:
+            q = VariantCall.objects(call_set = call_set_id).only('genotype','info.conf','variant').order_by('variant').as_pymongo()
+        return [(sum(vc['genotype']),int(vc['info']['conf']>1)) for vc in q]
+
+
+    def exhaustive_overlap(self, query_sample, use_cache=True):
+        query_sample_call_set = self._get_variant_call_set(query_sample)
         call_set_to_distinct_variants = self._get_call_set_to_distinct_variants(
             use_cache)
         best_sample_symmetric_difference_count = 10000
