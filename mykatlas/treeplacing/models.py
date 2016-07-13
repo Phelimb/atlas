@@ -16,7 +16,9 @@ sys.path.append(path.abspath("../"))
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+import redis
 
+r = redis.StrictRedis()
 
 class Placer(object):
 
@@ -174,22 +176,16 @@ class Placer(object):
             json.dump(call_set_to_genotype_dict, outfile)
 
     def dissimilarity(self, query_sample, use_cache=True):
-        query_sample_call_set = self._get_variant_call_set(query_sample)
         sample_to_distance_metrics = {}
         logger.info("Extracting genotypes for query and DB")
-        genotype_dict = self._get_genotype_dict(use_cache)
-        # query_confident_variants=set(self._get_confident_variant_id(query_sample_call_set.id))
-        genotypes_query = genotype_dict[str(query_sample_call_set.id)]
-        for compare_call_set, genotypes_compare in genotype_dict.items():
-            if str(compare_call_set) != str(query_sample_call_set.id):
-                sample = VariantCallSet.objects.get(
-                    id=compare_call_set).sample_id
-                assert len(genotypes_query) == len(genotypes_compare)
-                diff_count = 0
-                for i, j in zip(genotypes_query, genotypes_compare):
-                    if i[0] != j[0] and j[1] and i[
-                            1] and i[0] != 1 and j[0] != 1:
-                        diff_count += 1
+        for sample in self.searchable_samples:
+            diff_count = 0
+            if str(sample) != str(query_sample) and r.get("%s_atlas_gt" % sample):
+                XOR_KEY = "XOR_%s_%s_atlas_gt" % (query_sample,sample)
+                XOR_AND_KEY = XOR_KEY + "_filtered"
+                r.bitop("XOR", XOR_KEY ,"%s_atlas_gt" %query_sample ,"%s_atlas_gt" % sample)
+                r.bitop("AND", XOR_AND_KEY  ,XOR_KEY ,"%s_atlas_conf" % sample, "%s_atlas_conf" % query_sample)
+                diff_count = r.bitcount(XOR_AND_KEY)
                 sample_to_distance_metrics[sample] = {}
                 sample_to_distance_metrics[sample]["distance"] = diff_count
         return self._sort_dist(sample_to_distance_metrics)

@@ -24,6 +24,8 @@ client = MongoClient()
 import redis
 
 r = redis.StrictRedis()
+
+
 class AtlasGenotypeResult(object):
 
     def __init__(self, sample, method, data, force=False):
@@ -40,33 +42,33 @@ class AtlasGenotypeResult(object):
         sorted_calls = sorted(self.data["variant_calls"].items())
         self._create_var_list(sorted_calls)
         bitmap = self._create_genotype_bitmap(sorted_calls)
-        self._insert_bitmap(bitmap, name = "gt")
-        bitmap = self._create_conf_bitmap(sorted_calls)        
-        self._insert_bitmap(bitmap, name = "conf")
+        self._insert_bitmap(bitmap, name="gt")
+        bitmap = self._create_conf_bitmap(sorted_calls)
+        self._insert_bitmap(bitmap, name="conf")
 
-    def _insert_bitmap(self, bitmap, name = ""):
+    def _insert_bitmap(self, bitmap, name=""):
         pipe = r.pipeline()
-        for i,j in enumerate(bitmap):
-            pipe.setbit("_".join([self.call_set_name , name]),i,j)
+        for i, j in enumerate(bitmap):
+            pipe.setbit("_".join([self.call_set_name, name]), i, j)
         pipe.execute()
 
-    def _create_var_list(self,sorted_calls):
-        key = "var_hash" #"_".join([self.call_set_name , "var_hash"])
+    def _create_var_list(self, sorted_calls):
+        key = "var_hash"  # "_".join([self.call_set_name , "var_hash"])
         variants = [call[0][:64] for call in sorted_calls]
-        r.delete(key)
         pipe = r.pipeline()
+        pipe.delete(key)
         for i in variants:
-            pipe.rpush(key,i)
+            pipe.rpush(key, i)
         pipe.execute()
         return variants
 
-    def _create_genotype_bitmap(self,sorted_calls):
-        bitmap = [int(sum(call[1]["genotype"])>1) for call in sorted_calls]
+    def _create_genotype_bitmap(self, sorted_calls):
+        bitmap = [int(sum(call[1]["genotype"]) > 1) for call in sorted_calls]
         return bitmap
 
-    def _create_conf_bitmap(self,sorted_calls):
-        bitmap = [int(call[1]["info"]["conf"]>1) for call in sorted_calls]
-        return bitmap        
+    def _create_conf_bitmap(self, sorted_calls):
+        bitmap = [int(call[1]["info"]["conf"] > 1) for call in sorted_calls]
+        return bitmap
 
     @property
     def call_set_name(self):
