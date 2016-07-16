@@ -20,6 +20,7 @@ import redis
 
 r = redis.StrictRedis()
 
+
 class Placer(object):
 
     """Placer"""
@@ -180,11 +181,25 @@ class Placer(object):
         logger.info("Extracting genotypes for query and DB")
         for sample in self.searchable_samples:
             diff_count = 0
-            if str(sample) != str(query_sample) and r.get("%s_atlas_gt" % sample):
-                XOR_KEY = "XOR_%s_%s_atlas_gt" % (query_sample,sample)
+            if str(sample) != str(query_sample) and r.get(
+                    "%s_atlas_gt" % sample):
+                XOR_KEY = "XOR_%s_%s_atlas_gt" % (query_sample, sample)
                 XOR_AND_KEY = XOR_KEY + "_filtered"
-                r.bitop("XOR", XOR_KEY ,"%s_atlas_gt" %query_sample ,"%s_atlas_gt" % sample)
-                r.bitop("AND", XOR_AND_KEY  ,XOR_KEY ,"%s_atlas_conf" % sample, "%s_atlas_conf" % query_sample)
+                r.bitop(
+                    "XOR",
+                    XOR_KEY,
+                    "%s_atlas_gt" %
+                    query_sample,
+                    "%s_atlas_gt" %
+                    sample)
+                r.bitop(
+                    "AND",
+                    XOR_AND_KEY,
+                    XOR_KEY,
+                    "%s_atlas_conf" %
+                    sample,
+                    "%s_atlas_conf" %
+                    query_sample)
                 diff_count = r.bitcount(XOR_AND_KEY)
                 sample_to_distance_metrics[sample] = {}
                 sample_to_distance_metrics[sample]["distance"] = diff_count
