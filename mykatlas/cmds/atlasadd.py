@@ -36,15 +36,13 @@ class AtlasGenotypeResult(object):
         self.force = force
 
     def add(self):
-        # self._create_call_sets()
-        # self._create_calls()
+        self._create_call_sets()
+        self._create_calls()
 
-        sorted_calls = sorted(self.data["variant_calls"].items())
-        self._create_var_list(sorted_calls)
-        bitmap = self._create_genotype_bitmap(sorted_calls)
+        bitmap = self._create_genotype_bitmap(self.data["genotypes"])
         self._insert_bitmap(bitmap, name="gt")
-        bitmap = self._create_conf_bitmap(sorted_calls)
-        self._insert_bitmap(bitmap, name="conf")
+        bitmap = self._create_filtered_bitmap(self.data["filtered"])
+        self._insert_bitmap(bitmap, name="filtered")
 
     def _insert_bitmap(self, bitmap, name=""):
         pipe = r.pipeline()
@@ -63,12 +61,12 @@ class AtlasGenotypeResult(object):
         return variants
 
     def _create_genotype_bitmap(self, sorted_calls):
-        bitmap = [int(sum(call[1]["genotype"]) > 1) for call in sorted_calls]
+        bitmap = [int(call > 1) for call in sorted_calls]
         return bitmap
 
-    def _create_conf_bitmap(self, sorted_calls):
-        bitmap = [int(call[1]["info"]["conf"] > 1) for call in sorted_calls]
-        return bitmap
+    def _create_filtered_bitmap(self, sorted_calls):
+        # bitmap = [int(call[1]["info"]["conf"] > 1) for call in sorted_calls]
+        return sorted_calls
 
     @property
     def call_set_name(self):
@@ -100,15 +98,16 @@ class AtlasGenotypeResult(object):
     def _create_calls(self):
         calls = []
         for var_hash, call in self.data["variant_calls"].items():
-            var_hash = var_hash[:64]
-            v = Variant.objects.get(var_hash=var_hash)
-            c = VariantCall.create(
-                variant=v,
-                call_set=self.call_set,
-                genotype=call["genotype"],
-                genotype_likelihoods=call["genotype_likelihoods"],
-                info=call["info"])
-            calls.append(c)
+            if sum(call["genotype"]) >0 :
+                var_hash = var_hash[:64]
+                v = Variant.objects.get(var_hash=var_hash)
+                c = VariantCall.create(
+                    variant=v,
+                    call_set=self.call_set,
+                    genotype=call["genotype"],
+                    genotype_likelihoods=call["genotype_likelihoods"],
+                    info=call["info"])
+                calls.append(c)
         VariantCall.objects.insert(calls)
 
     @property
