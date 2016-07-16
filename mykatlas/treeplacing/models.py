@@ -218,8 +218,12 @@ class Placer(object):
 
     def _get_genotypes(self, call_set_id, variants=None):
         if variants:
-            q = VariantCall.objects(call_set=call_set_id, variant__in=variants).only(
-                'genotype', 'info.conf', 'variant').order_by('variant').as_pymongo()
+            q = VariantCall.objects(
+                call_set=call_set_id,
+                variant__in=variants).only(
+                'genotype',
+                'info.conf',
+                'variant').order_by('variant').as_pymongo()
         else:
             q = VariantCall.objects(
                 call_set=call_set_id).only(
@@ -269,7 +273,11 @@ class Placer(object):
         if best_intersect > 0:
             logger.info(
                 "Finished searching %i samples - closest sample to %s is %s with %i overlapping variants and %i variants between them" %
-                (len(call_set_to_distinct_variants), query_sample, best_sample, best_intersect, best_sample_symmetric_difference_count))
+                (len(call_set_to_distinct_variants),
+                 query_sample,
+                 best_sample,
+                 best_intersect,
+                 best_sample_symmetric_difference_count))
             return self._within_N_matches(sample_to_distance_metrics, N=1000)
         else:
             logger.info(
