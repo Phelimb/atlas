@@ -289,24 +289,24 @@ class Genotyper(object):
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,
             confidence_threshold=self.variant_confidence_threshold)
-
+        genotypes = []
+        filters = []
         for probe_name, probe_coverages in self.variant_covgs.items():
-            variant = self._create_variant(probe_name)
+            # variant = self._create_variant(probe_name)
+            variant = None
             call = gt.type(probe_coverages, variant=variant)
-            if sum(
-                    call.genotype) > 0 or not call.genotype or self.report_all_calls:
+            genotypes.append(sum(call["genotype"]))
+            filters.append(int(call["info"]["filter"] == "PASS"))
+            if sum(call["genotype"]) > 0 or not call["genotype"] or self.report_all_calls:
                 self.variant_calls[probe_name] = call
-                if variant is not None:
-                    tmp_var = copy(call.variant)
-                    call.variant = None
-                    self.variant_calls_dict["-".join(tmp_var.names)
-                                            ] = call.to_mongo().to_dict()
-                    self.variant_calls[probe_name].variant = tmp_var
-                else:
-                    probe_id = probe_name.split("?")[0].split("-")[1]
-                    self.variant_calls_dict[
-                        probe_id] = call.to_mongo().to_dict()
+                probe_id = probe_name.split("?")[0].split("-")[1]
+                self.variant_calls_dict[
+                    probe_id] = call
+        self.out_json[self.sample]["genotypes"] = genotypes
+        self.out_json[self.sample]["filtered"] = filters
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
+ 
+
 
     def _create_variant(self, probe_name):
         names = []

@@ -55,16 +55,16 @@ class VariantTyper(Typer):
             calls.append(
                 self._type_variant_probe_coverages(
                     variant_probe_coverage, variant))
-        hom_alt_calls = [c for c in calls if sum(c.genotype) > 1]
-        het_calls = [c for c in calls if sum(c.genotype) == 1]
+        hom_alt_calls = [c for c in calls if sum(c["genotype"]) > 1]
+        het_calls = [c for c in calls if sum(c["genotype"]) == 1]
         if hom_alt_calls:
-            hom_alt_calls.sort(key=lambda x: x.genotype_conf, reverse=True)
+            hom_alt_calls.sort(key=lambda x: x["info"]["conf"], reverse=True)
             return hom_alt_calls[0]
         elif het_calls:
-            het_calls.sort(key=lambda x: x.genotype_conf, reverse=True)
+            het_calls.sort(key=lambda x: x["info"]["conf"], reverse=True)
             return het_calls[0]
         else:
-            calls.sort(key=lambda x: x.genotype_conf, reverse=True)
+            calls.sort(key=lambda x: x["info"]["conf"], reverse=True)
             return calls[0]
 
     def _type_variant_probe_coverages(
@@ -101,11 +101,12 @@ class VariantTyper(Typer):
         if confidence < self.confidence_threshold:
             info["filter"] = "LOW_GT_CONF"
 
-        return VariantCall.create(
-            variant=variant,
-            genotype=gt,
-            genotype_likelihoods=likelihoods,
-            info=info)
+        return {"variant":variant,"genotype":[int(i) for i in gt.split("/")],"genotype_likelihoods":likelihoods,"info":info,"_cls":"Call.VariantCall"}
+        # VariantCall.create(
+        #     variant=variant,
+        #     genotype=gt,
+        #     genotype_likelihoods=likelihoods,
+        #     info=info)
 
     def _check_min_coverage(self, variant_probe_coverage):
         if variant_probe_coverage.alternate_min_depth < 0.1 * \
