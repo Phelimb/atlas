@@ -97,7 +97,7 @@ class VariantTyper(Typer):
         elif variant_probe_coverage.alternate_percent_coverage < 100 and variant_probe_coverage.reference_percent_coverage < 100:
             info["filter"] = "LOW_PERCENT_COVERAGE"
             if self.ignore_filtered:
-                gt = "-/-"
+                gt = "0/0"
         if confidence < self.confidence_threshold:
             info["filter"] = "LOW_GT_CONF"
 

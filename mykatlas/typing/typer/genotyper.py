@@ -295,14 +295,13 @@ class Genotyper(object):
         genotypes = []
         filters = []
         for probe_name, probe_coverages in self.variant_covgs.items():
-            # variant = self._create_variant(probe_name)
+            probe_id = self._name_to_id(probe_name)
             variant = None
             call = gt.type(probe_coverages, variant=variant)
             genotypes.append(sum(call["genotype"]))
             filters.append(int(call["info"]["filter"] == "PASS"))
             if sum(call["genotype"]) > 0 or not call["genotype"] or self.report_all_calls:
                 self.variant_calls[probe_name] = call
-                probe_id = probe_name.split("?")[0].split("-")[1]
                 self.variant_calls_dict[
                     probe_id] = call
         self.out_json[self.sample]["genotypes"] = genotypes
@@ -310,6 +309,14 @@ class Genotyper(object):
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
  
 
+    def _name_to_id(self, probe_name):
+        names = []
+        params = get_params(probe_name)
+        if params.get("mut"):
+            names.append("_".join([params.get("gene"), params.get("mut")]))
+        var_name = probe_name.split('?')[0].split('-')[1]
+        names.append(var_name)
+        return "-".join(names)
 
     def _create_variant(self, probe_name):
         names = []
