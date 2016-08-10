@@ -36,12 +36,12 @@ def check_mccortex_alive(proc):
 def query_mccortex(proc, kmer):
     print(kmer, file=proc.stdin)
     proc.stdin.flush()
-    check_mccortex_alive(proc)
+    # check_mccortex_alive(proc)
     line = proc.stdout.readline()
     # Trim off prompt text
     if line[0:2] == "> ":
         line = line[2:len(line)]
-    check_mccortex_alive(proc)
+    # check_mccortex_alive(proc)
     return line
 
 # when we start mccortex we set it to ignore interrupt signal, we handle it.

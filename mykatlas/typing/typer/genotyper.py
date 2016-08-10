@@ -236,6 +236,7 @@ class Genotyper(object):
             base_json={},
             report_all_calls=False,
             ignore_filtered=False,
+            expected_error_rate=DEFAULT_ERROR_RATE,
             minor_freq=DEFAULT_MINOR_FREQ,
             variant_confidence_threshold=0,
             sequence_confidence_threshold=0,
@@ -253,6 +254,7 @@ class Genotyper(object):
         self.sequence_calls = {}
         self.variant_calls_dict = {}
         self.sequence_calls_dict = {}
+        self.expected_error_rate = expected_error_rate
         self.report_all_calls = report_all_calls
         self.ignore_filtered = ignore_filtered
         self.minor_freq = minor_freq
@@ -285,6 +287,7 @@ class Genotyper(object):
         self.out_json[self.sample]["variant_calls"] = {}
         gt = VariantTyper(
             expected_depths=self.expected_depths,
+            error_rate = self.expected_error_rate,
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,

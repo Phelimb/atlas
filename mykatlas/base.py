@@ -114,6 +114,10 @@ genotyping_mixin.add_argument(
     action='store_true',
     default=False)
 genotyping_mixin.add_argument(
+    "--expected_error_rate",
+    help="Expected sequencing error rate. Set to 0.15 for ONT genotyping.",
+    default=0.05, type=float)
+genotyping_mixin.add_argument(
     "--min_variant_conf",
     help="minimum genotype confidence for variant genotyping",
     default=0, type=int)

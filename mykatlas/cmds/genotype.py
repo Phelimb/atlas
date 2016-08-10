@@ -38,6 +38,7 @@ def run_main(parser, args):
     base_json[args.sample]["version"] = __version__
     gt = Genotyper(
         sample=args.sample,
+        expected_error_rate=args.expected_error_rate,
         expected_depths=[
             args.expected_depth],
         variant_covgs=cp.variant_covgs,
