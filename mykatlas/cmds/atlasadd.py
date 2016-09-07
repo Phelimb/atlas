@@ -36,8 +36,8 @@ class AtlasGenotypeResult(object):
         self.force = force
 
     def add(self):
-        self._create_call_sets()
-        self._create_calls()
+        # self._create_call_sets()
+        # self._create_calls()
 
         bitmap = self._create_genotype_bitmap(self.data["genotypes"])
         self._insert_bitmap(bitmap, name="gt")
@@ -98,7 +98,7 @@ class AtlasGenotypeResult(object):
     def _create_calls(self):
         calls = []
         for var_hash, call in self.data["variant_calls"].items():
-            if sum(call["genotype"]) >0 :
+            if sum(call["genotype"]) > 0:
                 var_hash = var_hash[:64]
                 v = Variant.objects.get(var_hash=var_hash)
                 c = VariantCall.create(

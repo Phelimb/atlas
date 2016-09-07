@@ -101,7 +101,13 @@ class VariantTyper(Typer):
         if confidence < self.confidence_threshold:
             info["filter"] = "LOW_GT_CONF"
 
-        return {"variant":variant,"genotype":[int(i) for i in gt.split("/")],"genotype_likelihoods":likelihoods,"info":info,"_cls":"Call.VariantCall"}
+        return {
+            "variant": variant,
+            "genotype": [
+                int(i) for i in gt.split("/")],
+            "genotype_likelihoods": likelihoods,
+            "info": info,
+            "_cls": "Call.VariantCall"}
         # VariantCall.create(
         #     variant=variant,
         #     genotype=gt,

@@ -287,7 +287,7 @@ class Genotyper(object):
         self.out_json[self.sample]["variant_calls"] = {}
         gt = VariantTyper(
             expected_depths=self.expected_depths,
-            error_rate = self.expected_error_rate,
+            error_rate=self.expected_error_rate,
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,
@@ -300,14 +300,14 @@ class Genotyper(object):
             call = gt.type(probe_coverages, variant=variant)
             genotypes.append(sum(call["genotype"]))
             filters.append(int(call["info"]["filter"] == "PASS"))
-            if sum(call["genotype"]) > 0 or not call["genotype"] or self.report_all_calls:
+            if sum(call["genotype"]) > 0 or not call[
+                    "genotype"] or self.report_all_calls:
                 self.variant_calls[probe_name] = call
                 self.variant_calls_dict[
                     probe_id] = call
         self.out_json[self.sample]["genotypes"] = genotypes
         self.out_json[self.sample]["filtered"] = filters
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
- 
 
     def _name_to_id(self, probe_name):
         names = []

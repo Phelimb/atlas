@@ -2,11 +2,7 @@
 from __future__ import print_function
 import sys
 import os
-
-
-import os
 import argparse
-import sys
 sys.path.append(
     os.path.realpath(
         os.path.join(
