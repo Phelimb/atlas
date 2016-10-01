@@ -57,4 +57,4 @@ def run_main(parser, args):
 
 
 def run(parser, args):
-    print(json.dumps(run_main(parser, args)))
+    print(json.dumps(run_main(parser, args), indent=1))

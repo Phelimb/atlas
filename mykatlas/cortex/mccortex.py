@@ -205,7 +205,11 @@ class McCortexGenoRunner(McCortexRunner):
             if os.path.exists(self.covg_tmp_file_path):
                 os.remove(self.covg_tmp_file_path)
             logger.debug("running %s" % " ".join(self.coverages_cmd))
-            subprocess.check_output(self.coverages_cmd)
+            try:
+                subprocess.check_output(self.coverages_cmd)
+            except subprocess.CalledProcessError:
+                raise ValueError(
+                    "mccortex31 raised an error. Is it on PATH? check by running `mccortex31 geno`. The command that through the error was `%s`  " % subprocess.list2cmdline(self.coverages_cmd))
         else:
             # print "Warning: Using pre-built binaries. Run with --force if
             # panel has been updated."
