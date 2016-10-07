@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import os
 import subprocess
-import urllib2
 import logging
 import tempfile
 logging.basicConfig(level=logging.DEBUG)

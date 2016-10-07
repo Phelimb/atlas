@@ -37,6 +37,8 @@ def run_subtool(parser, args):
         from mykatlas.cmds.walk import run
     elif args.command == "place":
         from mykatlas.cmds.place import run
+    elif args.command == "genotype-and-place":
+        from mykatlas.cmds.gtplace import run
     elif args.command == "diff":
         from mykatlas.cmds.diff import run
     # run the chosen submodule.
@@ -224,8 +226,26 @@ def main():
         action="store_true")
     parser_place.set_defaults(func=run_subtool)
 
-    ##
-
+    ##############
+    ## gt & Place ##
+    #############
+    parser_place = subparsers.add_parser(
+        'genotype-and-place', help='Genotype and place a sample on a prebuilt tree', parents=[
+            sequence_or_binary_parser_mixin,
+            probe_set_mixin,
+            force_mixin,
+            genotyping_mixin])
+    parser_place.add_argument('--tree', metavar='tree', type=str, help='tree')
+    parser_place.add_argument(
+        '--searchable_samples',
+        metavar='searchable_samples',
+        type=str,
+        help='list of samples (file)')
+    parser_place.add_argument(
+        '--no-cache',
+        default=False,
+        action="store_true")
+    parser_place.set_defaults(func=run_subtool)
     ##############
     ## Place ##
     #############
@@ -247,7 +267,10 @@ def main():
     ##
 
     args = parser.parse_args()
+    # try:
     args.func(parser, args)
+    # except AttributeError:
+    # parser.print_help()
 
 
 if __name__ == "__main__":

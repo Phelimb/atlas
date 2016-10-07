@@ -196,9 +196,9 @@ class Placer(object):
                     "AND",
                     XOR_AND_KEY,
                     XOR_KEY,
-                    "%s_atlas_conf" %
+                    "%s_atlas_filtered" %
                     sample,
-                    "%s_atlas_conf" %
+                    "%s_atlas_filtered" %
                     query_sample)
                 diff_count = r.bitcount(XOR_AND_KEY)
                 sample_to_distance_metrics[sample] = {}

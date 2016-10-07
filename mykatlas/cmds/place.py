@@ -12,7 +12,7 @@ from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from mongoengine import connect
 import argparse
-from ete2 import Tree
+# from ete2 import Tree
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

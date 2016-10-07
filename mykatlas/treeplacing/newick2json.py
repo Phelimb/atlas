@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 import sys
-from ete2 import Tree
+# from ete2 import Tree
 import random
 
 

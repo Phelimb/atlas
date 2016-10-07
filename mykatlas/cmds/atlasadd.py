@@ -38,7 +38,6 @@ class AtlasGenotypeResult(object):
     def add(self):
         # self._create_call_sets()
         # self._create_calls()
-
         bitmap = self._create_genotype_bitmap(self.data["genotypes"])
         self._insert_bitmap(bitmap, name="gt")
         bitmap = self._create_filtered_bitmap(self.data["filtered"])

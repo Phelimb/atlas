@@ -1,1 +1,1 @@
-from presence import SequenceProbeCoverage
+# from mykatlas.typing.presence import SequenceProbeCoverage
