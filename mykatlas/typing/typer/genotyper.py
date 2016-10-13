@@ -6,7 +6,7 @@ import glob
 import logging
 import subprocess
 from copy import copy
-
+import collections
 from mykatlas.typing import SequenceProbeCoverage
 from mykatlas.typing import VariantProbeCoverage
 from mykatlas.typing import ProbeCoverage
@@ -294,7 +294,8 @@ class Genotyper(object):
             confidence_threshold=self.variant_confidence_threshold)
         genotypes = []
         filters = []
-        for probe_name, probe_coverages in self.variant_covgs.items():
+        # Order must be the same here for the same probes
+        for probe_name, probe_coverages in collections.OrderedDict(sorted(self.variant_covgs.items())).items():
             probe_id = self._name_to_id(probe_name)
             variant = None
             call = gt.type(probe_coverages, variant=variant)

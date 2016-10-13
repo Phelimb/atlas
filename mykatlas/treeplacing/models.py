@@ -25,10 +25,10 @@ class Placer(object):
 
     """Placer"""
 
-    def __init__(self, root=None, searchable_samples_file=None):
+    def __init__(self, root=None, searchable_samples=None):
         super(Placer, self).__init__()
         self.tree = root
-        self.searchable_samples_file = searchable_samples_file
+        self.searchable_samples = searchable_samples
 
     def place(self, sample, use_cache=True):
         # return self.exhaustive_overlap(sample, use_cache=use_cache)
@@ -42,19 +42,19 @@ class Placer(object):
         logger.debug("Using %i variant calls" % len(variant_calls))
         return self.root.search(variant_calls=variant_calls)
 
-    @property
-    def searchable_samples(self):
-        if self.tree is not None:
-            return self.tree.samples
-        elif self.searchable_samples_file:
-            searchable_samples = []
-            with open(self.searchable_samples_file, 'r') as infile:
-                reader = csv.reader(infile)
-                for row in reader:
-                    searchable_samples.extend(row)
-            return searchable_samples
-        else:
-            return VariantCallSet.objects().distinct("sample_id")
+    # @property
+    # def searchable_samples(self):
+    #     if self.tree is not None:
+    #         return self.tree.samples
+    #     elif self.searchable_samples_file:
+    #         searchable_samples = []
+    #         with open(self.searchable_samples_file, 'r') as infile:
+    #             reader = csv.reader(infile)
+    #             for row in reader:
+    #                 searchable_samples.extend(row)
+    #         return searchable_samples
+    #     else:
+    #         return VariantCallSet.objects().distinct("sample_id")
 
     @property
     def searchable_callsets(self):
