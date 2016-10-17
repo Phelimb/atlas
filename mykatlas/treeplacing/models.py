@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 import redis
 
-r = redis.StrictRedis()
+r = redis.StrictRedis('redis')
 
 
 class Placer(object):

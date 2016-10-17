@@ -21,7 +21,7 @@ def predict(file: hug.types.text):
     return {}
 
 
-@hug.get()
+@hug.get(examples='file=333-08.fastq.gz')
 def treeplace(file: hug.types.text):
     with open("RAxML_der_and_valbestTree.raxml3674", "r") as infile:
         tree = load(infile)[0]
@@ -30,7 +30,7 @@ def treeplace(file: hug.types.text):
     #     dump(tree, infile)
     verbose = True
     sample = file.split(".")[0]
-    file = [file]
+    file = ["data/%s" % file]
 
     cp = CoverageParser(
         sample=sample,

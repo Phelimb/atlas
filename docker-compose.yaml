@@ -1,0 +1,29 @@
+#phelimb/atlas-demo-place
+#phelimb/atlas-demo-redis
+
+version: '2'
+
+services:
+  app:
+    image: phelimb/atlas-demo-place
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"      
+      - "8000:8000" 
+    volumes:
+      - ./data:/usr/src/app/data/                
+
+  redis:
+    # image: phelimb/atlas-demo-redis
+    image: redis
+    container_name: redis
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+    driver: local
+  data:
+    driver: local    
+

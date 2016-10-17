@@ -8,6 +8,13 @@ RUN pip install --upgrade pip
 
 COPY . /usr/src/app
 
+# Install mccortex
+RUN rm -rf mccortex
+RUN git clone -b genotype --recursive https://github.com/Phelimb/mccortex.git
+WORKDIR /usr/src/app/mccortex
+RUN make clean && make
+ENV PATH /usr/src/app/mccortex/bin:$PATH
+
 # Install python-newick
 WORKDIR /usr/src/app/python-newick
 RUN python setup.py install
@@ -16,5 +23,7 @@ RUN python setup.py install
 WORKDIR /usr/src/app
 RUN pip install -r requirements.txt
 RUN python setup.py install
- 
-CMD atlas genotype-and-place 333-08  panel_tb_k31_2016-07-04_no_singeltons.fasta -1 333-08.fastq.gz --mccortex31_path mccortex/bin/mccortex31  --searchable_samples ssamples.txt -k 31 --tree RAxML_der_and_valbestTree.raxml3674
+RUN pip install mykrobe  --no-dependencies
+RUN pip install uwsgi hug
+
+CMD uwsgi --pythonpath python-newick/ --pythonpath /usr/local/lib/python3.4/site-packages/ --http 0.0.0.0:8000 --wsgi-file mykatlas/server.py --callable __hug_wsgi__

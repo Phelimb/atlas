@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 client = MongoClient()
 import redis
 
-r = redis.StrictRedis()
+r = redis.StrictRedis('redis')
 
 
 class AtlasGenotypeResult(object):
