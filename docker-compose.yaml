@@ -15,8 +15,7 @@ services:
       - ./data:/usr/src/app/data/                
 
   redis:
-    # image: phelimb/atlas-demo-redis
-    image: redis
+    image: phelimb/atlas-demo-redis
     container_name: redis
     volumes:
       - redis-data:/data

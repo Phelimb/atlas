@@ -30,6 +30,8 @@ def treeplace(file: hug.types.text):
     #     dump(tree, infile)
     verbose = True
     sample = file.split(".")[0]
+    predictor_file = "data/%s" % file.replace(".fastq.gz", "_predictor.json")
+
     file = ["data/%s" % file]
 
     cp = CoverageParser(
@@ -47,8 +49,9 @@ def treeplace(file: hug.types.text):
         mccortex31_path="mccortex31")
     cp.run()
     expected_depth = cp.estimate_depth()
-
-    base_json = {sample: {}}
+    with open(predictor_file, 'r') as infile:
+        base_json = json.load(infile)
+    # base_json = {sample: {}}
     base_json[sample][
         "probe_set"] = "panel_tb_k31_2016-07-04_no_singeltons.fasta"
     if file:
@@ -77,16 +80,15 @@ def treeplace(file: hug.types.text):
         AtlasGenotypeResult(
             sample, "atlas", data, force=False).add()
 
-    base_json = {sample: {}}
     base_json[sample]["version"] = __version__
     neighbours = Placer(
         tree, searchable_samples=[n.name for n in tree.get_leaves()]).place(
         sample, use_cache=False)
     base_json[sample]["neighbours"] = neighbours
     close_neighbours = []
-    print(base_json, neighbours)
-    for i in range(10):
-        close_neighbours.extend(list(neighbours[i].keys()))
+    if neighbours:
+        for i in range(10):
+            close_neighbours.extend(list(neighbours[i].keys()))
 
     tree.prune_by_names(close_neighbours, inverse=True)
     base_json[sample]["tree"] = "((2741-05:1.1E-5,8038-07:1.1E-5):3.2E-5,(((9921-09:2.0E-5,C00016567:1.6E-5):2.0E-6,((4932-05:1.0E-6,2649-09:1.0E-6):1.0E-6,(3015-08:1.0E-6,((10325-06:1.0E-6,(209\
@@ -96,4 +98,8 @@ def treeplace(file: hug.types.text):
 3-S15:1.9E-5,8182-10:1.3E-5):3.0E-6):2.0E-6,(((8053-05:1.7E-5,Bir-1167_June14:1.5E-5):5.0E-6,(6372-05:2.2E-5,((4781-04:1.0E-6,11818-03:1.0E-6):1.9E-5,C00010518:2.\
 0E-5):1.0E-6):1.0E-6):1.0E-6,(((TRL0022753-S10:2.0E-6,(TRL0016123:1.0E-6,TRL0036775-S15:1.0E-6):1.0E-6):2.6E-5,(TRL0037347-S24:1.1E-5,TRL0046340-S3:1.0E-5):1.6E-5\
 ):1.0E-6,9677-10:2.7E-5):1.0E-6):1.0E-6):2.0E-6):2.1E-5);"  # dumps(tree)
+    del base_json[sample]["genotypes"]
+    del base_json[sample]["filtered"]
+    del base_json[sample]["sequence_calls"]
+    del base_json[sample]["variant_calls"]
     return base_json
