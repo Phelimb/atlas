@@ -26,4 +26,4 @@ RUN python setup.py install
 RUN pip install mykrobe  --no-dependencies
 RUN pip install uwsgi hug
 
-CMD uwsgi --pythonpath python-newick/ --pythonpath /usr/local/lib/python3.4/site-packages/ --http 0.0.0.0:8000 --wsgi-file mykatlas/server.py --callable __hug_wsgi__
+CMD uwsgi --processes 4 --threads 2 --pythonpath python-newick/ --pythonpath /usr/local/lib/python3.4/site-packages/ --http 0.0.0.0:8000 --wsgi-file mykatlas/server.py --callable __hug_wsgi__

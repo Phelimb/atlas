@@ -14,6 +14,7 @@ from mykatlas.cmds.place import load_tree_if_required
 from newick import load
 from newick import dump
 from newick import dumps
+import shutil
 
 
 @hug.get()
@@ -21,8 +22,9 @@ def predict(file: hug.types.text):
     return {}
 
 
-@hug.get(examples='file=333-08.fastq.gz')
-def treeplace(file: hug.types.text):
+@hug.get(examples='file=333-08.fastq.gz', headers={'Access-Control-Allow-Origin', '*'})
+def treeplace(file: hug.types.text, use_cache=1):
+    use_cache = bool(int(use_cache))
     with open("RAxML_der_and_valbestTree.raxml3674", "r") as infile:
         tree = load(infile)[0]
     # print([n.name for n in tree.get_leaves()])
@@ -47,6 +49,8 @@ def treeplace(file: hug.types.text):
         threads=1,
         memory="1GB",
         mccortex31_path="mccortex31")
+    if not use_cache:
+        shutil.rmtree("/tmp/", ignore_errors=True)
     cp.run()
     expected_depth = cp.estimate_depth()
     with open(predictor_file, 'r') as infile:
