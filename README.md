@@ -1,6 +1,6 @@
-Master : [![Build Status](https://travis-ci.com/Phelimb/atlas.svg?token=zS56Z2pmznVQKhUTxqcq&branch=master)](https://travis-ci.com/Phelimb/atlas)
+Master : [![Build Status](https://travis-ci.org/Phelimb/atlas.svg?branch=master)](https://travis-ci.com/Phelimb/atlas)
 
-Dev : [![Build Status](https://travis-ci.com/Phelimb/atlas.svg?token=zS56Z2pmznVQKhUTxqcq&branch=dev)](https://travis-ci.com/Phelimb/atlas)
+Dev : [![Build Status](https://travis-ci.org/Phelimb/atlas.svg?branch=dev)](https://travis-ci.com/Phelimb/atlas)
 
 ## Installation
 
