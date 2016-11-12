@@ -16,8 +16,9 @@ class ArgumentParserWithDefaults(argparse.ArgumentParser):
 
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 21)
 DEFAULT_DB_NAME = os.environ.get("DB_NAME", "atlas")
-DEFAULT_MCCORTEX_31 = os.path.dirname(
-    os.path.realpath(__file__))+"/../mccortex/bin/mccortex31"
+DEFAULT_MCCORTEX_31 = "mccortex31"
+# os.path.dirname(
+#   os.path.realpath(__file__))+"/../mccortex/bin/mccortex31"
 
 sequence_or_graph_parser_mixin = argparse.ArgumentParser(add_help=False)
 sequence_or_graph_parser_mixin.add_argument(
