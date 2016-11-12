@@ -203,7 +203,7 @@ class CoverageParser(object):
             min_depth=min_depth)
         alternate_coverages = []
         for i in range(num_alts):
-            row = self.reader.next()
+            row = next(self.reader)
             alt_allele, alternate_median_depth, min_depth, alternate_percent_coverage = self._parse_summary_covgs_row(
                 row)
             alternate_coverages.append(
@@ -245,8 +245,8 @@ class Genotyper(object):
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
         self.out_json = base_json
-        if expected_depths < 1:
-            self.expected_depths = 1
+        if expected_depths[0] < 1:
+            self.expected_depths = [1]
         else:
             self.expected_depths = expected_depths
         self.contamination_depths = contamination_depths

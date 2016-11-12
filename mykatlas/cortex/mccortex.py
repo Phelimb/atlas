@@ -182,6 +182,7 @@ class McCortexGenoRunner(McCortexRunner):
             seq_list = self._create_sequence_list()
             cmd = [self.mccortex31_path,
                    "build",
+                   "-q",
                    "-m %s" % self.memory,
                    "-t", "%i" % self.threads,
                    "-k",
@@ -226,7 +227,7 @@ class McCortexGenoRunner(McCortexRunner):
 
     @property
     def base_geno_command(self):
-        return [self.mccortex31_path, "geno", "-t", "%i" % self.threads,
+        return [self.mccortex31_path, "geno", "-q", "-t", "%i" % self.threads,
                 "-m %s" % self.memory,
                 "-k", str(self.kmer),
                 "-o", self.covg_tmp_file_path]
