@@ -14,8 +14,10 @@ class MyInstall(DistutilsInstall):
             ["make", "clean"], cwd=mccortex_dir)
         subprocess.call(
             ["make"], cwd=mccortex_dir)
+        print("Moving mccortex from %s to %s" %
+              (mccortex_dir, os.environ.get('VIRTUAL_ENV', '/usr/local/')))
         subprocess.call(
-                ["cp", "bin/mccortex31", "%s/bin/" % os.environ.get('VIRTUAL_ENV'), '/usr/local/'], cwd=mccortex_dir)            
+            ["cp", "bin/mccortex31", "%s/bin/" % os.environ.get('VIRTUAL_ENV', '/usr/local/')], cwd=mccortex_dir)
         DistutilsInstall.run(self)
 
 setup(
