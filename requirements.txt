@@ -4,4 +4,4 @@ redis
 mongoengine
 pyvcf
 ga4ghmongo
-ete2
+pytest

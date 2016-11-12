@@ -3,7 +3,6 @@ from mykatlas.stats import log_lik_R_S_coverage
 from mykatlas.typing.typer.base import MIN_LLK
 from mykatlas.typing.typer.base import DEFAULT_MINOR_FREQ
 from mykatlas.typing.typer.base import DEFAULT_ERROR_RATE
-from ga4ghmongo.schema import VariantCall
 
 
 from mykatlas.stats import percent_coverage_from_expected_coverage
@@ -117,7 +116,8 @@ class VariantTyper(Typer):
     def _check_min_coverage(self, variant_probe_coverage):
         if variant_probe_coverage.alternate_min_depth < 0.1 * \
                 max(self.expected_depths):
-            variant_probe_coverage.alternate_percent_coverage = variant_probe_coverage.alternate_percent_coverage * 0.9
+            variant_probe_coverage.alternate_percent_coverage = variant_probe_coverage.alternate_percent_coverage * \
+                0.9
         return variant_probe_coverage
 
     def _hom_ref_lik(self, variant):
