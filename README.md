@@ -4,21 +4,16 @@ Dev : [![Build Status](https://travis-ci.com/Phelimb/atlas.svg?token=zS56Z2pmznV
 
 ## Installation
 
-git clone **--recursive** git@github.com:Phelimb/atlas.git
+	git clone **--recursive** git@github.com:Phelimb/atlas.git
+	python setup.py install
 
-### Install requirements mccortex
-**NB: You must install the version of mccortex that comes with this repostitory**
+OR
 
+	(sudo) pip install git+https://github.com/Phelimb/atlas
 
-	cd atlas
-	cd mccortex
-	make	
-	export PATH=$PATH:$(pwd)/bin
-	cd ..
+We recommend that you use virtualenv to install atlas. 
+If you haven't used virtualenv before you can follow the instructions below. 	
 
-
-## Install atlas
-	
 ### Install atlas with virtualenv (recommended but optional)
 
 #### Install virtualenv
@@ -35,11 +30,9 @@ git clone **--recursive** git@github.com:Phelimb/atlas.git
 
 You can deactivate at anytime by typing 'deactivate'. 
 
-
 #### Install atlas
 
-
-	pip install mykatlas
+	pip install git+https://github.com/Phelimb/atlas
 
 
 ## Usage
@@ -93,15 +86,4 @@ Please cite us if you use atlas in a publication
 
 All analysis in this paper was done with release [v0.1.3-beta](https://github.com/iqbal-lab/Mykrobe-predictor/releases/tag/v0.1.3-beta).
 
-
-### Common issues
-
-mccortex fails to make. 
-
-Likely problem: Submodules have not been pulled with the repo. 
-
-Solution : Run 
-	
-	git pull && git submodule update --init --recursive
-	cd mccortex && make
 
