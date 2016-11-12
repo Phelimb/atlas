@@ -11,13 +11,13 @@ sys.path.append(
 from mykatlas.version import __version__
 import logging
 
-from base import ArgumentParserWithDefaults
-from base import DEFAULT_DB_NAME
-from base import sequence_parser_mixin
-from base import sequence_or_binary_parser_mixin
-from base import probe_set_mixin
-from base import force_mixin
-from base import genotyping_mixin
+from mykatlas.base import ArgumentParserWithDefaults
+from mykatlas.base import DEFAULT_DB_NAME
+from mykatlas.base import sequence_parser_mixin
+from mykatlas.base import sequence_or_binary_parser_mixin
+from mykatlas.base import probe_set_mixin
+from mykatlas.base import force_mixin
+from mykatlas.base import genotyping_mixin
 
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
