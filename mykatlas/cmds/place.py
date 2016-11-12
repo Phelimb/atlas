@@ -12,7 +12,6 @@ from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from mongoengine import connect
 import argparse
-from ete2 import Tree
 import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -29,24 +28,24 @@ def walk(node):
     return children
 
 
-def load_tree_if_required(args):
-    if args.tree is not None:
-        try:
-            root = pickle.load(open(args.tree, "rb"))
-        except KeyError:
-            with open(args.tree, 'r') as infile:
-                tree_nwk_string = infile.read()
-            tree = newick2json(Tree(args.tree))
-            children = walk(tree)
-            root = Node(children)
-    else:
-        root = None
-    return root
+# def load_tree_if_required(args):
+#     if args.tree is not None:
+#         try:
+#             root = pickle.load(open(args.tree, "rb"))
+#         except KeyError:
+#             with open(args.tree, 'r') as infile:
+#                 tree_nwk_string = infile.read()
+#             tree = newick2json(Tree(args.tree))
+#             children = walk(tree)
+#             root = Node(children)
+#     else:
+#         root = None
+#     return root
 
 
 def run(parser, args):
     connect('atlas-%s' % (args.db_name))
-    root = load_tree_if_required(args)
+    root = None  # load_tree_if_required(args)
     base_json = {args.sample: {}}
     base_json[args.sample]["version"] = __version__
     neighbours = Placer(
