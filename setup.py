@@ -11,7 +11,7 @@ class MyInstall(DistutilsInstall):
     def run(self):
         mccortex_dir = os.path.dirname(os.path.realpath(__file__))+"/mccortex"
         subprocess.call(
-            ["make clean"], cwd=mccortex_dir)
+            ["make","clean"], cwd=mccortex_dir)
         subprocess.call(
             ["make"], cwd=mccortex_dir)
         DistutilsInstall.run(self)
