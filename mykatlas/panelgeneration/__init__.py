@@ -1,3 +1,0 @@
-from mykatlas.panelgeneration.models import AlleleGenerator
-from mykatlas.panelgeneration.models import VariantPanel
-from mykatlas.panelgeneration.probe_generation import make_variant_probe
