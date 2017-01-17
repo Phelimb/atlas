@@ -6,11 +6,16 @@ from mykatlas.version import __version__
 
 from pprint import pprint
 import json
+import logging
+logger = logging.getLogger(__name__)
 
 
 def run_main(parser, args):
     args = parser.parse_args()
     verbose = True
+    if args.ont:
+        args.expected_error_rate = 0.15
+        logger.debug("Setting expected error rate to %s (--ont)" % args.expected_error_rate)    
     cp = CoverageParser(
         sample=args.sample,
         panel_file_paths=[args.probe_set],

@@ -108,6 +108,10 @@ force_mixin.add_argument(
 
 genotyping_mixin = argparse.ArgumentParser(add_help=False)
 genotyping_mixin.add_argument(
+    '--ont',
+    action='store_true',
+    help='Set default for ONT data')
+genotyping_mixin.add_argument(
     '--ignore_filtered',
     help="don't include filtered genotypes",
     default=False)
