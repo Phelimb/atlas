@@ -2,7 +2,8 @@ MIN_CONF = -99999999
 MIN_LLK = -99999999
 DEFAULT_ERROR_RATE = 0.05
 DEFAULT_MINOR_FREQ = 0.2
-
+import logging
+logger = logging.getLogger(__name__)
 
 class Typer(object):
 

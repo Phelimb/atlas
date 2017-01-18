@@ -297,7 +297,7 @@ class Genotyper(object):
         for probe_name, probe_coverages in self.variant_covgs.items():
             probe_id = self._name_to_id(probe_name)
             variant = None
-            call = gt.type(probe_coverages, variant=variant)
+            call = gt.type(probe_coverages, variant=probe_name)
             genotypes.append(sum(call["genotype"]))
             filters.append(int(call["info"]["filter"] == "PASS"))
             if sum(call["genotype"]) > 0 or not call[

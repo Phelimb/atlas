@@ -1,6 +1,7 @@
 import datetime
 import json
-
+import logging
+logger = logging.getLogger(__name__)
 
 class VariantProbeCoverage(object):
 
@@ -19,15 +20,16 @@ class VariantProbeCoverage(object):
             key=lambda x: x.percent_coverage,
             reverse=True)
         current_best = self.alternate_coverages[0]
+
         for probe_coverage in self.alternate_coverages[1:]:
             if probe_coverage.percent_coverage < current_best.percent_coverage:
-                return current_best
+                current_best=current_best
             else:
                 if probe_coverage.min_depth > current_best.min_depth:
                     current_best = probe_coverage
                 elif probe_coverage.min_depth <= current_best.min_depth:
                     if probe_coverage.median_depth > current_best.median_depth:
-                        current_best = probe_coverage
+                        current_best = probe_coverage                      
         return current_best
 
     @property

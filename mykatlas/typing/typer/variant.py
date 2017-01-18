@@ -6,6 +6,8 @@ from mykatlas.typing.typer.base import DEFAULT_ERROR_RATE
 
 
 from mykatlas.stats import percent_coverage_from_expected_coverage
+import logging
+logger = logging.getLogger(__name__)
 
 
 def likelihoods_to_confidence(l):
@@ -115,7 +117,7 @@ class VariantTyper(Typer):
 
     def _check_min_coverage(self, variant_probe_coverage):
         if variant_probe_coverage.alternate_min_depth < 0.1 * \
-                max(self.expected_depths):
+                max(self.expected_depths) and variant_probe_coverage.reference_percent_coverage >=100 and variant_probe_coverage.reference_min_depth > 0.1 * max(self.expected_depths):
             variant_probe_coverage.alternate_percent_coverage = variant_probe_coverage.alternate_percent_coverage * \
                 0.9
         return variant_probe_coverage
