@@ -1,3 +1,6 @@
+import json
+
+
 class ProbeCoverage(object):
 
     "Summary of kmer coverage of sequence. e.g output of color covearges"
@@ -13,3 +16,9 @@ class ProbeCoverage(object):
                 "median_depth": round(self.median_depth, 2),
                 "min_non_zero_depth": round(self.min_depth, 2),
                 }
+
+    def __str__(self):
+        return json.dumps(self.coverage_dict)
+
+    def __repr__(self):
+        return json.dumps(self.coverage_dict)

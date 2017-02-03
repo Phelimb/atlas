@@ -194,25 +194,40 @@ class CoverageParser(object):
     def _parse_variant_panel(self, row):
         allele, reference_median_depth, min_depth, reference_percent_coverage = self._parse_summary_covgs_row(
             row)
-        var_name = allele.split('?')[0].split('-')[1]
         params = get_params(allele)
+        if 'var_name' in params:
+            var_name = params.get('var_name')
+        else:
+            var_name = allele.split('?')[0].split('-')[1]
+
         num_alts = int(params.get("num_alts", 0))
-        reference_coverage = ProbeCoverage(
+        reference_coverages = [ProbeCoverage(
             percent_coverage=reference_percent_coverage,
             median_depth=reference_median_depth,
-            min_depth=min_depth)
+            min_depth=min_depth)]
+        alt_or_ref = 'ref'
+        for i in range(num_alts-1):
+            row = next(self.reader)
+            ref_allele, reference_median_depth, min_depth, reference_percent_coverage = self._parse_summary_covgs_row(
+                row)
+            assert ref_allele.split('-')[0] == 'ref'
+            reference_coverages.append(ProbeCoverage(
+                percent_coverage=reference_percent_coverage,
+                median_depth=reference_median_depth,
+                min_depth=min_depth))
         alternate_coverages = []
         for i in range(num_alts):
             row = next(self.reader)
             alt_allele, alternate_median_depth, min_depth, alternate_percent_coverage = self._parse_summary_covgs_row(
                 row)
+            assert alt_allele.split('-')[0] == 'alt'
             alternate_coverages.append(
                 ProbeCoverage(
                     min_depth=min_depth,
                     percent_coverage=alternate_percent_coverage,
                     median_depth=alternate_median_depth))
         variant_probe_coverage = VariantProbeCoverage(
-            reference_coverage=reference_coverage,
+            reference_coverages=reference_coverages,
             alternate_coverages=alternate_coverages,
             var_name=var_name,
             params=params)
@@ -297,7 +312,9 @@ class Genotyper(object):
         for probe_name, probe_coverages in self.variant_covgs.items():
             probe_id = self._name_to_id(probe_name)
             variant = None
+
             call = gt.type(probe_coverages, variant=probe_name)
+
             genotypes.append(sum(call["genotype"]))
             filters.append(int(call["info"]["filter"] == "PASS"))
             if sum(call["genotype"]) > 0 or not call[
@@ -314,7 +331,9 @@ class Genotyper(object):
         params = get_params(probe_name)
         if params.get("mut"):
             names.append("_".join([params.get("gene"), params.get("mut")]))
-        var_name = probe_name.split('?')[0].split('-')[1]
+            var_name = params.get("var_name")
+        else:
+            var_name = probe_name.split('?')[0].split('-')[1]
         names.append(var_name)
         return "-".join(names)
 
