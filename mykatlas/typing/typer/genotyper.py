@@ -134,8 +134,8 @@ class CoverageParser(object):
 
     def _is_variant_panel(self, allele_name):
         try:
-            alt_or_ref, _id = allele_name.split('-')
-            return bool(alt_or_ref)
+            alt_or_ref = allele_name.split('-')[0]
+            return alt_or_ref in ["ref", "alt"]
         except ValueError:
             return False
 

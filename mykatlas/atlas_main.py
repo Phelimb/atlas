@@ -23,15 +23,15 @@ DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
 
 def run_subtool(parser, args):
-    if args.command == 'add':
-        from mykatlas.cmds.add import run
-    elif args.command == "add-gt":
-        from mykatlas.cmds.atlasadd import run
-    elif args.command == "dump-probes":
-        from mykatlas.cmds.dump import run
-    elif args.command == "make-probes":
-        from mykatlas.cmds.makeprobes import run
-    elif args.command == "genotype":
+    # if args.command == 'add':
+    #     from mykatlas.cmds.add import run
+    # elif args.command == "add-gt":
+    #     from mykatlas.cmds.atlasadd import run
+    # elif args.command == "dump-probes":
+    #     from mykatlas.cmds.dump import run
+    # elif args.command == "make-probes":
+    #     from mykatlas.cmds.makeprobes import run
+    if args.command == "genotype":
         from mykatlas.cmds.genotype import run
     elif args.command == "walk":
         from mykatlas.cmds.walk import run
@@ -66,109 +66,109 @@ def main():
         help='db_name',
         default="default")
 
-    ##########
-    # Add
-    ##########
-    parser_add = subparsers.add_parser(
-        'add',
-        help='adds a set of variants to the atlas',
-        parents=[db_parser_mixin, force_mixin])
-    parser_add.add_argument('vcf', type=str, help='a vcf file')
-    parser_add.add_argument('reference_set', type=str, help='reference set')
-    parser_add.add_argument(
-        '-m',
-        '--method',
-        type=str,
-        help='variant caller method (e.g. CORTEX)',
-        default="NotSpecified")
-    parser_add.set_defaults(func=run_subtool)
-
-    parser_add_gt = subparsers.add_parser(
-        'add-gt',
-        help='adds a set of atlas genotype calls to the atlas',
-        parents=[db_parser_mixin, force_mixin])
-    parser_add_gt.add_argument('jsons', type=str, nargs='+',
-                               help='json output from `atlas genotype`')
-    parser_add_gt.add_argument(
-        '-m',
-        '--method',
-        type=str,
-        help='variant caller method (e.g. CORTEX)',
-        default="atlas")
-    parser_add_gt.set_defaults(func=run_subtool)
-
     # ##########
-    # # Dump panel
+    # # Add
     # ##########
-    parser_dump = subparsers.add_parser(
-        'dump-probes',
-        help='dump a probe set of variant alleles',
-        parents=[db_parser_mixin, force_mixin])
-    parser_dump.add_argument(
-        'reference_filepath',
-        metavar='reference_filepath',
-        type=str,
-        help='reference_filepath')
-    parser_dump.add_argument(
-        '--kmer',
-        metavar='kmer',
-        type=int,
-        help='kmer length',
-        default=31)
-    parser_dump.add_argument(
-        '-v',
-        '--verbose',
-        default=False,
-        action="store_true")
-    parser_dump.set_defaults(func=run_subtool)
+    # parser_add = subparsers.add_parser(
+    #     'add',
+    #     help='adds a set of variants to the atlas',
+    #     parents=[db_parser_mixin, force_mixin])
+    # parser_add.add_argument('vcf', type=str, help='a vcf file')
+    # parser_add.add_argument('reference_set', type=str, help='reference set')
+    # parser_add.add_argument(
+    #     '-m',
+    #     '--method',
+    #     type=str,
+    #     help='variant caller method (e.g. CORTEX)',
+    #     default="NotSpecified")
+    # parser_add.set_defaults(func=run_subtool)
 
-    ##################
-    ### Make Probes ##
-    ##################
+    # parser_add_gt = subparsers.add_parser(
+    #     'add-gt',
+    #     help='adds a set of atlas genotype calls to the atlas',
+    #     parents=[db_parser_mixin, force_mixin])
+    # parser_add_gt.add_argument('jsons', type=str, nargs='+',
+    #                            help='json output from `atlas genotype`')
+    # parser_add_gt.add_argument(
+    #     '-m',
+    #     '--method',
+    #     type=str,
+    #     help='variant caller method (e.g. CORTEX)',
+    #     default="atlas")
+    # parser_add_gt.set_defaults(func=run_subtool)
 
-    parser_make_probes = subparsers.add_parser(
-        'make-probes', help='make probes from a list of variants',
-        parents=[db_parser_mixin])
-    parser_make_probes.add_argument(
-        'reference_filepath',
-        metavar='reference_filepath',
-        type=str,
-        help='reference_filepath')
-    parser_make_probes.add_argument(
-        '-f',
-        '--vcf',
-        type=str,
-        help='Use variants defined in a VCF file',
-        default=[])
-    parser_make_probes.add_argument(
-        '-v',
-        '--variant',
-        type=str,
-        action='append',
-        help='Variant in DNA positions e.g. A1234T',
-        default=[])
-    parser_make_probes.add_argument(
-        '-t',
-        '--text_file',
-        type=str,
-        help='Text file containing variants as rows A1234T')
-    parser_make_probes.add_argument(
-        '-g',
-        '--genbank',
-        type=str,
-        help='Genbank file containing genes as features')
-    parser_make_probes.add_argument(
-        '-k',
-        '--kmer',
-        type=int,
-        help='kmer length',
-        default=31)
-    parser_make_probes.add_argument(
-        '--no-backgrounds',
-        help='Build probe set against reference only ignoring nearby variants',
-        default=False,
-        action="store_true")
-    parser_make_probes.set_defaults(func=run_subtool)
+    # # ##########
+    # # # Dump panel
+    # # ##########
+    # parser_dump = subparsers.add_parser(
+    #     'dump-probes',
+    #     help='dump a probe set of variant alleles',
+    #     parents=[db_parser_mixin, force_mixin])
+    # parser_dump.add_argument(
+    #     'reference_filepath',
+    #     metavar='reference_filepath',
+    #     type=str,
+    #     help='reference_filepath')
+    # parser_dump.add_argument(
+    #     '--kmer',
+    #     metavar='kmer',
+    #     type=int,
+    #     help='kmer length',
+    #     default=31)
+    # parser_dump.add_argument(
+    #     '-v',
+    #     '--verbose',
+    #     default=False,
+    #     action="store_true")
+    # parser_dump.set_defaults(func=run_subtool)
+
+    # ##################
+    # ### Make Probes ##
+    # ##################
+
+    # parser_make_probes = subparsers.add_parser(
+    #     'make-probes', help='make probes from a list of variants',
+    #     parents=[db_parser_mixin])
+    # parser_make_probes.add_argument(
+    #     'reference_filepath',
+    #     metavar='reference_filepath',
+    #     type=str,
+    #     help='reference_filepath')
+    # parser_make_probes.add_argument(
+    #     '-f',
+    #     '--vcf',
+    #     type=str,
+    #     help='Use variants defined in a VCF file',
+    #     default=[])
+    # parser_make_probes.add_argument(
+    #     '-v',
+    #     '--variant',
+    #     type=str,
+    #     action='append',
+    #     help='Variant in DNA positions e.g. A1234T',
+    #     default=[])
+    # parser_make_probes.add_argument(
+    #     '-t',
+    #     '--text_file',
+    #     type=str,
+    #     help='Text file containing variants as rows A1234T')
+    # parser_make_probes.add_argument(
+    #     '-g',
+    #     '--genbank',
+    #     type=str,
+    #     help='Genbank file containing genes as features')
+    # parser_make_probes.add_argument(
+    #     '-k',
+    #     '--kmer',
+    #     type=int,
+    #     help='kmer length',
+    #     default=31)
+    # parser_make_probes.add_argument(
+    #     '--no-backgrounds',
+    #     help='Build probe set against reference only ignoring nearby variants',
+    #     default=False,
+    #     action="store_true")
+    # parser_make_probes.set_defaults(func=run_subtool)
 
     # ##########
     # # Genotype
