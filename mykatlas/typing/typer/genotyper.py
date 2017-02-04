@@ -192,7 +192,7 @@ class CoverageParser(object):
                     self.covgs[panel_type][name]["median"] = []
 
     def _parse_variant_panel(self, row):
-        allele, reference_median_depth, min_depth, reference_percent_coverage = self._parse_summary_covgs_row(
+        allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
             row)
         params = get_params(allele)
         if 'var_name' in params:
@@ -202,30 +202,39 @@ class CoverageParser(object):
 
         num_alts = int(params.get("num_alts", 0))
         reference_coverages = [ProbeCoverage(
-            percent_coverage=reference_percent_coverage,
-            median_depth=reference_median_depth,
+            percent_coverage=percent_coverage,
+            median_depth=median_depth,
             min_depth=min_depth)]
         alt_or_ref = 'ref'
+        alternate_coverages = []        
         for i in range(num_alts-1):
             row = next(self.reader)
-            ref_allele, reference_median_depth, min_depth, reference_percent_coverage = self._parse_summary_covgs_row(
+            ref_allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
                 row)
+            if ref_allele.split('-')[0] != 'ref':
+                logger.warning("Fewer ref alleles than alt alleles for %s" % ref_allele)
+                alternate_coverages.append(ProbeCoverage(
+                    min_depth=min_depth,
+                    percent_coverage=percent_coverage,
+                    median_depth=median_depth))
+                num_alts-=1
+                break
+
             assert ref_allele.split('-')[0] == 'ref'
             reference_coverages.append(ProbeCoverage(
-                percent_coverage=reference_percent_coverage,
-                median_depth=reference_median_depth,
+                percent_coverage=percent_coverage,
+                median_depth=median_depth,
                 min_depth=min_depth))
-        alternate_coverages = []
         for i in range(num_alts):
             row = next(self.reader)
-            alt_allele, alternate_median_depth, min_depth, alternate_percent_coverage = self._parse_summary_covgs_row(
+            alt_allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
                 row)
             assert alt_allele.split('-')[0] == 'alt'
             alternate_coverages.append(
                 ProbeCoverage(
                     min_depth=min_depth,
-                    percent_coverage=alternate_percent_coverage,
-                    median_depth=alternate_median_depth))
+                    percent_coverage=percent_coverage,
+                    median_depth=median_depth))
         variant_probe_coverage = VariantProbeCoverage(
             reference_coverages=reference_coverages,
             alternate_coverages=alternate_coverages,
