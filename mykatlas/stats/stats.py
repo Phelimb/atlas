@@ -9,6 +9,16 @@ def percent_coverage_from_expected_coverage(coverage):
     return 1 - exp(-coverage)
 
 
+def log_lik_probability_of_N_gaps(depth, percent_coverage):
+    L = 32
+    percent_coverage = float(percent_coverage)/100
+    n_gaps = int(round(L-(L*percent_coverage)))
+
+    expected_n_gaps = exp(-depth) * L
+
+    return log_poisson_prob(expected_n_gaps, n_gaps)
+
+
 def log_poisson_prob(lam, k):
     return -lam + k * log(lam) - log_factorial(k)
 

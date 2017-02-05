@@ -206,18 +206,19 @@ class CoverageParser(object):
             median_depth=median_depth,
             min_depth=min_depth)]
         alt_or_ref = 'ref'
-        alternate_coverages = []        
+        alternate_coverages = []
         for i in range(num_alts-1):
             row = next(self.reader)
             ref_allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
                 row)
             if ref_allele.split('-')[0] != 'ref':
-                logger.warning("Fewer ref alleles than alt alleles for %s" % ref_allele)
+                logger.warning(
+                    "Fewer ref alleles than alt alleles for %s" % ref_allele)
                 alternate_coverages.append(ProbeCoverage(
                     min_depth=min_depth,
                     percent_coverage=percent_coverage,
                     median_depth=median_depth))
-                num_alts-=1
+                num_alts -= 1
                 break
 
             assert ref_allele.split('-')[0] == 'ref'
@@ -260,9 +261,10 @@ class Genotyper(object):
             base_json={},
             report_all_calls=False,
             ignore_filtered=False,
+            filters=[],
             expected_error_rate=DEFAULT_ERROR_RATE,
             minor_freq=DEFAULT_MINOR_FREQ,
-            variant_confidence_threshold=0,
+            variant_confidence_threshold=1,
             sequence_confidence_threshold=0,
             min_gene_percent_covg_threshold=100):
         self.sample = sample
@@ -280,6 +282,7 @@ class Genotyper(object):
         self.sequence_calls_dict = {}
         self.expected_error_rate = expected_error_rate
         self.report_all_calls = report_all_calls
+        self.filters = filters
         self.ignore_filtered = ignore_filtered
         self.minor_freq = minor_freq
         self.variant_confidence_threshold = variant_confidence_threshold
@@ -315,7 +318,9 @@ class Genotyper(object):
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,
-            confidence_threshold=self.variant_confidence_threshold)
+            confidence_threshold=self.variant_confidence_threshold,
+            filters=self.filters
+        )
         genotypes = []
         filters = []
         for probe_name, probe_coverages in self.variant_covgs.items():

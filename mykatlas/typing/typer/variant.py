@@ -6,6 +6,7 @@ from mykatlas.typing.typer.base import DEFAULT_ERROR_RATE
 
 
 from mykatlas.stats import percent_coverage_from_expected_coverage
+from mykatlas.stats import log_lik_probability_of_N_gaps
 import logging
 logger = logging.getLogger(__name__)
 
@@ -14,8 +15,13 @@ def likelihoods_to_confidence(l):
     if not len(l) > 1:
         raise ValueError(
             "Must have at least 2 likelihoods to calculate confidence")
-    l = sorted(l, reverse=True)
-    return int(round(l[0] - l[1]))
+    l_sorted = sorted(l, reverse=True)
+    if l_sorted[2] == l[0]:
+        # 0/1 and 1/1 are most likely - since haploide - conf compare with 0/0
+        return int(round(l_sorted[0] - l[0]))
+    else:
+        # Otherwise, compare with 2 most likely
+        return int(round(l_sorted[0] - l_sorted[1]))
 
 
 class VariantTyper(Typer):
@@ -24,6 +30,7 @@ class VariantTyper(Typer):
                  error_rate=DEFAULT_ERROR_RATE,
                  minor_freq=DEFAULT_MINOR_FREQ,
                  ignore_filtered=False,
+                 filters=[],
                  confidence_threshold=3):
 
         super(
@@ -33,11 +40,13 @@ class VariantTyper(Typer):
             contamination_depths,
             error_rate,
             ignore_filtered=ignore_filtered,
+            filters=filters,
             confidence_threshold=confidence_threshold)
         self.method = "MAP"
         self.error_rate = error_rate
         self.minor_freq = minor_freq
         self.ignore_filtered = ignore_filtered
+        self.filters = filters
 
         if len(expected_depths) > 1:
             raise NotImplementedError("Mixed samples not handled yet")
@@ -91,15 +100,15 @@ class VariantTyper(Typer):
         if gt == "-/-" and not self.ignore_filtered:
             if variant_probe_coverage.alternate_percent_coverage > variant_probe_coverage.reference_percent_coverage:
                 gt = "1/1"
-                info["filter"] = "MISSING_WT"
             else:
                 gt = "0/0"
+            if "MISSING_WT" in self.filters:
                 info["filter"] = "MISSING_WT"
-        elif variant_probe_coverage.alternate_percent_coverage < 100 and variant_probe_coverage.reference_percent_coverage < 100:
+        elif "LOW_PERCENT_COVERAGE" in self.filters and variant_probe_coverage.alternate_percent_coverage < 100 and variant_probe_coverage.reference_percent_coverage < 100:
             info["filter"] = "LOW_PERCENT_COVERAGE"
             if self.ignore_filtered:
                 gt = "0/0"
-        if confidence < self.confidence_threshold:
+        if "LOW_GT_CONF" in self.filters and (confidence < self.confidence_threshold):
             info["filter"] = "LOW_GT_CONF"
 
         return {
@@ -117,63 +126,69 @@ class VariantTyper(Typer):
 
     def _check_min_coverage(self, variant_probe_coverage):
         if variant_probe_coverage.alternate_min_depth < 0.1 * \
-                max(self.expected_depths) and variant_probe_coverage.reference_percent_coverage >=100 and variant_probe_coverage.reference_min_depth > 0.1 * max(self.expected_depths):
+                max(self.expected_depths) and variant_probe_coverage.reference_percent_coverage >= 100 and variant_probe_coverage.reference_min_depth > 0.1 * max(self.expected_depths):
             variant_probe_coverage.alternate_percent_coverage = variant_probe_coverage.alternate_percent_coverage * \
                 0.9
         return variant_probe_coverage
 
     def _hom_ref_lik(self, variant):
-        if variant.reference_percent_coverage < 100 * \
-                percent_coverage_from_expected_coverage(max(self.expected_depths)):
-            return MIN_LLK
-        else:
-            hom_ref_likes = []
-            # Either alt+cov or alt_covg + contam_covg
-            for expected_depth in self.expected_depths:
+        # if variant.reference_percent_coverage < 100 * \
+        #         percent_coverage_from_expected_coverage(max(self.expected_depths)):
+        #     # logging.info("%i %f" % (variant.reference_percent_coverage, 100 * percent_coverage_from_expected_coverage(
+        #         # max(self.expected_depths))))
+        #     return MIN_LLK
+        # else:
+        hom_ref_likes = []
+        # Either alt+cov or alt_covg + contam_covg
+        for expected_depth in self.expected_depths:
+            hom_ref_likes.append(
+                log_lik_R_S_coverage(
+                    variant.reference_median_depth,
+                    variant.alternate_median_depth,
+                    expected_depth,
+                    expected_depth *
+                    self.error_rate /
+                    3))
+            for contamination in self.contamination_depths:
                 hom_ref_likes.append(
                     log_lik_R_S_coverage(
                         variant.reference_median_depth,
                         variant.alternate_median_depth,
-                        expected_depth,
-                        expected_depth *
-                        self.error_rate /
-                        3))
-                for contamination in self.contamination_depths:
-                    hom_ref_likes.append(
-                        log_lik_R_S_coverage(
-                            variant.reference_median_depth,
-                            variant.alternate_median_depth,
-                            expected_depth + contamination,
-                            (expected_depth + contamination) * self.error_rate / 3))
-            return max(hom_ref_likes)
+                        expected_depth + contamination,
+                        (expected_depth + contamination) * self.error_rate / 3))
+#        logger.info([max(hom_ref_likes), log_lik_probability_of_N_gaps(expected_depth, variant.reference_percent_coverage),
+# log_lik_probability_of_N_gaps((self.error_rate/3)*expected_depth,
+# variant.alternate_percent_coverage)])
+        return max(hom_ref_likes) + log_lik_probability_of_N_gaps(expected_depth, variant.reference_percent_coverage) + log_lik_probability_of_N_gaps((self.error_rate/3)*expected_depth, variant.alternate_percent_coverage)
 
     def _hom_alt_lik(self, variant):
-        if variant.alternate_percent_coverage < 100 * \
-                percent_coverage_from_expected_coverage(max(self.expected_depths)):
-            return MIN_LLK
-        else:
-            hom_alt_liks = []
-            # Either alt+cov or alt_covg + contam_covg
-            for expected_depth in self.expected_depths:
+        # if variant.alternate_percent_coverage < 100 * \
+        #         percent_coverage_from_expected_coverage(max(self.expected_depths)):
+        #     return MIN_LLK
+        # else:
+        hom_alt_liks = []
+        # Either alt+cov or alt_covg + contam_covg
+        for expected_depth in self.expected_depths:
+            hom_alt_liks.append(
+                log_lik_R_S_coverage(
+                    variant.alternate_median_depth,
+                    variant.reference_median_depth,
+                    expected_depth,
+                    expected_depth *
+                    self.error_rate /
+                    3))
+            for contamination in self.contamination_depths:
                 hom_alt_liks.append(
                     log_lik_R_S_coverage(
                         variant.alternate_median_depth,
                         variant.reference_median_depth,
-                        expected_depth,
-                        expected_depth *
-                        self.error_rate /
-                        3))
-                for contamination in self.contamination_depths:
-                    hom_alt_liks.append(
-                        log_lik_R_S_coverage(
-                            variant.alternate_median_depth,
-                            variant.reference_median_depth,
-                            expected_depth + contamination,
-                            (expected_depth + contamination) * self.error_rate / 3))
-            return max(hom_alt_liks)
+                        expected_depth + contamination,
+                        (expected_depth + contamination) * self.error_rate / 3))
+        return max(hom_alt_liks) + log_lik_probability_of_N_gaps(expected_depth, variant.alternate_percent_coverage) + log_lik_probability_of_N_gaps((self.error_rate/3)*expected_depth, variant.reference_percent_coverage)
 
     def _het_lik(self, variant):
-        if variant.alternate_percent_coverage < 100 or variant.reference_percent_coverage < 100:
+        if variant.alternate_percent_coverage < 100 or variant.reference_percent_coverage < 100 or \
+                (variant.alternate_median_depth <= 3):
             return MIN_LLK
         else:
             het_liks = []
@@ -185,4 +200,4 @@ class VariantTyper(Typer):
                         expected_depth * self.minor_freq,
                         expected_depth * (
                             1 - self.minor_freq)))
-            return max(het_liks)
+            return max(het_liks) + log_lik_probability_of_N_gaps(expected_depth * self.minor_freq, variant.alternate_percent_coverage) + log_lik_probability_of_N_gaps(expected_depth*(1 - self.minor_freq), variant.reference_percent_coverage)

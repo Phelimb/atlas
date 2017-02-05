@@ -116,6 +116,12 @@ genotyping_mixin.add_argument(
     help="don't include filtered genotypes",
     default=False)
 genotyping_mixin.add_argument(
+    '--filters',
+    help="don't include filtered genotypes",
+    nargs='+',
+    default=["MISSING_WT", "LOW_PERCENT_COVERAGE", "LOW_GT_CONF"],
+    required=False)
+genotyping_mixin.add_argument(
     '--report_all_calls',
     help="report all calls",
     action='store_true',
@@ -127,7 +133,7 @@ genotyping_mixin.add_argument(
 genotyping_mixin.add_argument(
     "--min_variant_conf",
     help="minimum genotype confidence for variant genotyping",
-    default=0, type=int)
+    default=10, type=int)
 genotyping_mixin.add_argument(
     "--min_gene_conf",
     help="minimum genotype confidence for gene genotyping",
