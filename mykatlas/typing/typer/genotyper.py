@@ -145,7 +145,7 @@ class CoverageParser(object):
         probe_coverage = ProbeCoverage(
             percent_coverage=percent_coverage,
             median_depth=median_depth,
-            min_depth=min_depth
+            min_depth=min_depth,
             k_count=k_count)
 
         allele_name = allele.split('?')[0]
