@@ -19,14 +19,16 @@ class VariantProbeCoverage(object):
 
     def _choose_best_coverage(self, coverages):
         coverages.sort(
-            key=lambda x: x.percent_coverage,
+            key=lambda x: x.k_count,
             reverse=True)
         current_best = coverages[0]
         for probe_coverage in coverages[1:]:
-            if probe_coverage.percent_coverage < current_best.percent_coverage:
+            if probe_coverage.k_count < current_best.k_count:
                 current_best = current_best
             else:
-                if probe_coverage.min_depth > current_best.min_depth:
+                if probe_coverage.percent_coverage > current_best.percent_coverage:
+                    current_best = probe_coverage
+                elif probe_coverage.min_depth > current_best.min_depth:
                     current_best = probe_coverage
                 elif probe_coverage.min_depth <= current_best.min_depth:
                     if probe_coverage.median_depth > current_best.median_depth:
@@ -37,10 +39,8 @@ class VariantProbeCoverage(object):
         return self._choose_best_coverage(self.alternate_coverages)
 
     def _choose_best_reference_coverage(self):
-        # logging.info(self.reference_coverages)
         best_reference_coverage = self._choose_best_coverage(
             self.reference_coverages)
-        # logging.info("best %s" % best_reference_coverage)
         return best_reference_coverage
 
     @property
@@ -66,6 +66,10 @@ class VariantProbeCoverage(object):
         return self.best_reference_coverage.percent_coverage
 
     @property
+    def reference_kmer_count(self):
+        return self.best_reference_coverage.k_count
+
+    @property
     def reference_median_depth(self):
         return self.best_reference_coverage.median_depth
 
@@ -84,6 +88,10 @@ class VariantProbeCoverage(object):
     @property
     def alternate_median_depth(self):
         return self.best_alternate_coverage.median_depth
+
+    @property
+    def alternate_kmer_count(self):
+        return self.best_alternate_coverage.k_count
 
     @property
     def alternate_min_depth(self):
