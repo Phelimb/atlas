@@ -271,7 +271,8 @@ class Genotyper(object):
             minor_freq=DEFAULT_MINOR_FREQ,
             variant_confidence_threshold=1,
             sequence_confidence_threshold=0,
-            min_gene_percent_covg_threshold=100):
+            min_gene_percent_covg_threshold=100,
+            model="depth"):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -288,6 +289,7 @@ class Genotyper(object):
         self.expected_error_rate = expected_error_rate
         self.report_all_calls = report_all_calls
         self.filters = filters
+        self.model = model
         self.ignore_filtered = ignore_filtered
         self.minor_freq = minor_freq
         self.variant_confidence_threshold = variant_confidence_threshold
@@ -324,7 +326,8 @@ class Genotyper(object):
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,
             confidence_threshold=self.variant_confidence_threshold,
-            filters=self.filters
+            filters=self.filters,
+            model=self.model
         )
         genotypes = []
         filters = []

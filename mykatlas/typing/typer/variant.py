@@ -1,4 +1,5 @@
 from mykatlas.typing.typer.base import Typer
+from mykatlas.stats import log_lik_R_S_coverage
 from mykatlas.stats import log_lik_R_S_kmer_count
 from mykatlas.typing.typer.base import MIN_LLK
 from mykatlas.typing.typer.base import DEFAULT_MINOR_FREQ
@@ -31,7 +32,8 @@ class VariantTyper(Typer):
                  minor_freq=DEFAULT_MINOR_FREQ,
                  ignore_filtered=False,
                  filters=[],
-                 confidence_threshold=3):
+                 confidence_threshold=3,
+                 model="depth"):
 
         super(
             VariantTyper,
@@ -45,6 +47,13 @@ class VariantTyper(Typer):
         self.method = "MAP"
         self.error_rate = error_rate
         self.minor_freq = minor_freq
+
+        if model == "depth":
+            self.model = DepthCoverageGenotypeModel(
+                self.expected_depths, self.contamination_depths, self.error_rate, self.minor_freq)
+        elif model == "kmer_count":
+            self.model = KmerCountGenotypeModel(
+                self.expected_depths, self.contamination_depths, self.error_rate, self.minor_freq)
         self.ignore_filtered = ignore_filtered
         self.filters = filters
 
@@ -79,10 +88,10 @@ class VariantTyper(Typer):
 
     def _type_variant_probe_coverages(
             self, variant_probe_coverage, variant=None):
-        hom_ref_likelihood = self._hom_ref_lik(variant_probe_coverage)
-        hom_alt_likelihood = self._hom_alt_lik(variant_probe_coverage)
+        hom_ref_likelihood = self.model.hom_ref_lik(variant_probe_coverage)
+        hom_alt_likelihood = self.model.hom_alt_lik(variant_probe_coverage)
         if not self.has_contamination():
-            het_likelihood = self._het_lik(variant_probe_coverage)
+            het_likelihood = self.model.het_lik(variant_probe_coverage)
         else:
             het_likelihood = MIN_LLK
         likelihoods = [hom_ref_likelihood, het_likelihood, hom_alt_likelihood]
@@ -117,14 +126,39 @@ class VariantTyper(Typer):
             "info": info,
             "_cls": "Call.VariantCall"}
 
-    def _hom_ref_lik(self, variant):
+
+class GenotypeModel(object):
+
+    def __init__(self, expected_depths, contamination_depths, error_rate, minor_freq):
+        self.expected_depths = expected_depths
+        self.contamination_depths = contamination_depths
+        self.error_rate = error_rate
+        self.minor_freq = minor_freq
+
+    def hom_ref_lik(self, variant_probe_coverage):
+        raise NotImplementedError
+
+    def hom_alt_lik(self, variant_probe_coverage):
+        raise NotImplementedError
+
+    def het_lik(self, variant_probe_coverage):
+        raise NotImplementedError
+
+
+class KmerCountGenotypeModel(GenotypeModel):
+
+    def __init__(self, expected_depths, contamination_depths, error_rate, minor_freq):
+        super(KmerCountGenotypeModel, self).__init__(
+            expected_depths, contamination_depths, error_rate, minor_freq)
+
+    def hom_ref_lik(self, variant_probe_coverage):
         hom_ref_likes = []
         # Either alt+cov or alt_covg + contam_covg
         for expected_depth in self.expected_depths:
             hom_ref_likes.append(
                 log_lik_R_S_kmer_count(
-                    variant.reference_kmer_count,
-                    variant.alternate_kmer_count,
+                    variant_probe_coverage.reference_kmer_count,
+                    variant_probe_coverage.alternate_kmer_count,
                     expected_depth,
                     expected_depth *
                     self.error_rate /
@@ -132,20 +166,20 @@ class VariantTyper(Typer):
             for contamination in self.contamination_depths:
                 hom_ref_likes.append(
                     log_lik_R_S_kmer_count(
-                        variant.reference_kmer_count,
-                        variant.alternate_kmer_count,
+                        variant_probe_coverage.reference_kmer_count,
+                        variant_probe_coverage.alternate_kmer_count,
                         expected_depth + contamination,
                         (expected_depth + contamination) * self.error_rate / 3))
         return max(hom_ref_likes)
 
-    def _hom_alt_lik(self, variant):
+    def hom_alt_lik(self, variant_probe_coverage):
         hom_alt_liks = []
         # Either alt+cov or alt_covg + contam_covg
         for expected_depth in self.expected_depths:
             hom_alt_liks.append(
                 log_lik_R_S_kmer_count(
-                    variant.alternate_kmer_count,
-                    variant.reference_kmer_count,
+                    variant_probe_coverage.alternate_kmer_count,
+                    variant_probe_coverage.reference_kmer_count,
                     expected_depth,
                     expected_depth *
                     self.error_rate /
@@ -153,26 +187,98 @@ class VariantTyper(Typer):
             for contamination in self.contamination_depths:
                 hom_alt_liks.append(
                     log_lik_R_S_kmer_count(
-                        variant.alternate_kmer_count,
-                        variant.reference_kmer_count,
+                        variant_probe_coverage.alternate_kmer_count,
+                        variant_probe_coverage.reference_kmer_count,
                         expected_depth + contamination,
                         (expected_depth + contamination) * self.error_rate / 3))
         return max(hom_alt_liks)
 
-    def _het_lik(self, variant):
-        if (variant.alternate_kmer_count+variant.reference_kmer_count) == 0:
+    def het_lik(self, variant_probe_coverage):
+        if (variant_probe_coverage.alternate_kmer_count+variant_probe_coverage.reference_kmer_count) == 0:
             return MIN_LLK
-        elif variant.alternate_percent_coverage < 100 or variant.reference_percent_coverage < 100:
+        elif variant_probe_coverage.alternate_percent_coverage < 100 or variant_probe_coverage.reference_percent_coverage < 100:
             return MIN_LLK
         else:
             het_liks = []
             for expected_depth in self.expected_depths:
                 het_liks.append(
                     log_lik_R_S_kmer_count(
-                        variant.alternate_kmer_count,
-                        variant.reference_kmer_count,
+                        variant_probe_coverage.alternate_kmer_count,
+                        variant_probe_coverage.reference_kmer_count,
                         expected_depth/2 +
                         (expected_depth/2 * self.error_rate/3),
                         expected_depth/2 + (expected_depth/2 * self.error_rate/3))
                 )
+            return max(het_liks)
+
+
+class DepthCoverageGenotypeModel(GenotypeModel):
+
+    def __init__(self, expected_depths, contamination_depths, error_rate, minor_freq):
+        super(DepthCoverageGenotypeModel, self).__init__(
+            expected_depths, contamination_depths, error_rate, minor_freq)
+
+    def hom_ref_lik(self, variant_probe_coverage):
+        if variant_probe_coverage.reference_percent_coverage < 100 * \
+                percent_coverage_from_expected_coverage(max(self.expected_depths)):
+            return MIN_LLK
+        else:
+            hom_ref_likes = []
+            # Either alt+cov or alt_covg + contam_covg
+            for expected_depth in self.expected_depths:
+                hom_ref_likes.append(
+                    log_lik_R_S_coverage(
+                        variant_probe_coverage.reference_median_depth,
+                        variant_probe_coverage.alternate_median_depth,
+                        expected_depth,
+                        expected_depth *
+                        self.error_rate /
+                        3))
+                for contamination in self.contamination_depths:
+                    hom_ref_likes.append(
+                        log_lik_R_S_coverage(
+                            variant_probe_coverage.reference_median_depth,
+                            variant_probe_coverage.alternate_median_depth,
+                            expected_depth + contamination,
+                            (expected_depth + contamination) * self.error_rate / 3))
+            return max(hom_ref_likes)
+
+    def hom_alt_lik(self, variant_probe_coverage):
+        if variant_probe_coverage.alternate_percent_coverage < 100 * \
+                percent_coverage_from_expected_coverage(max(self.expected_depths)):
+            return MIN_LLK
+        else:
+            hom_alt_liks = []
+            # Either alt+cov or alt_covg + contam_covg
+            for expected_depth in self.expected_depths:
+                hom_alt_liks.append(
+                    log_lik_R_S_coverage(
+                        variant_probe_coverage.alternate_median_depth,
+                        variant_probe_coverage.reference_median_depth,
+                        expected_depth,
+                        expected_depth *
+                        self.error_rate /
+                        3))
+                for contamination in self.contamination_depths:
+                    hom_alt_liks.append(
+                        log_lik_R_S_coverage(
+                            variant_probe_coverage.alternate_median_depth,
+                            variant_probe_coverage.reference_median_depth,
+                            expected_depth + contamination,
+                            (expected_depth + contamination) * self.error_rate / 3))
+            return max(hom_alt_liks)
+
+    def het_lik(self, variant_probe_coverage):
+        if variant_probe_coverage.alternate_percent_coverage < 100 or variant_probe_coverage.reference_percent_coverage < 100:
+            return MIN_LLK
+        else:
+            het_liks = []
+            for expected_depth in self.expected_depths:
+                het_liks.append(
+                    log_lik_R_S_coverage(
+                        variant_probe_coverage.alternate_median_depth,
+                        variant_probe_coverage.reference_median_depth,
+                        expected_depth * self.minor_freq,
+                        expected_depth * (
+                            1 - self.minor_freq)))
             return max(het_liks)
