@@ -22,8 +22,12 @@ def run_main(parser, args):
             "Removing LOW_PERCENT_COVERAGE filter (increases sensitivity - in particular for ONT data)")
         logger.debug("Using ONT genotyping model")
         model = "kmer_count"
+        if args.min_variant_conf is None:
+            args.min_variant_conf = 100
     else:
         model = "depth"
+        if args.min_variant_conf is None:
+            args.min_variant_conf = 0
     cp = CoverageParser(
         sample=args.sample,
         panel_file_paths=[args.probe_set],
