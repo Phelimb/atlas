@@ -115,16 +115,16 @@ class CoverageParser(object):
 
     def _parse_summary_covgs_row(self, row):
         try:
-            return row[0], int(row[2]), int(row[3]), 100 * float(row[4])
+            return row[0], int(row[2]), int(row[3]), 100 * float(row[4]), int(row[5])
         except ValueError:
             logger.warning("Failed to parse %s" % str(row))
-            return row[0], 0, 0, 0.0
+            return row[0], 0, 0, 0.0, 0
 
     def _parse_covgs(self):
         with open(self.mc_cortex_runner.covg_tmp_file_path, 'r') as infile:
             self.reader = csv.reader(infile, delimiter="\t")
             for row in self.reader:
-                allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
+                allele, median_depth, min_depth, percent_coverage, k_count = self._parse_summary_covgs_row(
                     row)
                 allele_name = allele.split('?')[0]
                 if self._is_variant_panel(allele_name):
@@ -134,18 +134,19 @@ class CoverageParser(object):
 
     def _is_variant_panel(self, allele_name):
         try:
-            alt_or_ref, _id = allele_name.split('-')
-            return bool(alt_or_ref)
+            alt_or_ref = allele_name.split('-')[0]
+            return alt_or_ref in ["ref", "alt"]
         except ValueError:
             return False
 
     def _parse_seq_panel(self, row):
-        allele, median_depth, min_depth, percent_coverage = self._parse_summary_covgs_row(
+        allele, median_depth, min_depth, percent_coverage, k_count = self._parse_summary_covgs_row(
             row)
         probe_coverage = ProbeCoverage(
             percent_coverage=percent_coverage,
             median_depth=median_depth,
-            min_depth=min_depth)
+            min_depth=min_depth,
+            k_count=k_count)
 
         allele_name = allele.split('?')[0]
         params = get_params(allele)
@@ -192,27 +193,56 @@ class CoverageParser(object):
                     self.covgs[panel_type][name]["median"] = []
 
     def _parse_variant_panel(self, row):
-        allele, reference_median_depth, min_depth, reference_percent_coverage = self._parse_summary_covgs_row(
+        allele, median_depth, min_depth, percent_coverage, k_count = self._parse_summary_covgs_row(
             row)
-        var_name = allele.split('?')[0].split('-')[1]
         params = get_params(allele)
+        if 'var_name' in params:
+            var_name = params.get('var_name')
+        else:
+            var_name = allele.split('?')[0].split('-')[1]
+
         num_alts = int(params.get("num_alts", 0))
-        reference_coverage = ProbeCoverage(
-            percent_coverage=reference_percent_coverage,
-            median_depth=reference_median_depth,
-            min_depth=min_depth)
+        reference_coverages = [ProbeCoverage(
+            percent_coverage=percent_coverage,
+            median_depth=median_depth,
+            min_depth=min_depth,
+            k_count=k_count)]
+        alt_or_ref = 'ref'
         alternate_coverages = []
+        for i in range(num_alts-1):
+            row = next(self.reader)
+            ref_allele, median_depth, min_depth, percent_coverage, k_count = self._parse_summary_covgs_row(
+                row)
+            if ref_allele.split('-')[0] != 'ref':
+                logger.warning(
+                    "Fewer ref alleles than alt alleles for %s" % ref_allele)
+                alternate_coverages.append(ProbeCoverage(
+                    min_depth=min_depth,
+                    k_count=k_count,
+                    percent_coverage=percent_coverage,
+                    median_depth=median_depth))
+                num_alts -= 1
+                break
+
+            assert ref_allele.split('-')[0] == 'ref'
+            reference_coverages.append(ProbeCoverage(
+                percent_coverage=percent_coverage,
+                median_depth=median_depth,
+                min_depth=min_depth,
+                k_count=k_count))
         for i in range(num_alts):
             row = next(self.reader)
-            alt_allele, alternate_median_depth, min_depth, alternate_percent_coverage = self._parse_summary_covgs_row(
+            alt_allele, median_depth, min_depth, percent_coverage, k_count = self._parse_summary_covgs_row(
                 row)
+            assert alt_allele.split('-')[0] == 'alt'
             alternate_coverages.append(
                 ProbeCoverage(
                     min_depth=min_depth,
-                    percent_coverage=alternate_percent_coverage,
-                    median_depth=alternate_median_depth))
+                    k_count=k_count,
+                    percent_coverage=percent_coverage,
+                    median_depth=median_depth))
         variant_probe_coverage = VariantProbeCoverage(
-            reference_coverage=reference_coverage,
+            reference_coverages=reference_coverages,
             alternate_coverages=alternate_coverages,
             var_name=var_name,
             params=params)
@@ -236,11 +266,13 @@ class Genotyper(object):
             base_json={},
             report_all_calls=False,
             ignore_filtered=False,
+            filters=[],
             expected_error_rate=DEFAULT_ERROR_RATE,
             minor_freq=DEFAULT_MINOR_FREQ,
-            variant_confidence_threshold=0,
+            variant_confidence_threshold=1,
             sequence_confidence_threshold=0,
-            min_gene_percent_covg_threshold=100):
+            min_gene_percent_covg_threshold=100,
+            model="depth"):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs
@@ -256,6 +288,8 @@ class Genotyper(object):
         self.sequence_calls_dict = {}
         self.expected_error_rate = expected_error_rate
         self.report_all_calls = report_all_calls
+        self.filters = filters
+        self.model = model
         self.ignore_filtered = ignore_filtered
         self.minor_freq = minor_freq
         self.variant_confidence_threshold = variant_confidence_threshold
@@ -291,13 +325,18 @@ class Genotyper(object):
             contamination_depths=self.contamination_depths,
             ignore_filtered=self.ignore_filtered,
             minor_freq=self.minor_freq,
-            confidence_threshold=self.variant_confidence_threshold)
+            confidence_threshold=self.variant_confidence_threshold,
+            filters=self.filters,
+            model=self.model
+        )
         genotypes = []
         filters = []
         for probe_name, probe_coverages in self.variant_covgs.items():
             probe_id = self._name_to_id(probe_name)
             variant = None
+
             call = gt.type(probe_coverages, variant=probe_name)
+
             genotypes.append(sum(call["genotype"]))
             filters.append(int(call["info"]["filter"] == "PASS"))
             if sum(call["genotype"]) > 0 or not call[
@@ -314,7 +353,9 @@ class Genotyper(object):
         params = get_params(probe_name)
         if params.get("mut"):
             names.append("_".join([params.get("gene"), params.get("mut")]))
-        var_name = probe_name.split('?')[0].split('-')[1]
+            var_name = params.get("var_name")
+        else:
+            var_name = probe_name.split('?')[0].split('-')[1]
         names.append(var_name)
         return "-".join(names)
 

@@ -15,7 +15,14 @@ def run_main(parser, args):
     verbose = True
     if args.ont:
         args.expected_error_rate = 0.15
-        logger.debug("Setting expected error rate to %s (--ont)" % args.expected_error_rate)    
+        args.filters = ["LOW_GT_CONF"]
+        logger.debug("Setting expected error rate to %s (--ont)" %
+                     args.expected_error_rate)
+        logger.debug(
+            "Removing LOW_PERCENT_COVERAGE filter (increases sensitivity - in particular for ONT data)")
+
+    if args.min_variant_conf is None:
+        args.min_variant_conf = 100
     cp = CoverageParser(
         sample=args.sample,
         panel_file_paths=[args.probe_set],
@@ -51,6 +58,8 @@ def run_main(parser, args):
         base_json=base_json,
         contamination_depths=[],
         ignore_filtered=args.ignore_filtered,
+        filters=args.filters,
+        model=args.model,
         report_all_calls=args.report_all_calls,
         variant_confidence_threshold=args.min_variant_conf,
         sequence_confidence_threshold=args.min_gene_conf,
