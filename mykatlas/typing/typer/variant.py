@@ -33,7 +33,7 @@ class VariantTyper(Typer):
                  ignore_filtered=False,
                  filters=[],
                  confidence_threshold=3,
-                 model="depth"):
+                 model="kmer_count"):
 
         super(
             VariantTyper,
@@ -52,6 +52,7 @@ class VariantTyper(Typer):
             self.model = DepthCoverageGenotypeModel(
                 self.expected_depths, self.contamination_depths, self.error_rate, self.minor_freq)
         elif model == "kmer_count":
+            logger.debug("Genotyping using kc model")
             self.model = KmerCountGenotypeModel(
                 self.expected_depths, self.contamination_depths, self.error_rate, self.minor_freq)
         self.ignore_filtered = ignore_filtered

@@ -116,6 +116,13 @@ genotyping_mixin.add_argument(
     help="don't include filtered genotypes",
     default=False)
 genotyping_mixin.add_argument(
+    '--model',
+    metavar='model',
+    choices=['depth', 'kmer_count'],
+    type=str,
+    help='species',
+    default='kmer_count')
+genotyping_mixin.add_argument(
     '--filters',
     help="don't include filtered genotypes",
     nargs='+',
