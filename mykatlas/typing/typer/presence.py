@@ -157,6 +157,7 @@ class GeneCollectionTyper(Typer):
             self,
             sequence_coverages,
             min_gene_percent_covg_threshold):
+        sequence_coverages=list(sequence_coverages)
         sequence_coverages.sort(key=lambda x: x.percent_coverage, reverse=True)
         current_best_gene = sequence_coverages[0]
         current_best_genes = [current_best_gene]
