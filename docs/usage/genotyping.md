@@ -37,7 +37,7 @@ Atlas can currently genotype small variants, SNPs, INDELs as well as typing gene
 	optional arguments:
 	  -h, --help            show this help message and exit
 	  -k kmer, --kmer kmer  kmer length (default:21)
-	  --tmp TMP             tmp directory (default: /tmp/)
+	  --tmp TMP             tmp directory (default: tmp/)
 	  --keep_tmp            Dont remove tmp files
 	  --skeleton_dir SKELETON_DIR
 	                        directory for skeleton binaries

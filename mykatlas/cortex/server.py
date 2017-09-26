@@ -425,7 +425,7 @@ class GraphWalker(object):
 
             # DEBUG prints progress every N bps
             # if i % 250 == 0:
-            #     with open("/tmp/paths.json", "w") as outfile:
+            #     with open("tmp/paths.json", "w") as outfile:
             #         json.dump(paths, outfile)
             ###
 
