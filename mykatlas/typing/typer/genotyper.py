@@ -43,7 +43,7 @@ class CoverageParser(object):
             memory="1GB",
             panels=None,
             verbose=True,
-            tmp_dir='/tmp/',
+            tmp_dir='tmp/',
             skeleton_dir='atlas/data/skeletons/',
             mccortex31_path="mccortex31"):
         self.sample = sample

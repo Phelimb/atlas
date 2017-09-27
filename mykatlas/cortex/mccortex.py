@@ -129,7 +129,7 @@ class McCortexGenoRunner(McCortexRunner):
             memory="1GB",
             force=False,
             panel_name=None,
-            tmp_dir='/tmp/',
+            tmp_dir='tmp/',
             skeleton_dir='data/skeletons/',
             mccortex31_path="mccortex31"):
         super(McCortexRunner, self).__init__()
@@ -143,13 +143,6 @@ class McCortexGenoRunner(McCortexRunner):
         self.tmp_dir = tmp_dir
         self.threads = threads
         self.memory = memory
-        if skeleton_dir == 'atlas/data/skeletons/':
-            skeleton_dir = os.path.realpath(
-                os.path.join(
-                    os.path.dirname(
-                        os.path.realpath(__file__)),
-                    "..",
-                    skeleton_dir))
         self.skeleton_dir = skeleton_dir
         self.mccortex31_path = mccortex31_path
         if self.seq and self.ctx:
@@ -270,21 +263,20 @@ class McCortexGenoRunner(McCortexRunner):
 
     @property
     def ctx_tmp_filepath(self):
-        return "%s/%s.ctx" % (self.tmp_dir, self.sample_panel_name)
+        sample_panel_name = self.sample_panel_name + '.ctx'
+        return os.path.join(self.tmp_dir, sample_panel_name)
 
     @property
     def covg_tmp_file_path(self):
-        return "%s/%s.covgs" % (self.tmp_dir, self.sample_panel_name)
+        sample_panel_name = self.sample_panel_name + '.covgs'
+        return os.path.join(self.tmp_dir, sample_panel_name)
 
     @property
     def ctx_skeleton_filepath(self):
-        return os.path.abspath(
-            "%s/%s_%i.ctx" %
-            (self.skeleton_dir, self.panel_name.replace(
-                "/",
-                "-")[
-                :100],
-                self.kmer))
+        panel_name = self.panel_name.replace("/", "-")[:100]
+        panel_fname = '{panel_name}_{kmer}.ctx'.format(panel_name=panel_name,
+                                                       kmer=self.kmer)
+        return os.path.join(self.skeleton_dir, panel_fname)
 
     def remove_temporary_files(self):
         os.remove(self.ctx_tmp_filepath)
