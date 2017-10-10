@@ -2,6 +2,7 @@ from __future__ import print_function
 
 
 import os
+import sys
 import subprocess
 import logging
 import tempfile
@@ -10,6 +11,32 @@ logger = logging.getLogger(__name__)
 
 
 class McCortexRunner(object):
+
+    @property
+    def mccortex31_path(self):
+        if not hasattr(self, '_mccortex31_path'):
+            logger.error('mccortex31_path attribute used before setter called')
+            exit(-1)
+        return self._mccortex31_path
+
+    @mccortex31_path.setter
+    def mccortex31_path(self, suggested_fpath):
+        logger.debug('Setting path to mccortex exacutable')
+        if os.path.isfile(suggested_fpath):
+            logger.debug('Suggested path to mccortex exacutable is valid: %s', suggested_fpath)
+            self._mccortex31_path = suggested_fpath
+            return
+        
+        logger.debug('Suggested path to mccortex exacutable is invalid: %s', suggested_fpath)
+        fallback_path = os.path.join(os.path.dirname(sys.argv[0]), 'mccortex31')
+        logger.debug('Checking fallback mccortex exacutable file path: %s', fallback_path)
+
+        if not os.path.isfile(fallback_path):
+            logger.debug('Fallback mccortex exacutable file path invalid: %s', fallback_path)
+            exit(-1)
+
+        logger.debug('Valid path to mccortex exacutable found: %s', fallback_path)
+        self._mccortex31_path = fallback_path
 
     def __init__(self, mccortex31_path):
         self.mccortex31_path = mccortex31_path
@@ -132,7 +159,7 @@ class McCortexGenoRunner(McCortexRunner):
             tmp_dir='tmp/',
             skeleton_dir='data/skeletons/',
             mccortex31_path="mccortex31"):
-        super(McCortexRunner, self).__init__()
+        super(McCortexGenoRunner, self).__init__(mccortex31_path)
         self.sample = sample
         self.panels = panels
         self.seq = seq
@@ -144,7 +171,6 @@ class McCortexGenoRunner(McCortexRunner):
         self.threads = threads
         self.memory = memory
         self.skeleton_dir = skeleton_dir
-        self.mccortex31_path = mccortex31_path
         if self.seq and self.ctx:
             raise ValueError("Can't have both -1 and -c")
 
@@ -181,6 +207,7 @@ class McCortexGenoRunner(McCortexRunner):
                    "-k",
                    str(self.kmer)] + seq_list + [self.ctx_skeleton_filepath]
             # print (cmd)
+            logger.debug('Executing command:\n%s', cmd)
             subprocess.check_output(cmd)
 
     def _create_sequence_list(self):
