@@ -272,7 +272,7 @@ class Genotyper(object):
             variant_confidence_threshold=1,
             sequence_confidence_threshold=0,
             min_gene_percent_covg_threshold=100,
-            model="depth"):
+            model="median_depth"):
         self.sample = sample
         self.variant_covgs = variant_covgs
         self.gene_presence_covgs = gene_presence_covgs

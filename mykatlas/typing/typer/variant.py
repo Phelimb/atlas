@@ -48,7 +48,7 @@ class VariantTyper(Typer):
         self.error_rate = error_rate
         self.minor_freq = minor_freq
 
-        if model == "depth":
+        if model == "median_depth":
             self.model = DepthCoverageGenotypeModel(
                 self.expected_depths, self.contamination_depths, self.error_rate, self.minor_freq)
         elif model == "kmer_count":
