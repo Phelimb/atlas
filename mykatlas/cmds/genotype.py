@@ -16,6 +16,7 @@ def run_main(parser, args):
     if args.ont:
         args.expected_error_rate = 0.15
         args.filters = ["LOW_GT_CONF"]
+        args.model = "kmer_count"
         logger.debug("Setting expected error rate to %s (--ont)" %
                      args.expected_error_rate)
         logger.debug(

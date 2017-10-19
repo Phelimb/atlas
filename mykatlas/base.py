@@ -120,8 +120,8 @@ genotyping_mixin.add_argument(
     metavar='model',
     choices=['median_depth', 'kmer_count'],
     type=str,
-    help='Model used, default kmer_count. Options kmer_count, median_depth',
-    default='kmer_count')
+    help='Genotype model used, default median_depth. Options kmer_count, median_depth',
+    default='median_depth')
 genotyping_mixin.add_argument(
     '--filters',
     help="don't include filtered genotypes",
