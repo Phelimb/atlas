@@ -1,11 +1,11 @@
 from __future__ import print_function
-
-
 import os
+import sys
 import subprocess
 import logging
 import tempfile
-logging.basicConfig(level=logging.DEBUG)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -13,6 +13,32 @@ class McCortexRunner(object):
 
     def __init__(self, mccortex31_path):
         self.mccortex31_path = mccortex31_path
+
+    @property
+    def mccortex31_path(self):
+        if not hasattr(self, '_mccortex31_path'):
+            logger.error('mccortex31_path attribute used before setter called')
+            exit(-1)
+        return self._mccortex31_path
+
+    @mccortex31_path.setter
+    def mccortex31_path(self, suggested_fpath):
+        logger.debug('Setting path to mccortex exacutable')
+        if os.path.isfile(suggested_fpath):
+            logger.debug('Suggested path to mccortex exacutable is valid: %s', suggested_fpath)
+            self._mccortex31_path = suggested_fpath
+            return
+        
+        logger.debug('Suggested path to mccortex exacutable is invalid: %s', suggested_fpath)
+        fallback_path = os.path.join(os.path.dirname(sys.argv[0]), 'mccortex31')
+        logger.debug('Checking fallback mccortex exacutable file path: %s', fallback_path)
+
+        if not os.path.isfile(fallback_path):
+            logger.debug('Fallback mccortex exacutable file path invalid: %s', fallback_path)
+            exit(-1)
+
+        logger.debug('Valid path to mccortex exacutable found: %s', fallback_path)
+        self._mccortex31_path = fallback_path
 
 
 class McCortexJoin(McCortexRunner):
@@ -132,7 +158,7 @@ class McCortexGenoRunner(McCortexRunner):
             tmp_dir='tmp/',
             skeleton_dir='data/skeletons/',
             mccortex31_path="mccortex31"):
-        super(McCortexRunner, self).__init__()
+        super(McCortexGenoRunner, self).__init__(mccortex31_path)
         self.sample = sample
         self.panels = panels
         self.seq = seq
@@ -144,7 +170,6 @@ class McCortexGenoRunner(McCortexRunner):
         self.threads = threads
         self.memory = memory
         self.skeleton_dir = skeleton_dir
-        self.mccortex31_path = mccortex31_path
         if self.seq and self.ctx:
             raise ValueError("Can't have both -1 and -c")
 
@@ -152,6 +177,9 @@ class McCortexGenoRunner(McCortexRunner):
         if self.force or not os.path.exists(self.covg_tmp_file_path):
             self._check_panels()
             self._run_cortex()
+        else:
+            logger.warning('Not running mccortex. '
+                           'Force flag is false or coverage tempoary file exists')
 
     def _check_panels(self):
         # If panel does not exists then build it
@@ -180,7 +208,7 @@ class McCortexGenoRunner(McCortexRunner):
                    "-t", "%i" % self.threads,
                    "-k",
                    str(self.kmer)] + seq_list + [self.ctx_skeleton_filepath]
-            # print (cmd)
+            logger.debug('Executing command:\n%s', cmd)
             subprocess.check_output(cmd)
 
     def _create_sequence_list(self):
@@ -190,6 +218,27 @@ class McCortexGenoRunner(McCortexRunner):
             seq_list.extend(["-1", panel.filepath])
         return seq_list
 
+    @staticmethod
+    def _execute_command(command):
+        process = subprocess.Popen(command,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+
+        # Poll for new stdout
+        while True:
+            nextline = process.stdout.readline()
+            if nextline == '' and process.poll() is not None:
+                break
+            sys.stdout.write(nextline)
+            sys.stdout.flush()
+
+        output = process.communicate()[0]
+        exit_code = process.returncode
+        if exit_code == 0:
+            return output
+        else:
+            raise subprocess.CalledProcessError
+
     def _run_coverage_if_required(self):
         if not os.path.exists(
                 self.ctx_tmp_filepath) or not os.path.exists(
@@ -198,16 +247,21 @@ class McCortexGenoRunner(McCortexRunner):
                 os.remove(self.ctx_tmp_filepath)
             if os.path.exists(self.covg_tmp_file_path):
                 os.remove(self.covg_tmp_file_path)
-            logger.debug("running %s" % " ".join(self.coverages_cmd))
+
+            logger.debug('Running coverages command:\n%s',
+                         ' '.join(self.coverages_cmd))
             try:
-                subprocess.check_output(self.coverages_cmd)
+                self._execute_command(self.coverages_cmd)
             except subprocess.CalledProcessError:
-                raise ValueError(
-                    "mccortex31 raised an error. Is it on PATH? check by running `mccortex31 geno`. The command that through the error was `%s`  " % subprocess.list2cmdline(self.coverages_cmd))
+                command = subprocess.list2cmdline(self.coverages_cmd)
+                exception_message = \
+                    'mccortex31 raised an error. ' \
+                    'Is it on PATH? check by running `mccortex31 geno`. ' \
+                    'The command that through the error was `%s` ' % command
+                raise ValueError(exception_message)
         else:
-            # print "Warning: Using pre-built binaries. Run with --force if
-            # panel has been updated."
-            pass
+            logger.warning('Using pre-built binaries. Run with --force if '
+                           'panel has been updated.')
 
     @property
     def coverages_cmd(self):
@@ -220,7 +274,10 @@ class McCortexGenoRunner(McCortexRunner):
 
     @property
     def base_geno_command(self):
-        return [self.mccortex31_path, "geno", "-q", "-t", "%i" % self.threads,
+        return [self.mccortex31_path,
+                "geno",
+                "-t",
+                "%i" % self.threads,
                 "-m %s" % self.memory,
                 "-k", str(self.kmer),
                 "-o", self.covg_tmp_file_path]

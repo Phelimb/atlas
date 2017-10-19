@@ -1,16 +1,19 @@
 #! /usr/bin/env python
 from __future__ import print_function
-import sys
 import os
+import sys
+import logging
 import argparse
+
+
 sys.path.append(
     os.path.realpath(
         os.path.join(
             os.path.dirname(__file__),
             "..")))
-from mykatlas.version import __version__
-import logging
 
+
+from mykatlas.version import __version__
 from mykatlas.base import ArgumentParserWithDefaults
 from mykatlas.base import DEFAULT_DB_NAME
 from mykatlas.base import sequence_parser_mixin
@@ -18,6 +21,10 @@ from mykatlas.base import sequence_or_binary_parser_mixin
 from mykatlas.base import probe_set_mixin
 from mykatlas.base import force_mixin
 from mykatlas.base import genotyping_mixin
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 DEFAULT_KMER_SIZE = os.environ.get("KMER_SIZE", 31)
 
