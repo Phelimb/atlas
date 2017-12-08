@@ -4,7 +4,7 @@ import os
 import sys
 import logging
 from mongoengine import connect
-from mongoengine.connection import ConnectionError
+from mongoengine.connection import MongoEngineConnectionError
 from mongoengine import DoesNotExist
 from mongoengine import NotUniqueError
 
@@ -36,7 +36,7 @@ def run(parser, args):
             Variant.objects()
             logging.info(
                 "Connected to atlas-%s" % (args.db_name))
-        except (ServerSelectionTimeoutError, ConnectionError):
+        except (ServerSelectionTimeoutError, MongoEngineConnectionError):
             DB = None
             logging.warning(
                 "Could not connect to database. Continuing without using genetic backgrounds")
