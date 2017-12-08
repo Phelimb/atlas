@@ -1,8 +1,9 @@
-future
-Biopython
-redis
-mongoengine
-pyvcf
-ga4ghmongo
-pytest
-
+PyVCF==0.6.8
+biopython==1.68
+ete2==2.3.10
+future==0.15.2
+ga4ghmongo==0.0.1.2
+mongoengine==0.10.6
+pymongo==3.3.0
+redis==2.10.5
+wsgiref==0.1.2
