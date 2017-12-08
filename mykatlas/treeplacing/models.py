@@ -181,7 +181,7 @@ class Placer(object):
         logger.info("Extracting genotypes for query and DB")
         for sample in self.searchable_samples:
             diff_count = 0
-            if str(sample) != str(query_sample) and r.get(
+            if r.get(
                     "%s_atlas_gt" % sample):
                 XOR_KEY = "XOR_%s_%s_atlas_gt" % (query_sample, sample)
                 XOR_AND_KEY = XOR_KEY + "_filtered"
@@ -196,9 +196,9 @@ class Placer(object):
                     "AND",
                     XOR_AND_KEY,
                     XOR_KEY,
-                    "%s_atlas_conf" %
+                    "%s_atlas_pass" %
                     sample,
-                    "%s_atlas_conf" %
+                    "%s_atlas_pass" %
                     query_sample)
                 diff_count = r.bitcount(XOR_AND_KEY)
                 sample_to_distance_metrics[sample] = {}

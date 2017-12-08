@@ -41,8 +41,8 @@ class AtlasGenotypeResult(object):
 
         bitmap = self._create_genotype_bitmap(self.data["genotypes"])
         self._insert_bitmap(bitmap, name="gt")
-        bitmap = self._create_filtered_bitmap(self.data["filtered"])
-        self._insert_bitmap(bitmap, name="filtered")
+        bitmap = self._create_filtered_bitmap(self.data["passing"])
+        self._insert_bitmap(bitmap, name="pass")
 
     def _insert_bitmap(self, bitmap, name=""):
         pipe = r.pipeline()
@@ -66,7 +66,7 @@ class AtlasGenotypeResult(object):
 
     def _create_filtered_bitmap(self, sorted_calls):
         # bitmap = [int(call[1]["info"]["conf"] > 1) for call in sorted_calls]
-        return sorted_calls
+        return sorted_calls#[not i for i in sorted_calls]
 
     @property
     def call_set_name(self):

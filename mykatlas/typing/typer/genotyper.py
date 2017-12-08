@@ -306,7 +306,7 @@ class Genotyper(object):
                 self.variant_calls_dict[
                     probe_id] = call
         self.out_json[self.sample]["genotypes"] = genotypes
-        self.out_json[self.sample]["filtered"] = filters
+        self.out_json[self.sample]["passing"] = filters
         self.out_json[self.sample]["variant_calls"] = self.variant_calls_dict
 
     def _name_to_id(self, probe_name):
